@@ -6,3 +6,4 @@ openpyxl
 Flask
 plotly
 dash
+dash-bootstrap-components

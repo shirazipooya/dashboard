@@ -1,14 +1,15 @@
+
 @font-face {
-    font-family: "Sahel-FD";
-    src: url("../fonts/Sahel-FD.eot");
-    src: url("../fonts/Sahel-FD.woff2") format("woff2"),
-      url("../fonts/Sahel-FD.woff") format("woff"),
-      url("../fonts/Sahel-FD.ttf") format("truetype");
-    font-weight: normal;
+  font-family: "Vazir-Regular-FD";
+  src: url("../fonts/Vazir-Regular-FD.eot");
+  src: url("../fonts/Vazir-Regular-FD.woff2") format("woff2"),
+    url("../fonts/Vazir-Regular-FD.woff") format("woff"),
+    url("../fonts/Vazir-Regular-FD.ttf") format("truetype");
+  font-weight: normal;
 }
 
 body {
-    font-family: "Sahel-FD";
+    font-family: "Vazir-Regular-FD";
     padding-top: 56px;
     direction: rtl;
     text-align: right;

@@ -1,0 +1,188 @@
+{% extends '__base.html' %} {% block content %}
+
+<!-- Jumbotron Header -->
+<div
+  class="
+    row
+    text-center
+    justify-content-center
+    animate__animated animate__fadeIn animate__delay
+  "
+>
+  <div class="col-lg-9 col-md-12 col-sm-12">
+    <header class="jumbotron mt-3 mb-1 py-2 transitionCard bg-color-LightGray">
+      <h2 class="font-weight-bold text-center text-dark">
+        پالایش و اصلاح داده‌ها
+      </h2>
+    </header>
+  </div>
+</div>
+
+<div class="row mt-2 text-center justify-content-center">
+
+
+  <div
+    class="
+      col-xl-2 col-lg-4 col-md-6 col-sm-6
+      my-2
+      animate__animated animate__fadeIn animate__delay
+    "
+  >
+    <div class="card h-100 transitionCard border border-secondary">
+      <div class="card-header bg-dark text-white">گام اول</div>
+      <img src="{{ url_for('static', filename='images/Excel_Database.png') }}" class="d-block w-100" alt="...">
+      <div class="card-body border-top border-dark">
+        <h4 class="card-title font-weight-bold text-dark">فراخوانی داده‌ها</h4>
+      </div>
+      <div class="card-footer bg-color-LightGray">
+        <a
+          href="{{ url_for('groundWater_dataCleansing_dataEntry') }}"
+          target="_blank"
+          id="btn"
+          class="
+            btn btn-dark btn-lg btn-block
+            w-50
+            m-auto
+            btn-secondary-hover
+          "
+        >
+          ورود
+        </a>
+      </div>
+    </div>
+  </div>
+
+
+  <div
+    class="
+      col-xl-2 col-lg-4 col-md-6 col-sm-6
+      my-2
+      animate__animated animate__fadeIn animate__delay
+    "
+  >
+    <div class="card h-100 transitionCard border border-secondary">
+      <div class="card-header bg-dark text-white">گام دوم</div>
+      <img src="{{ url_for('static', filename='images/Detect_Outliers.png') }}" class="d-block w-100" alt="...">
+      <div class="card-body border-top border-dark">
+        <h4 class="card-title font-weight-bold text-dark">شناسایی داده‌های پرت</h4>
+      </div>
+      <div class="card-footer bg-color-LightGray">
+        <a
+          href="{{ url_for('groundwater_dataCleansing') }}"
+          target="_blank"
+          id="btn"
+          class="
+            btn btn-dark btn-lg btn-block
+            w-50
+            m-auto
+            btn-secondary-hover
+          "
+        >
+          ورود
+        </a>
+      </div>
+    </div>
+  </div>
+
+
+  <div
+    class="
+      col-xl-2 col-lg-4 col-md-6 col-sm-6
+      my-2
+      animate__animated animate__fadeIn animate__delay
+    "
+  >
+    <div class="card h-100 transitionCard border border-secondary">
+      <div class="card-header bg-dark text-white">گام سوم</div>
+      <img src="{{ url_for('static', filename='images/Missing_Data.png') }}" class="d-block w-100" alt="...">
+      <div class="card-body border-top border-dark">
+        <h4 class="card-title font-weight-bold text-dark">بازسازی داده‌های گمشده</h4>
+      </div>
+      <div class="card-footer bg-color-LightGray">
+        <a
+          href="{{ url_for('groundwater_dataCleansing') }}"
+          target="_blank"
+          id="btn"
+          class="
+            btn btn-dark btn-lg btn-block
+            w-50
+            m-auto
+            btn-secondary-hover
+          "
+        >
+          ورود
+        </a>
+      </div>
+    </div>
+  </div> 
+
+
+  <div
+    class="
+      col-xl-2 col-lg-4 col-md-6 col-sm-6
+      my-2
+      animate__animated animate__fadeIn animate__delay
+    "
+  >
+    <div class="card h-100 transitionCard border border-secondary">
+      <div class="card-header bg-dark text-white">گام چهارم</div>
+      <img src="{{ url_for('static', filename='images/Sync_Date.png') }}" class="d-block w-100" alt="...">
+      <div class="card-body border-top border-dark">
+        <h4 class="card-title font-weight-bold text-dark">هماهنگ‌سازی تاریخ</h4>
+      </div>
+      <div class="card-footer bg-color-LightGray">
+        <a
+          href="{{ url_for('groundwater_dataCleansing') }}"
+          target="_blank"
+          id="btn"
+          class="
+            btn btn-dark btn-lg btn-block
+            w-50
+            m-auto
+            btn-secondary-hover
+          "
+        >
+          ورود
+        </a>
+      </div>
+    </div>
+  </div> 
+
+
+  <div
+    class="
+      col-xl-2 col-lg-4 col-md-6 col-sm-6
+      my-2
+      animate__animated animate__fadeIn animate__delay
+    "
+  >
+    <div class="card h-100 transitionCard border border-secondary">
+      <div class="card-header bg-dark text-white">گام پنجم</div>
+      <img src="{{ url_for('static', filename='images/Data_Extend.png') }}" class="d-block w-100" alt="...">
+      <div class="card-body border-top border-dark">
+        <h4 class="card-title font-weight-bold text-dark">بسط داده‌ها</h4>
+      </div>
+      <div class="card-footer bg-color-LightGray">
+        <a
+          href="{{ url_for('groundwater_dataCleansing') }}"
+          target="_blank"
+          id="btn"
+          class="
+            btn btn-dark btn-lg btn-block
+            w-50
+            m-auto
+            btn-secondary-hover
+          "
+        >
+          ورود
+        </a>
+      </div>
+    </div>
+  </div> 
+
+  
+</div>
+
+
+
+{% endblock content %}

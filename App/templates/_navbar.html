@@ -2,9 +2,50 @@
   <div class="container-fluid w-90">
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav ml-auto pr-4">
+        
         <li class="nav-item active">
           <a class="nav-link navbar-brand link-hover" href="{{ url_for('home') }}">خانه</a>
         </li>
+
+        <li class="nav-item dropdown">
+          <a class="nav-link navbar-brand dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            آب زیرزمینی
+          </a>
+          <div dir="ltr">
+            <ul class="dropdown-menu dropdown-menu-dark" style="text-align:end;">
+              <li><a class="dropdown-item" href="{{url_for('groundwater_dataCleansing')}}">پالایش و اصلاح داده‌ها</a></li>
+              <li><a class="dropdown-item" href="#">محاسبات هیدروگراف</a></li>
+              <li><a class="dropdown-item" href="{{url_for('groundwater_dataVisualization')}}">مصورسازی داده‌ها</a></li>
+            </ul>
+          </div>
+        </li>
+
+        <li class="nav-item dropdown">
+          <a class="nav-link navbar-brand dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            آب سطحی
+          </a>
+          <!-- <div dir="ltr">
+            <ul class="dropdown-menu dropdown-menu-dark " style="text-align:end;">
+              <li><a class="dropdown-item navbar-brand" href="#">آب زیرزمینی</a></li>
+              <li><a class="dropdown-item navbar-brand" href="#">آب سطحی</a></li>
+              <li><a class="dropdown-item navbar-brand" href="#">پایش کیفی</a></li>
+            </ul>
+          </div> -->
+        </li>
+
+        <li class="nav-item dropdown">
+          <a class="nav-link navbar-brand dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            پایش کیفی
+          </a>
+          <!-- <div dir="ltr">
+            <ul class="dropdown-menu dropdown-menu-dark " style="text-align:end;">
+              <li><a class="dropdown-item navbar-brand" href="#">آب زیرزمینی</a></li>
+              <li><a class="dropdown-item navbar-brand" href="#">آب سطحی</a></li>
+              <li><a class="dropdown-item navbar-brand" href="#">پایش کیفی</a></li>
+            </ul>
+          </div> -->
+        </li>
+
       </ul>
     </div>
     <a class="navbar-brand mr-auto pl-4" href="http://www.khrw.ir/">شرکت سهامی آب منطقه‌ای خراسان رضوی</a>
