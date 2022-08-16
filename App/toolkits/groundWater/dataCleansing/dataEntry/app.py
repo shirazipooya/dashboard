@@ -1,5 +1,6 @@
 import dash
 import dash_bootstrap_components as dbc
+from dash_extensions.enrich import DashProxy, MultiplexerTransform, LogTransform
 
 from .callbacks.callbacks import toolkits__groundWater__dataCleansing__dataEntry__callbacks
 from .layouts import layout
@@ -20,7 +21,8 @@ external_scripts=[
 
 def toolkits__groundWater__dataCleansing__dataEntry(server):
     
-    toolkits__groundWater__dataCleansing__dataEntry__app = dash.Dash(
+    toolkits__groundWater__dataCleansing__dataEntry__app = DashProxy(
+        transforms=[MultiplexerTransform(), LogTransform()],
         name="toolkit__dataEntry__dataCleansing__groundWater",
         server=server,
         url_base_pathname="/groundwater/dataCleansing/dataEntry/",

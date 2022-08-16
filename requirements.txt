@@ -7,3 +7,10 @@ Flask
 plotly
 dash
 dash-bootstrap-components
+dash-extensions
+dash-mantine-components
+dash-iconify
+psycopg2
+psycopg2-binary
+SQLAlchemy
+GeoAlchemy2

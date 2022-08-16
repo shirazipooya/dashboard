@@ -9,8 +9,66 @@
 }
 
 body {
-    font-family: "Vazir-Regular-FD";
-    padding-top: 56px;
-    direction: rtl;
-    text-align: right;
+  font-family: "Vazir-Regular-FD";
+  direction: rtl;
+  text-align: right;
+}
+
+.upload {
+  width: 100%;
+  height: 60px;
+  line-height: 60px;
+  border-width: 1px;
+  border-style: dashed;
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
+}
+
+a.disabled {
+  pointer-events: none;
+  cursor: default;
+}
+
+.h-body {
+  height: calc(100vh - 56px);
+}
+
+.select_file_button {
+  width: 60%;
+  height: 40px;
+  line-height: 40px;
+  border-width: 1px;
+  border-style: dashed;
+  border-radius: 5px;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.mantine-hgwlez.mantine-Accordion-label {
+  direction: rtl;
+  text-align: right;
+  font-family: "Vazir-Regular-FD"
+}
+
+.mantine-10o5s20.mantine-Accordion-contentInner {
+  background-color: white;
+  font-family: "Vazir-Regular-FD";
+  border: 1px solid darkgray;
+}
+
+.mantine-Text-root.mantine-Notification-description.mantine-jtv1k6 {
+  direction: rtl;
+  text-align: right;
+  font-family: "Vazir-Regular-FD";
+  font-size: large;
+}
+
+.mantine-Text-root.mantine-Notification-title.mantine-10eez5h {
+  direction: rtl;
+  text-align: right;
+  font-family: "Vazir-Regular-FD";
+  font-size:medium;
+  padding-bottom: 8px;
 }

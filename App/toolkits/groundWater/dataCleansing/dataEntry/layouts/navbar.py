@@ -3,7 +3,10 @@ import dash_bootstrap_components as dbc
 
 
 navbar = html.Nav(
-    className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top",
+    className="navbar navbar-expand-lg navbar-dark bg-dark",
+    style={
+        "height": "56px"
+    },
     children=[
         html.Div(
             className="container-fluid w-90",
@@ -39,7 +42,7 @@ navbar = html.Nav(
                                     className='nav-item active', 
                                     children=[
                                         html.A(
-                                            className='nav-link navbar-brand link-hover text-white', 
+                                            className='disabled nav-link navbar-brand link-hover text-muted', 
                                             children="آب سطحی",
                                             href='/',
                                         )
@@ -49,7 +52,7 @@ navbar = html.Nav(
                                     className='nav-item active', 
                                     children=[
                                         html.A(
-                                            className='nav-link navbar-brand link-hover text-white', 
+                                            className='disabled nav-link navbar-brand link-hover text-muted', 
                                             children="پایش کیفی",
                                             href='/',
                                         )
