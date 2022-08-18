@@ -1,6 +1,5 @@
 from flask import render_template
 from App import app
-from flask import render_template
 
 @app.route("/")
 def home():
@@ -32,4 +31,9 @@ def groundwater_dataVisualization():
 
 @app.route('/groundwater/dataCleansing/dataEntry')
 def groundWater_dataCleansing_dataEntry():
+    return app.index()
+
+
+@app.route('/groundwater/dataCleansing/detectOutliers')
+def groundWater_dataCleansing_detectOutliers():
     return app.index()

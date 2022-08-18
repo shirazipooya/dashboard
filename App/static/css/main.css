@@ -77,3 +77,8 @@ a.disabled {
 div.cell.cell-1-1.dash-fixed-content {
   margin-left: 0 !important;
 }
+
+.mantine-10o5s20.mantine-Accordion-contentInner {
+  padding: 0 !important;
+  margin: 0 !important;
+}

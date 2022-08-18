@@ -1,8 +1,7 @@
-import dash
 import dash_bootstrap_components as dbc
 from dash_extensions.enrich import DashProxy, MultiplexerTransform, LogTransform
 
-from .callbacks.callbacks import toolkits__groundWater__dataCleansing__dataEntry__callbacks
+from .callbacks.callbacks import toolkits__groundWater__dataCleansing__detectOutliers__callbacks
 from .layouts import layout
 
 external_stylesheets=[
@@ -20,22 +19,22 @@ external_scripts=[
     "/static/vendor/bootstrap/v5.2.0/js/bootstrap.min.js",
 ]
 
-def toolkits__groundWater__dataCleansing__dataEntry(server):
+def toolkits__groundWater__dataCleansing__detectOutliers(server):
     
-    toolkits__groundWater__dataCleansing__dataEntry__app = DashProxy(
+    toolkits__groundWater__dataCleansing__detectOutliers__app = DashProxy(
         transforms=[MultiplexerTransform(), LogTransform()],
-        name="toolkits__groundWater__dataCleansing__dataEntry",
+        name="toolkits__groundWater__dataCleansing__detectOutliers",
         server=server,
-        url_base_pathname="/groundwater/dataCleansing/dataEntry/",
+        url_base_pathname="/groundwater/dataCleansing/detectOutliers/",
         external_stylesheets=external_stylesheets,
         external_scripts=external_scripts,
-        title='فراخوانی داده‌ها',
+        title='شناسایی داده‌های پرت',
         prevent_initial_callbacks=True,
         suppress_callback_exceptions=True
     )
     
-    toolkits__groundWater__dataCleansing__dataEntry__app.layout = layout()
+    toolkits__groundWater__dataCleansing__detectOutliers__app.layout = layout()
     
-    toolkits__groundWater__dataCleansing__dataEntry__callbacks(app=toolkits__groundWater__dataCleansing__dataEntry__app)
+    toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app=toolkits__groundWater__dataCleansing__detectOutliers__app)
     
-    return toolkits__groundWater__dataCleansing__dataEntry__app
+    return toolkits__groundWater__dataCleansing__detectOutliers__app
