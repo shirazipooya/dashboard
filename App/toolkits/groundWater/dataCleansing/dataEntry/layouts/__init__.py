@@ -38,7 +38,10 @@ def layout():
                             html.Div(
                                 className='col-9 m-0 p-3',
                                 children=[
-                                    body
+                                    dmc.LoadingOverlay(
+                                        children = body,
+                                        loaderProps={"variant": "dots", "color": "orange", "size": "xl"},
+                                    )
                                 ]
                             ),
                         ],

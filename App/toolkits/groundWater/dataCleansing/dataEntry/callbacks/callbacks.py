@@ -7,9 +7,8 @@ from dash.exceptions import PreventUpdate
 from dash_extensions.enrich import DashLogger
 import dash_mantine_components as dmc
 from dash_iconify import DashIconify
-
+import dash_datatables as ddt
 from . import *
-
 
 def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
     
@@ -29,18 +28,7 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
                 sql=f"SELECT * FROM geoinfo",
                 con=engine
             )
-            
-            return [
-                dbc.Table.from_dataframe(
-                    df,
-                    striped=True,
-                    bordered=True,
-                    hover=True,
-                    index=True
-                ),
-                0,
-                0
-            ]
+
         elif n2:
             
             df = pd.read_sql_query(
@@ -48,23 +36,58 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
                 con=engine
             )
             
-            return [
-                dbc.Table.from_dataframe(
-                    df,
-                    striped=True,
-                    bordered=True,
-                    hover=True,
-                    index=True
-                ),
-                0,
-                0
+        table = dash_table.DataTable(
+            columns=[
+                {"name": i, "id": i} for i in df.columns
+            ],
+            data=df.to_dict('records'),
+            filter_action="native",
+            sort_action="native",
+            sort_mode="multi",
+            sort_by=[
+                {"column_id": "MAHDOUDE_NAME", "direction": "asc"},
+                {"column_id": "AQUIFER_NAME", "direction": "asc"},
+                {"column_id": "LOCATION_NAME", "direction": "asc"},
+            ],
+            page_size=14,
+            style_as_list_view=True,
+            style_table={
+                'overflowX': 'auto',
+                'overflowY': 'auto',
+                'direction': 'rtl',
+            },
+            style_cell={
+                'font-family': "Vazir-Regular-FD",
+                'border': '1px solid grey',
+                'font-size': '14px',
+                'text_align': 'center',
+                'minWidth': 150,
+                'maxWidth': 200,
+            },
+            style_header={
+                'backgroundColor': 'rgb(210, 210, 210)',
+                'border':'1px solid grey',
+                'fontWeight': 'bold',
+                'text_align': 'center',
+                'height': 'auto',
+            },
+            style_data={
+                'color': 'black',
+                'backgroundColor': 'white'
+            },
+            style_data_conditional=[
+                {
+                    'if': {'row_index': 'odd'},
+                    'backgroundColor': 'rgb(245, 245, 245)',
+                }
             ]
-        else:
-            return [
-                PreventUpdate,
-                0,
-                0
-            ]
+        )
+            
+        return [
+            table,
+            0,
+            0
+        ]
 
     
     @app.callback(

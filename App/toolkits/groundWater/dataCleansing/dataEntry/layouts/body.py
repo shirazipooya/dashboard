@@ -13,7 +13,6 @@ body = html.Div(
                         dbc.Button(
                             id='GEOINFO_TABLE_BUTTON',
                             className="w-50",
-                            size="lg",
                             children='نمایش جدول مشخصات', 
                             color='dark',
                             n_clicks=0
@@ -26,7 +25,6 @@ body = html.Div(
                         dbc.Button(
                             id='RAW_DATA_TABLE_BUTTON',
                             className="w-50",
-                            size="lg",
                             children='نمایش جدول داده‌ها', 
                             color='dark',
                             n_clicks=0
@@ -37,11 +35,12 @@ body = html.Div(
         ),
         html.Div(
             # id='TABLE',
-            className='row p-5 m-0',
+            className='row py-3 px-1 m-0',
             children=[
                 html.Div(
                     id='TABLE',
                     className='col p-0 m-0 w-100',
+                    dir="rtl"
                 )
             ]
         ),

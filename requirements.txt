@@ -10,6 +10,7 @@ dash-bootstrap-components
 dash-extensions
 dash-mantine-components
 dash-iconify
+dash-datatables
 psycopg2
 psycopg2-binary
 SQLAlchemy

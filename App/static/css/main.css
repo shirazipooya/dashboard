@@ -72,3 +72,8 @@ a.disabled {
   font-size:medium;
   padding-bottom: 8px;
 }
+
+/* Fixed Table Size */
+div.cell.cell-1-1.dash-fixed-content {
+  margin-left: 0 !important;
+}

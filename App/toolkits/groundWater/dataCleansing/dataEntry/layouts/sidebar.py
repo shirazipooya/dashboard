@@ -31,8 +31,7 @@ upload_file = html.Div(
             children=[
                 html.A(
                     children=["دانلود نمونه فایل ورودی"],
-                    download="HydrographDataTemplate.xlsx",
-                    href='./Assets/Files/HydrographDataTemplate.xlsx'
+                    href='HydrographDataTemplate.xlsx'
                 )
             ],
         )
