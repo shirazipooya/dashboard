@@ -21,7 +21,7 @@ upload_file = html.Div(
             children=[
                 "فایلی انتخاب نشده است!"
             ],
-            className='text-center py-4',
+            className='text-center pt-2 text-danger',
         ),
         dmc.Divider(
             variant="dashed",
@@ -115,67 +115,170 @@ database_modify = html.Div(
     ]
 )
 
+upload_shapefile = html.Div(
+    className='form-group p-3', 
+    children=[
+        dcc.Upload(
+            id="SELECT_SHAPEFILE",
+            accept=".zip",
+            children=[
+                html.A('انتخاب فایل')
+            ], 
+            className="select_file_button"
+        ),
+        html.Div(
+            id='SELECT_SHAPEFILE_NAME',
+            children=[
+                "فایلی انتخاب نشده است!"
+            ],
+            className='text-center pt-2 text-danger',
+        )
+    ]
+)
+
+
+shapefile_type = html.Div(
+    className='form-group p-3 text-center', 
+    children=[
+        dcc.Dropdown(
+            id='SHAPEFILE_TYPE', 
+            className="w-100",
+            placeholder='لطفا یک مورد انتخاب گردد',
+            options=[
+                {'label': 'چاه‌های مشاهده‌ای', 'value': 'well'},
+                {'label': 'آبخوان‌ها', 'value': 'aquifer'},
+                {'label': 'محدوده‌های مطالعاتی', 'value': 'study_area'},
+            ],
+        ) 
+    ]
+)
+
+
+geodatabase_modify = html.Div(
+    className='form-group p-3', 
+    children=[
+        dcc.RadioItems(
+            id='GEODATABASE_MODIFY', 
+            value='append',
+            options=[
+                {'label': 'جایگزینی با پایگاه داده موجود', 'value': 'replace'},
+                {'label': 'به‌روزرسانی پایگاه داده موجود', 'value': 'append'},
+            ],
+            inputClassName="mx-2",
+            labelClassName="my-2",
+            labelStyle={'display': 'block'},
+        ) 
+    ]
+)
+
 
 sidebar = html.Div(
     className="m-0 p-0",
     children=[
-        html.H5(
-            children="فراخوانی داده‌ها",
-            className="text-center p-2"
+        html.Div(
+            children=[
+                html.H5(
+                    children="مرحله اول: فراخوانی داده‌ها",
+                    className="text-center p-2"
+                ),                
+                dmc.Divider(
+                    variant="solid",
+                    class_name="pb-3",
+                    size="md"
+                ),  
+                dmc.Accordion(
+                    class_name="bg-light my-rtl",
+                    iconPosition="right",
+                    children=[
+                        dmc.AccordionItem(
+                            children=[
+                                upload_file,
+                            ],
+                            label="گام 1: انتخاب فایل صفحه گسترده",
+                        ),
+                        dmc.AccordionItem(
+                            children=[
+                                select_worksheet
+                            ],
+                            label="گام 2: انتخاب کاربرگ",
+                            
+                        ),
+                        dmc.AccordionItem(
+                            children=[
+                                database_modify
+                            ],
+                            label="گام 3: نحوه تغییرات پایگاه داده",
+                            
+                        )
+                    ],
+                ),
+                html.Div(
+                    className='px-5 py-3 text-center',
+                    children=[
+                        dbc.Button(
+                            id='BUTTON-DATA',
+                            className="me-1 w-25",
+                            size="md",
+                            children='ایجاد', 
+                            color='dark',
+                            n_clicks=0
+                        )
+                    ],
+                ),
+            ]
         ),
         
-        dmc.Divider(
-            variant="solid",
-            class_name="pb-3",
-            size="md"
-        ),  
-        dmc.Accordion(
-            class_name="bg-light my-rtl",
-            iconPosition="right",
-            children=[
-                dmc.AccordionItem(
-                    children=[
-                        upload_file,
-                    ],
-                    label="گام 1: انتخاب فایل صفحه گسترده",
-                ),
-                dmc.AccordionItem(
-                    children=[
-                        select_worksheet
-                    ],
-                    label="گام 2: انتخاب کاربرگ",
-                    
-                ),
-                dmc.AccordionItem(
-                    children=[
-                        select_date_type
-                    ],
-                    label="گام 3: انتخاب فرمت تاریخ",
-                    
-                ),
-                dmc.AccordionItem(
-                    children=[
-                        database_modify
-                    ],
-                    label="گام 4: نحوه تغییرات پایگاه داده",
-                    
-                ),
-            ],
-        ),
-
         html.Div(
-            className='px-5 py-3 text-center',
+            className="form-group p-0 pt-5 m-0",
             children=[
-                dbc.Button(
-                    id='BUTTON',
-                    className="me-1 w-25",
-                    size="md",
-                    children='ایجاد', 
-                    color='dark',
-                    n_clicks=0
-                )
-            ],
-        )
+                html.H5(
+                    children="مرحله دوم: فراخوانی شیپ فایل‌ها",
+                    className="text-center p-2"
+                ),                
+                dmc.Divider(
+                    variant="solid",
+                    class_name="pb-3",
+                    size="md"
+                ),  
+                dmc.Accordion(
+                    class_name="bg-light my-rtl",
+                    iconPosition="right",
+                    children=[
+                        dmc.AccordionItem(
+                            children=[
+                                upload_shapefile
+                            ],
+                            label="گام 1: انتخاب شیپ فایل",
+                        ),
+                        dmc.AccordionItem(
+                            children=[
+                                shapefile_type
+                            ],
+                            label="گام 2: انتخاب نوع شیپ فایل",
+                        ),
+                        dmc.AccordionItem(
+                            children=[
+                                geodatabase_modify
+                            ],
+                            label="گام 3: نحوه تغییرات پایگاه داده",
+                        ),
+                    ],
+                ),
+                html.Div(
+                    className='px-5 py-3 text-center',
+                    children=[
+                        dbc.Button(
+                            id='BUTTON-SHAPEFILES',
+                            className="me-1 w-25",
+                            size="md",
+                            children='ایجاد', 
+                            color='dark',
+                            n_clicks=0
+                        )
+                    ],
+                ),
+            ]
+        ),
 
     ]
 )

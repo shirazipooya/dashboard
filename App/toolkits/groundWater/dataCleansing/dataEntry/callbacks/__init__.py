@@ -1,17 +1,60 @@
 import base64
+import os
 import io
+import shutil
 import pandas as pd
+import geopandas as gpd
+import zipfile
 import psycopg2
 import itertools
 from sqlalchemy import *
 import Assets.jalali as jalali
+import plotly.graph_objects as go
 from App.db import POSTGRES_USER_NAME, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT
 
 PATH_THEMPLATE_FILE = "./Assets/Files/HydrographDataTemplate.xlsx"
 
+PATH_UPLOADED_FILES = "./Assets/Files/Uploaded_Files"
+
 POSTGRES_DB_NAME = "data"
 db = f"postgresql://{POSTGRES_USER_NAME}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB_NAME}"
 engine = create_engine(db, echo=False)
+
+POSTGRES_DB_LAYERS = "layers"
+db_layers = f"postgresql://{POSTGRES_USER_NAME}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB_LAYERS}"
+engine_layers = create_engine(db_layers, echo=False)
+
+
+def read_zip_file(
+    contents,
+    filename,
+    path_uploaded_files,
+):
+    if filename.endswith(".zip"):        
+        content_type, content_string = contents.split(',')
+        decoded = base64.b64decode(content_string)
+        zip_file_str = io.BytesIO(decoded)
+        zip_file = zipfile.ZipFile(zip_file_str, 'r')
+        zip_file.extractall(path_uploaded_files)
+        zip_file.close()
+        
+        for i in os.listdir(path_uploaded_files):
+            if os.path.isdir(f"{path_uploaded_files}/{i}"):
+                for j in os.listdir(f"{path_uploaded_files}/{i}"):
+                    if j.endswith(".shp"):
+                        tmp = gpd.read_file(f"{path_uploaded_files}/{i}/{j}")
+                shutil.rmtree(f"{path_uploaded_files}/{i}")
+            elif i.endswith(".shp"):
+                tmp = gpd.read_file(f"{path_uploaded_files}/{i}")
+        
+        for i in os.listdir(path_uploaded_files):
+            os.remove(f"{path_uploaded_files}/{i}")
+
+        return tmp
+
+
+
+
 
 def read_data_from_spreadsheet(
     contents,
@@ -38,15 +81,15 @@ def create_geoinfo_data_table(
     if_exists
 ):
     geoinfo_data = geoinfo_data[geoinfo_data_column]
-    COLs = ['MAHDOUDE_NAME', 'AQUIFER_NAME', 'LOCATION_NAME']
-    geoinfo_data[COLs].apply(lambda x: x.str.rstrip())
+    COLs = ['MAHDOUDE', 'AQUIFER', 'LOCATION']
+    geoinfo_data[COLs] = geoinfo_data[COLs].apply(lambda x: x.str.rstrip())
     geoinfo_data[COLs] = geoinfo_data[COLs].apply(lambda x: x.str.lstrip())
     geoinfo_data[COLs] = geoinfo_data[COLs].apply(lambda x: x.str.replace('ي','ی'))
     geoinfo_data[COLs] = geoinfo_data[COLs].apply(lambda x: x.str.replace('ئ','ی'))
     geoinfo_data[COLs] = geoinfo_data[COLs].apply(lambda x: x.str.replace('ك', 'ک'))
     
     geoinfo_data = geoinfo_data.drop_duplicates(subset=geoinfo_data_column.difference(['ID'])).sort_values(
-        by=["MAHDOUDE_NAME", "AQUIFER_NAME", "LOCATION_NAME"]
+        by=["MAHDOUDE", "AQUIFER", "LOCATION"]
     ).reset_index(drop=True)
     
     conn = psycopg2.connect(
@@ -79,7 +122,7 @@ def create_geoinfo_data_table(
         geoinfo_data = pd.concat(
             [geoinfo_data_exist, geoinfo_data]
         ).drop_duplicates(subset=geoinfo_data_exist.columns.difference(['ID'])).sort_values(
-            by=["MAHDOUDE_NAME", "AQUIFER_NAME", "LOCATION_NAME"]
+            by=["MAHDOUDE", "AQUIFER", "LOCATION"]
         ).reset_index(drop=True)
         
         geoinfo_data.to_sql(
@@ -88,6 +131,8 @@ def create_geoinfo_data_table(
             if_exists='replace',
             index=False
         )
+    
+
 
 
 def create_raw_data_table(
@@ -96,82 +141,81 @@ def create_raw_data_table(
     table_name,
     raw_data_column,
     if_exists,
-    date_type,
 ):
     raw_data = raw_data[raw_data_column]
-    COLs = ['MAHDOUDE_NAME', 'AQUIFER_NAME', 'LOCATION_NAME']
+    COLs = ['MAHDOUDE', 'AQUIFER', 'LOCATION']
     raw_data[COLs] = raw_data[COLs].apply(lambda x: x.str.rstrip())
     raw_data[COLs] = raw_data[COLs].apply(lambda x: x.str.lstrip())
     raw_data[COLs] = raw_data[COLs].apply(lambda x: x.str.replace('ي','ی'))
     raw_data[COLs] = raw_data[COLs].apply(lambda x: x.str.replace('ئ','ی'))
     raw_data[COLs] = raw_data[COLs].apply(lambda x: x.str.replace('ك', 'ک'))
 
-    if date_type == "persian_ymd":
-        raw_data["YEAR_PERSIAN"] = raw_data["YEAR_PERSIAN"].astype(str).str.zfill(4)
-        raw_data["MONTH_PERSIAN"] = raw_data["MONTH_PERSIAN"].astype(str).str.zfill(2)
-        raw_data["DAY_PERSIAN"] = raw_data["DAY_PERSIAN"].astype(str).str.zfill(2)
-        raw_data['DATE_PERSIAN'] = raw_data["YEAR_PERSIAN"] + "-" + raw_data["MONTH_PERSIAN"] + "-" + raw_data["DAY_PERSIAN"]
-        raw_data['DATE_GREGORIAN'] = raw_data.apply(
-            lambda x: jalali.Persian(x["DATE_PERSIAN"]).gregorian_string(), 
-            axis=1
-        )
-        raw_data[['YEAR_GREGORIAN', 'MONTH_GREGORIAN', 'DAY_GREGORIAN']] = raw_data['DATE_GREGORIAN'].str.split('-', 2, expand=True)
-        raw_data["YEAR_GREGORIAN"] = raw_data["YEAR_GREGORIAN"].str.zfill(4)
-        raw_data["MONTH_GREGORIAN"] = raw_data["MONTH_GREGORIAN"].str.zfill(2)
-        raw_data["DAY_GREGORIAN"] = raw_data["DAY_GREGORIAN"].str.zfill(2)
-        raw_data["DATE_GREGORIAN"] = raw_data["DATE_GREGORIAN"].apply(pd.to_datetime)
+    # if date_type == "persian_ymd":
+    #     raw_data["YEAR_PERSIAN"] = raw_data["YEAR_PERSIAN"].astype(str).str.zfill(4)
+    #     raw_data["MONTH_PERSIAN"] = raw_data["MONTH_PERSIAN"].astype(str).str.zfill(2)
+    #     raw_data["DAY_PERSIAN"] = raw_data["DAY_PERSIAN"].astype(str).str.zfill(2)
+    #     raw_data['DATE_PERSIAN'] = raw_data["YEAR_PERSIAN"] + "-" + raw_data["MONTH_PERSIAN"] + "-" + raw_data["DAY_PERSIAN"]
+    #     raw_data['DATE_GREGORIAN'] = raw_data.apply(
+    #         lambda x: jalali.Persian(x["DATE_PERSIAN"]).gregorian_string(), 
+    #         axis=1
+    #     )
+    #     raw_data[['YEAR_GREGORIAN', 'MONTH_GREGORIAN', 'DAY_GREGORIAN']] = raw_data['DATE_GREGORIAN'].str.split('-', 2, expand=True)
+    #     raw_data["YEAR_GREGORIAN"] = raw_data["YEAR_GREGORIAN"].str.zfill(4)
+    #     raw_data["MONTH_GREGORIAN"] = raw_data["MONTH_GREGORIAN"].str.zfill(2)
+    #     raw_data["DAY_GREGORIAN"] = raw_data["DAY_GREGORIAN"].str.zfill(2)
+    #     raw_data["DATE_GREGORIAN"] = raw_data["DATE_GREGORIAN"].apply(pd.to_datetime)
         
-    elif date_type == "gregorian_ymd":
-        raw_data["YEAR_GREGORIAN"] = raw_data["YEAR_GREGORIAN"].astype(str).str.zfill(4)
-        raw_data["MONTH_GREGORIAN"] = raw_data["MONTH_GREGORIAN"].astype(str).str.zfill(2)
-        raw_data["DAY_GREGORIAN"] = raw_data["DAY_GREGORIAN"].astype(str).str.zfill(2)
-        raw_data['DATE_GREGORIAN'] = raw_data["YEAR_GREGORIAN"] + "-" + raw_data["MONTH_GREGORIAN"] + "-" + raw_data["DAY_GREGORIAN"]
-        raw_data["DATE_GREGORIAN"] = raw_data["DATE_GREGORIAN"].apply(pd.to_datetime)
-        raw_data['DATE_PERSIAN'] = raw_data.apply(
-            lambda x: jalali.Gregorian(x["DATE_GREGORIAN"].date()).persian_string(), 
-            axis=1
-        )
-        raw_data[['YEAR_PERSIAN', 'MONTH_PERSIAN', 'DAY_PERSIAN']] = raw_data['DATE_PERSIAN'].str.split('-', 2, expand=True)
-        raw_data["YEAR_PERSIAN"] = raw_data["YEAR_PERSIAN"].str.zfill(4)
-        raw_data["MONTH_PERSIAN"] = raw_data["MONTH_PERSIAN"].str.zfill(2)
-        raw_data["DAY_PERSIAN"] = raw_data["DAY_PERSIAN"].str.zfill(2)
+    # elif date_type == "gregorian_ymd":
+    #     raw_data["YEAR_GREGORIAN"] = raw_data["YEAR_GREGORIAN"].astype(str).str.zfill(4)
+    #     raw_data["MONTH_GREGORIAN"] = raw_data["MONTH_GREGORIAN"].astype(str).str.zfill(2)
+    #     raw_data["DAY_GREGORIAN"] = raw_data["DAY_GREGORIAN"].astype(str).str.zfill(2)
+    #     raw_data['DATE_GREGORIAN'] = raw_data["YEAR_GREGORIAN"] + "-" + raw_data["MONTH_GREGORIAN"] + "-" + raw_data["DAY_GREGORIAN"]
+    #     raw_data["DATE_GREGORIAN"] = raw_data["DATE_GREGORIAN"].apply(pd.to_datetime)
+    #     raw_data['DATE_PERSIAN'] = raw_data.apply(
+    #         lambda x: jalali.Gregorian(x["DATE_GREGORIAN"].date()).persian_string(), 
+    #         axis=1
+    #     )
+    #     raw_data[['YEAR_PERSIAN', 'MONTH_PERSIAN', 'DAY_PERSIAN']] = raw_data['DATE_PERSIAN'].str.split('-', 2, expand=True)
+    #     raw_data["YEAR_PERSIAN"] = raw_data["YEAR_PERSIAN"].str.zfill(4)
+    #     raw_data["MONTH_PERSIAN"] = raw_data["MONTH_PERSIAN"].str.zfill(2)
+    #     raw_data["DAY_PERSIAN"] = raw_data["DAY_PERSIAN"].str.zfill(2)
     
-    elif date_type == "persian_date":
-        raw_data[['YEAR_PERSIAN', 'MONTH_PERSIAN', 'DAY_PERSIAN']] = raw_data['DATE_PERSIAN'].str.split('-', 2, expand=True)
-        raw_data["YEAR_PERSIAN"] = raw_data["YEAR_PERSIAN"].str.zfill(4)
-        raw_data["MONTH_PERSIAN"] = raw_data["MONTH_PERSIAN"].str.zfill(2)
-        raw_data["DAY_PERSIAN"] = raw_data["DAY_PERSIAN"].str.zfill(2)
-        raw_data['DATE_PERSIAN'] = raw_data["YEAR_PERSIAN"] + "-" + raw_data["MONTH_PERSIAN"] + "-" + raw_data["DAY_PERSIAN"]
-        raw_data['DATE_GREGORIAN'] = raw_data.apply(
-            lambda x: jalali.Persian(x["DATE_PERSIAN"]).gregorian_string(), 
-            axis=1
-        )
-        raw_data[['YEAR_GREGORIAN', 'MONTH_GREGORIAN', 'DAY_GREGORIAN']] = raw_data['DATE_GREGORIAN'].str.split('-', 2, expand=True)
-        raw_data["YEAR_GREGORIAN"] = raw_data["YEAR_GREGORIAN"].str.zfill(4)
-        raw_data["MONTH_GREGORIAN"] = raw_data["MONTH_GREGORIAN"].str.zfill(2)
-        raw_data["DAY_GREGORIAN"] = raw_data["DAY_GREGORIAN"].str.zfill(2)
-        raw_data["DATE_GREGORIAN"] = raw_data["DATE_GREGORIAN"].apply(pd.to_datetime)
+    # elif date_type == "persian_date":
+    #     raw_data[['YEAR_PERSIAN', 'MONTH_PERSIAN', 'DAY_PERSIAN']] = raw_data['DATE_PERSIAN'].str.split('-', 2, expand=True)
+    #     raw_data["YEAR_PERSIAN"] = raw_data["YEAR_PERSIAN"].str.zfill(4)
+    #     raw_data["MONTH_PERSIAN"] = raw_data["MONTH_PERSIAN"].str.zfill(2)
+    #     raw_data["DAY_PERSIAN"] = raw_data["DAY_PERSIAN"].str.zfill(2)
+    #     raw_data['DATE_PERSIAN'] = raw_data["YEAR_PERSIAN"] + "-" + raw_data["MONTH_PERSIAN"] + "-" + raw_data["DAY_PERSIAN"]
+    #     raw_data['DATE_GREGORIAN'] = raw_data.apply(
+    #         lambda x: jalali.Persian(x["DATE_PERSIAN"]).gregorian_string(), 
+    #         axis=1
+    #     )
+    #     raw_data[['YEAR_GREGORIAN', 'MONTH_GREGORIAN', 'DAY_GREGORIAN']] = raw_data['DATE_GREGORIAN'].str.split('-', 2, expand=True)
+    #     raw_data["YEAR_GREGORIAN"] = raw_data["YEAR_GREGORIAN"].str.zfill(4)
+    #     raw_data["MONTH_GREGORIAN"] = raw_data["MONTH_GREGORIAN"].str.zfill(2)
+    #     raw_data["DAY_GREGORIAN"] = raw_data["DAY_GREGORIAN"].str.zfill(2)
+    #     raw_data["DATE_GREGORIAN"] = raw_data["DATE_GREGORIAN"].apply(pd.to_datetime)
     
-    elif date_type == "gregorian_date":
-        raw_data[['YEAR_GREGORIAN', 'MONTH_GREGORIAN', 'DAY_GREGORIAN']] = raw_data['DATE_GREGORIAN'].str.split('-', 2, expand=True)
-        raw_data["YEAR_GREGORIAN"] = raw_data["YEAR_GREGORIAN"].str.zfill(4)
-        raw_data["MONTH_GREGORIAN"] = raw_data["MONTH_GREGORIAN"].str.zfill(2)
-        raw_data["DAY_GREGORIAN"] = raw_data["DAY_GREGORIAN"].str.zfill(2)
-        raw_data['DATE_GREGORIAN'] = raw_data["YEAR_GREGORIAN"] + "-" + raw_data["MONTH_GREGORIAN"] + "-" + raw_data["DAY_GREGORIAN"]
-        raw_data["DATE_GREGORIAN"] = raw_data["DATE_GREGORIAN"].apply(pd.to_datetime)
-        raw_data['DATE_PERSIAN'] = raw_data.apply(
-            lambda x: jalali.Gregorian(x["DATE_GREGORIAN"].date()).persian_string(), 
-            axis=1
-        )
-        raw_data[['YEAR_PERSIAN', 'MONTH_PERSIAN', 'DAY_PERSIAN']] = raw_data['DATE_PERSIAN'].str.split('-', 2, expand=True)
-        raw_data["YEAR_PERSIAN"] = raw_data["YEAR_PERSIAN"].str.zfill(4)
-        raw_data["MONTH_PERSIAN"] = raw_data["MONTH_PERSIAN"].str.zfill(2)
-        raw_data["DAY_PERSIAN"] = raw_data["DAY_PERSIAN"].str.zfill(2)
-    else:
-        pass
+    # elif date_type == "gregorian_date":
+    #     raw_data[['YEAR_GREGORIAN', 'MONTH_GREGORIAN', 'DAY_GREGORIAN']] = raw_data['DATE_GREGORIAN'].str.split('-', 2, expand=True)
+    #     raw_data["YEAR_GREGORIAN"] = raw_data["YEAR_GREGORIAN"].str.zfill(4)
+    #     raw_data["MONTH_GREGORIAN"] = raw_data["MONTH_GREGORIAN"].str.zfill(2)
+    #     raw_data["DAY_GREGORIAN"] = raw_data["DAY_GREGORIAN"].str.zfill(2)
+    #     raw_data['DATE_GREGORIAN'] = raw_data["YEAR_GREGORIAN"] + "-" + raw_data["MONTH_GREGORIAN"] + "-" + raw_data["DAY_GREGORIAN"]
+    #     raw_data["DATE_GREGORIAN"] = raw_data["DATE_GREGORIAN"].apply(pd.to_datetime)
+    #     raw_data['DATE_PERSIAN'] = raw_data.apply(
+    #         lambda x: jalali.Gregorian(x["DATE_GREGORIAN"].date()).persian_string(), 
+    #         axis=1
+    #     )
+    #     raw_data[['YEAR_PERSIAN', 'MONTH_PERSIAN', 'DAY_PERSIAN']] = raw_data['DATE_PERSIAN'].str.split('-', 2, expand=True)
+    #     raw_data["YEAR_PERSIAN"] = raw_data["YEAR_PERSIAN"].str.zfill(4)
+    #     raw_data["MONTH_PERSIAN"] = raw_data["MONTH_PERSIAN"].str.zfill(2)
+    #     raw_data["DAY_PERSIAN"] = raw_data["DAY_PERSIAN"].str.zfill(2)
+    # else:
+    #     pass
     
     raw_data = raw_data.drop_duplicates().sort_values(
-        by=["MAHDOUDE_NAME", "AQUIFER_NAME", "LOCATION_NAME", "DATE_GREGORIAN"]
+        by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]
     ).reset_index(drop=True)  
 
     conn = psycopg2.connect(
@@ -204,7 +248,7 @@ def create_raw_data_table(
         raw_data = pd.concat(
             [raw_data_exist, raw_data]
         ).drop_duplicates().sort_values(
-            by=["MAHDOUDE_NAME", "AQUIFER_NAME", "LOCATION_NAME", "DATE_GREGORIAN"]
+            by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]
         ).reset_index(drop=True)
         
         raw_data.to_sql(
@@ -247,28 +291,28 @@ def clean_geoinfo_raw_data_table(
         )
         
         geoinfo_data_tmp = geoinfo_data.copy()
-        geoinfo_data_tmp = geoinfo_data_tmp[["MAHDOUDE_NAME", "AQUIFER_NAME", "LOCATION_NAME"]]
+        geoinfo_data_tmp = geoinfo_data_tmp[["MAHDOUDE", "AQUIFER", "LOCATION"]]
         geoinfo_data_tmp['MARKER'] = 1
         
-        raw_data = pd.merge(raw_data, geoinfo_data_tmp, on=["MAHDOUDE_NAME", "AQUIFER_NAME", "LOCATION_NAME"], how='left')
+        raw_data = pd.merge(raw_data, geoinfo_data_tmp, on=["MAHDOUDE", "AQUIFER", "LOCATION"], how='left')
         raw_data = raw_data[~pd.isnull(raw_data['MARKER'])]
         raw_data = raw_data.reset_index(drop=True)
         raw_data = raw_data.drop(columns=['MARKER'])
         raw_data = raw_data.sort_values(
-            by=["MAHDOUDE_NAME", "AQUIFER_NAME", "LOCATION_NAME", "DATE_GREGORIAN"]
+            by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]
         ).reset_index(drop=True)
         
         raw_data_tmp = raw_data.copy()
-        raw_data_tmp = raw_data_tmp.drop_duplicates(subset=["MAHDOUDE_NAME", "AQUIFER_NAME", "LOCATION_NAME"]).reset_index(drop=True)
-        raw_data_tmp = raw_data_tmp[["MAHDOUDE_NAME", "AQUIFER_NAME", "LOCATION_NAME"]]
+        raw_data_tmp = raw_data_tmp.drop_duplicates(subset=["MAHDOUDE", "AQUIFER", "LOCATION"]).reset_index(drop=True)
+        raw_data_tmp = raw_data_tmp[["MAHDOUDE", "AQUIFER", "LOCATION"]]
         raw_data_tmp['MARKER'] = 1
         
-        geoinfo_data = pd.merge(geoinfo_data, raw_data_tmp, on=["MAHDOUDE_NAME", "AQUIFER_NAME", "LOCATION_NAME"], how='left')
+        geoinfo_data = pd.merge(geoinfo_data, raw_data_tmp, on=["MAHDOUDE", "AQUIFER", "LOCATION"], how='left')
         geoinfo_data = geoinfo_data[~pd.isnull(geoinfo_data['MARKER'])]
         geoinfo_data = geoinfo_data.reset_index(drop=True)
         geoinfo_data = geoinfo_data.drop(columns=['MARKER'])
         geoinfo_data = geoinfo_data.sort_values(
-            by=["MAHDOUDE_NAME", "AQUIFER_NAME", "LOCATION_NAME"]
+            by=["MAHDOUDE", "AQUIFER", "LOCATION"]
         ).reset_index(drop=True)
         
         geoinfo_data.to_sql(

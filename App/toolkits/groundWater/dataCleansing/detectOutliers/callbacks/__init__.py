@@ -75,7 +75,7 @@ def create_geoinfo_data_table(
     if_exists
 ):
     geoinfo_data = geoinfo_data[geoinfo_data_column]
-    COLs = ['MAHDOUDE_NAME', 'AQUIFER_NAME', 'LOCATION_NAME']
+    COLs = ['MAHDOUDE', 'AQUIFER', 'LOCATION']
     geoinfo_data[COLs].apply(lambda x: x.str.rstrip())
     geoinfo_data[COLs] = geoinfo_data[COLs].apply(lambda x: x.str.lstrip())
     geoinfo_data[COLs] = geoinfo_data[COLs].apply(lambda x: x.str.replace('ي','ی'))
@@ -83,7 +83,7 @@ def create_geoinfo_data_table(
     geoinfo_data[COLs] = geoinfo_data[COLs].apply(lambda x: x.str.replace('ك', 'ک'))
     
     geoinfo_data = geoinfo_data.drop_duplicates(subset=geoinfo_data_column.difference(['ID'])).sort_values(
-        by=["MAHDOUDE_NAME", "AQUIFER_NAME", "LOCATION_NAME"]
+        by=["MAHDOUDE", "AQUIFER", "LOCATION"]
     ).reset_index(drop=True)
     
     conn = psycopg2.connect(
@@ -116,7 +116,7 @@ def create_geoinfo_data_table(
         geoinfo_data = pd.concat(
             [geoinfo_data_exist, geoinfo_data]
         ).drop_duplicates(subset=geoinfo_data_exist.columns.difference(['ID'])).sort_values(
-            by=["MAHDOUDE_NAME", "AQUIFER_NAME", "LOCATION_NAME"]
+            by=["MAHDOUDE", "AQUIFER", "LOCATION"]
         ).reset_index(drop=True)
         
         geoinfo_data.to_sql(
@@ -136,7 +136,7 @@ def create_raw_data_table(
     date_type,
 ):
     raw_data = raw_data[raw_data_column]
-    COLs = ['MAHDOUDE_NAME', 'AQUIFER_NAME', 'LOCATION_NAME']
+    COLs = ['MAHDOUDE', 'AQUIFER', 'LOCATION']
     raw_data[COLs] = raw_data[COLs].apply(lambda x: x.str.rstrip())
     raw_data[COLs] = raw_data[COLs].apply(lambda x: x.str.lstrip())
     raw_data[COLs] = raw_data[COLs].apply(lambda x: x.str.replace('ي','ی'))
@@ -208,7 +208,7 @@ def create_raw_data_table(
         pass
     
     raw_data = raw_data.drop_duplicates().sort_values(
-        by=["MAHDOUDE_NAME", "AQUIFER_NAME", "LOCATION_NAME", "DATE_GREGORIAN"]
+        by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]
     ).reset_index(drop=True)  
 
     conn = psycopg2.connect(
@@ -241,7 +241,7 @@ def create_raw_data_table(
         raw_data = pd.concat(
             [raw_data_exist, raw_data]
         ).drop_duplicates().sort_values(
-            by=["MAHDOUDE_NAME", "AQUIFER_NAME", "LOCATION_NAME", "DATE_GREGORIAN"]
+            by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]
         ).reset_index(drop=True)
         
         raw_data.to_sql(
@@ -284,28 +284,28 @@ def clean_geoinfo_raw_data_table(
         )
         
         geoinfo_data_tmp = geoinfo_data.copy()
-        geoinfo_data_tmp = geoinfo_data_tmp[["MAHDOUDE_NAME", "AQUIFER_NAME", "LOCATION_NAME"]]
+        geoinfo_data_tmp = geoinfo_data_tmp[["MAHDOUDE", "AQUIFER", "LOCATION"]]
         geoinfo_data_tmp['MARKER'] = 1
         
-        raw_data = pd.merge(raw_data, geoinfo_data_tmp, on=["MAHDOUDE_NAME", "AQUIFER_NAME", "LOCATION_NAME"], how='left')
+        raw_data = pd.merge(raw_data, geoinfo_data_tmp, on=["MAHDOUDE", "AQUIFER", "LOCATION"], how='left')
         raw_data = raw_data[~pd.isnull(raw_data['MARKER'])]
         raw_data = raw_data.reset_index(drop=True)
         raw_data = raw_data.drop(columns=['MARKER'])
         raw_data = raw_data.sort_values(
-            by=["MAHDOUDE_NAME", "AQUIFER_NAME", "LOCATION_NAME", "DATE_GREGORIAN"]
+            by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]
         ).reset_index(drop=True)
         
         raw_data_tmp = raw_data.copy()
-        raw_data_tmp = raw_data_tmp.drop_duplicates(subset=["MAHDOUDE_NAME", "AQUIFER_NAME", "LOCATION_NAME"]).reset_index(drop=True)
-        raw_data_tmp = raw_data_tmp[["MAHDOUDE_NAME", "AQUIFER_NAME", "LOCATION_NAME"]]
+        raw_data_tmp = raw_data_tmp.drop_duplicates(subset=["MAHDOUDE", "AQUIFER", "LOCATION"]).reset_index(drop=True)
+        raw_data_tmp = raw_data_tmp[["MAHDOUDE", "AQUIFER", "LOCATION"]]
         raw_data_tmp['MARKER'] = 1
         
-        geoinfo_data = pd.merge(geoinfo_data, raw_data_tmp, on=["MAHDOUDE_NAME", "AQUIFER_NAME", "LOCATION_NAME"], how='left')
+        geoinfo_data = pd.merge(geoinfo_data, raw_data_tmp, on=["MAHDOUDE", "AQUIFER", "LOCATION"], how='left')
         geoinfo_data = geoinfo_data[~pd.isnull(geoinfo_data['MARKER'])]
         geoinfo_data = geoinfo_data.reset_index(drop=True)
         geoinfo_data = geoinfo_data.drop(columns=['MARKER'])
         geoinfo_data = geoinfo_data.sort_values(
-            by=["MAHDOUDE_NAME", "AQUIFER_NAME", "LOCATION_NAME"]
+            by=["MAHDOUDE", "AQUIFER", "LOCATION"]
         ).reset_index(drop=True)
         
         geoinfo_data.to_sql(

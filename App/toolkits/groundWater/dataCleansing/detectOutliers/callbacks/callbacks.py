@@ -52,11 +52,11 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
         if "geoinfo" in table_name_list_exist:
     
             df = pd.read_sql_query(
-                sql='SELECT DISTINCT "MAHDOUDE_NAME" FROM geoinfo;',
+                sql='SELECT DISTINCT "MAHDOUDE" FROM geoinfo;',
                 con=engine
             )
         
-            return [{'label': i, 'value': i} for i in df.MAHDOUDE_NAME.values]
+            return [{'label': i, 'value': i} for i in df.MAHDOUDE.values]
         else:
             return [{}]
 
@@ -71,11 +71,11 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
     ):
         if study_area_selected is not None and len(study_area_selected) != 0:
             df = pd.read_sql_query(
-                sql=f'SELECT DISTINCT "MAHDOUDE_NAME", "AQUIFER_NAME" FROM geoinfo;',
+                sql=f'SELECT DISTINCT "MAHDOUDE", "AQUIFER" FROM geoinfo;',
                 con=engine
             )
-            df = df[df["MAHDOUDE_NAME"].isin(study_area_selected)]
-            return [{'label': i, 'value': i} for i in df.AQUIFER_NAME.values]
+            df = df[df["MAHDOUDE"].isin(study_area_selected)]
+            return [{'label': i, 'value': i} for i in df.AQUIFER.values]
         else:
             return [{}]
 
@@ -93,12 +93,12 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
         if study_area_selected is not None and len(study_area_selected) != 0:
             if aquifer_selected is not None and len(aquifer_selected) != 0:
                 df = pd.read_sql_query(
-                    sql=f'SELECT DISTINCT "MAHDOUDE_NAME", "AQUIFER_NAME", "LOCATION_NAME" FROM geoinfo;',
+                    sql=f'SELECT DISTINCT "MAHDOUDE", "AQUIFER", "LOCATION" FROM geoinfo;',
                     con=engine
                 )
-                df = df[df["MAHDOUDE_NAME"].isin(study_area_selected)]
-                df = df[df["AQUIFER_NAME"].isin(aquifer_selected)]
-                return [{'label': i, 'value': i} for i in df.LOCATION_NAME.values]
+                df = df[df["MAHDOUDE"].isin(study_area_selected)]
+                df = df[df["AQUIFER"].isin(aquifer_selected)]
+                return [{'label': i, 'value': i} for i in df.LOCATION.values]
             else:
                 return [{}]
         else:

@@ -190,17 +190,18 @@ action_type = html.Div(
 sidebar = html.Div(
     className="m-0 p-0",
     children=[
-         html.H5(
-             children="شناسایی داده‌های پرت",
-             className="text-center p-2"
+        
+        html.H5(
+            children="شناسایی داده‌های پرت",
+            className="text-center p-2"
         ),
-         
+        
         dmc.Divider(
             variant="solid",
             class_name="pb-3",
             size="md"
         ),        
-
+        
         dmc.Accordion(
             class_name="bg-light my-rtl",
             iconPosition="right",

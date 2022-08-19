@@ -8,11 +8,11 @@ body = html.Div(
             className='row p-0 m-0 ',
             children=[
                 html.Div(
-                    className='col-6 p-0 m-0 text-center',
+                    className='col-3 p-0 px-1 m-0 text-center',
                     children=[
                         dbc.Button(
                             id='GEOINFO_TABLE_BUTTON',
-                            className="w-50",
+                            className="w-100",
                             children='نمایش جدول مشخصات', 
                             color='dark',
                             n_clicks=0
@@ -20,26 +20,49 @@ body = html.Div(
                     ],
                 ),
                 html.Div(
-                    className='col-6 p-0 m-0 text-center',
+                    className='col-3 p-0 px-1 m-0 text-center',
                     children=[
                         dbc.Button(
                             id='RAW_DATA_TABLE_BUTTON',
-                            className="w-50",
+                            className="w-100",
                             children='نمایش جدول داده‌ها', 
                             color='dark',
                             n_clicks=0
                         )
                     ],
-                )
+                ),
+                html.Div(
+                    className='col-3 p-0 px-1 m-0 text-center',
+                    children=[
+                        dbc.Button(
+                            id='WELL_MAP_BUTTON',
+                            className="w-100",
+                            children='نمایش چاه‌های مشاهده‌ای', 
+                            color='dark',
+                            n_clicks=0
+                        )
+                    ],
+                ),
+                html.Div(
+                    className='col-3 p-0 px-1 m-0 text-center',
+                    children=[
+                        dbc.Button(
+                            id='STUDY_AREA_MAP_BUTTON',
+                            className="w-100",
+                            children='نمایش محدوده‌های مطالعاتی', 
+                            color='dark',
+                            n_clicks=0
+                        )
+                    ],
+                ),
             ],
         ),
         html.Div(
-            # id='TABLE',
             className='row py-3 px-1 m-0',
             children=[
                 html.Div(
-                    id='TABLE',
-                    className='col p-0 m-0 w-100',
+                    id='CONTENT',
+                    className='col p-0 m-0 w-100 text-center',
                     dir="rtl"
                 )
             ]
