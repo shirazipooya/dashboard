@@ -3,9 +3,9 @@ pandas
 geopandas
 xlrd
 openpyxl
-Flask
+Flask==2.1.2
 plotly
-dash
+dash==2.6.0
 dash-bootstrap-components
 dash-extensions
 dash-mantine-components
