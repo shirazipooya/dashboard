@@ -38,6 +38,7 @@
 - CREATE EXTENSION postgis;
 - \q
 
-## Create layers Database
+## Install psycopg2 on Ubuntu
 
+- sudo apt-get install build-essential
 - sudo apt-get install libpq-dev python3-dev
