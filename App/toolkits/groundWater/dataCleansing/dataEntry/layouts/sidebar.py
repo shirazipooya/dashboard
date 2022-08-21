@@ -147,7 +147,7 @@ shapefile_type = html.Div(
             options=[
                 {'label': 'چاه‌های مشاهده‌ای', 'value': 'well'},
                 {'label': 'آبخوان‌ها', 'value': 'aquifer'},
-                {'label': 'محدوده‌های مطالعاتی', 'value': 'study_area'},
+                {'label': 'محدوده‌های مطالعاتی', 'value': 'mahdoude'},
             ],
         ) 
     ]

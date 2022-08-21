@@ -10,6 +10,8 @@ import itertools
 from sqlalchemy import *
 import Assets.jalali as jalali
 import plotly.graph_objects as go
+from geoalchemy2 import Geometry, WKTElement
+from shapely import wkt
 from App.db import POSTGRES_USER_NAME, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT
 
 PATH_THEMPLATE_FILE = "./Assets/Files/HydrographDataTemplate.xlsx"
@@ -25,12 +27,13 @@ db_layers = f"postgresql://{POSTGRES_USER_NAME}:{POSTGRES_PASSWORD}@{POSTGRES_HO
 engine_layers = create_engine(db_layers, echo=False)
 
 
-def read_zip_file(
+def read_shapefile_from_zip_file(
     contents,
     filename,
     path_uploaded_files,
+    srid,
 ):
-    if filename.endswith(".zip"):        
+    if filename.endswith(".zip"):
         content_type, content_string = contents.split(',')
         decoded = base64.b64decode(content_string)
         zip_file_str = io.BytesIO(decoded)
@@ -50,9 +53,97 @@ def read_zip_file(
         for i in os.listdir(path_uploaded_files):
             os.remove(f"{path_uploaded_files}/{i}")
 
+        tmp = tmp.to_crs({'init': f'epsg:{srid}'})
+        tmp['geometry'] = tmp['geometry'].apply(lambda x: WKTElement(x.wkt, srid = srid))
+
         return tmp
+    
+    else:
+        
+        return None
 
+def check_replace_append(
+    data,
+    db,
+    table,
+    engine,
+    if_exists,
+    geometry_type,
+    srid,
+    geom_col,
+    sort_columns,
+):
+    
+    conn = psycopg2.connect(
+        database=db,
+        user=POSTGRES_USER_NAME,
+        password=POSTGRES_PASSWORD,
+        host=POSTGRES_HOST,
+        port=POSTGRES_PORT
+    )    
+    conn.autocommit = True    
+    cursor = conn.cursor()    
+    sql = '''SELECT table_name FROM information_schema.tables;'''
+    cursor.execute(sql)
+    table_name_list_exist = list(itertools.chain.from_iterable(cursor.fetchall()))
+    conn.close()
+    
+    if (if_exists == 'replace') or (table not in table_name_list_exist):
+        
+        data = data.drop_duplicates().sort_values(
+            by=sort_columns
+        ).reset_index(drop=True)
+        
+        data[geom_col] = data[geom_col].astype(str).apply(wkt.loads)
+        
+        data = gpd.GeoDataFrame(
+            data=data,
+            geometry=geom_col,
+            crs=f"EPSG:{srid}"
+        )
+        
+        data.to_postgis(
+            table,
+            engine,
+            if_exists="replace",
+            index=False,
+            dtype={'geometry': Geometry(geometry_type=geometry_type, srid=srid)}
+        )
 
+    else:
+        
+        sql = f"SELECT * FROM {table}"
+        
+        data_exist = gpd.GeoDataFrame.from_postgis(
+            sql=sql,
+            con=engine,
+            geom_col=geom_col
+        )
+        
+        data = pd.concat(
+                [data_exist, data],
+                ignore_index=True
+        )
+        
+        data[geom_col] = data[geom_col].astype(str).apply(wkt.loads)
+        
+        data = gpd.GeoDataFrame(
+            data=data,
+            geometry=geom_col,
+            crs=f"EPSG:{srid}"
+        )
+        
+        data = data.drop_duplicates().sort_values(
+            by=sort_columns
+        ).reset_index(drop=True)
+        
+        data.to_postgis(
+            table,
+            engine,
+            if_exists="replace",
+            index=False,
+            dtype={'geometry': Geometry(geometry_type=geometry_type, srid=srid)}
+        )
 
 
 

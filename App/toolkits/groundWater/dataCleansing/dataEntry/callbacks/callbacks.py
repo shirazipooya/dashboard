@@ -1,8 +1,9 @@
 import os
+import json
 import pandas as pd
 import geopandas as gpd
 import dash_bootstrap_components as dbc
-from dash import dash_table, html, callback_context
+from dash import dcc, dash_table, html, callback_context
 from dash.dependencies import Output, Input, State
 from dash.exceptions import PreventUpdate
 from dash_extensions.enrich import DashLogger
@@ -10,6 +11,8 @@ import dash_mantine_components as dmc
 from dash_iconify import DashIconify
 import dash_datatables as ddt
 from geoalchemy2 import Geometry, WKTElement
+import plotly.graph_objects as go
+import plotly.express as px
 from . import *
 
 def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
@@ -24,10 +27,11 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
         Input('GEOINFO_TABLE_BUTTON', 'n_clicks'),
         Input('RAW_DATA_TABLE_BUTTON', 'n_clicks'),
         Input('WELL_MAP_BUTTON', 'n_clicks'),
+        Input('AQUIFER_MAP_BUTTON', 'n_clicks'),
         Input('STUDY_AREA_MAP_BUTTON', 'n_clicks'),
     )
     def show_content(
-        n1, n2, n3, n4
+        n1, n2, n3, n4, n5
     ):
         ctx = callback_context
         
@@ -218,6 +222,259 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
                     0,
                     notify
                 ]
+            
+        elif button_id == "STUDY_AREA_MAP_BUTTON":
+            
+            try:
+                
+                df = gpd.GeoDataFrame.from_postgis(
+                    sql="SELECT * FROM mahdoude",
+                    con=engine_layers,
+                    geom_col="geometry"
+                )
+                
+                df_json = json.loads(df.to_json())
+
+                for feature in df_json["features"]:
+                    feature['id'] = feature['properties']['MAHDOUDE']
+                
+                fig = px.choropleth_mapbox(
+                    data_frame=df,
+                    geojson=df_json,
+                    locations="MAHDOUDE",
+                    hover_name="MAHDOUDE",
+                    hover_data={"MAHDOUDE": False},
+                    opacity=0.4,
+                )           
+                
+                fig.update_layout(
+                    mapbox = {
+                        'style': "stamen-terrain",
+                        'zoom': 6,
+                        'center': {
+                            'lat': df.geometry.centroid.y.mean(),
+                            'lon': df.geometry.centroid.x.mean(),
+                        },
+                    },
+                    showlegend = False,
+                    hovermode='closest',
+                    margin = {'l':0, 'r':0, 'b':0, 't':0}
+                )
+                
+                notify = dmc.Notification(
+                    id="notify",
+                    title = "خبر",
+                    message = ["نقشه با موفقیت نمایش داده شد."],
+                    color='green',
+                    action = "show",
+                )
+                
+                title = "نقشه محدوده‌های مطالعاتی پایگاه داده"
+                
+                content = dcc.Graph(
+                    className="border border-secondary",
+                    style={
+                        "height": "75vh",
+                    },
+                    figure=fig
+                )
+            
+            except:                
+                notify = dmc.Notification(
+                    id="notify",
+                    title = "خطا",
+                    message = ["داده‌ای برای نمایش موجود نمی‌باشد!!!"],
+                    color='red',
+                    action = "show",
+                )                
+                title = ""
+                
+                content = ""
+            
+            return [
+                    [
+                        html.H3(
+                            className="pt-3",
+                            children=title
+                        ),
+                        content,
+                    ],
+                    0,
+                    0,
+                    0,
+                    0,
+                    notify
+                ]
+            
+        elif button_id == "AQUIFER_MAP_BUTTON":
+            
+            try:
+                
+                df = gpd.GeoDataFrame.from_postgis(
+                    sql="SELECT * FROM aquifer",
+                    con=engine_layers,
+                    geom_col="geometry"
+                )
+                
+                df_json = json.loads(df.to_json())
+
+                for feature in df_json["features"]:
+                    feature['id'] = feature['properties']['AQUIFER']
+                
+                fig = px.choropleth_mapbox(
+                    data_frame=df,
+                    geojson=df_json,
+                    locations="AQUIFER",
+                    hover_name="AQUIFER",
+                    hover_data={"MAHDOUDE": True, "AQUIFER": False},
+                    opacity=0.4,
+                    labels={'MAHDOUDE':'محدوده مطالعاتی', 'AQUIFER':'آبخوان'}
+                )           
+                
+                fig.update_layout(
+                    mapbox = {
+                        'style': "stamen-terrain",
+                        'zoom': 6,
+                        'center': {
+                            'lat': df.geometry.centroid.y.mean(),
+                            'lon': df.geometry.centroid.x.mean(),
+                        },
+                    },
+                    showlegend = False,
+                    hovermode='closest',
+                    margin = {'l':0, 'r':0, 'b':0, 't':0}
+                )
+                
+                notify = dmc.Notification(
+                    id="notify",
+                    title = "خبر",
+                    message = ["نقشه با موفقیت نمایش داده شد."],
+                    color='green',
+                    action = "show",
+                )
+                
+                title = "نقشه آبخوان‌های پایگاه داده"
+                
+                content = dcc.Graph(
+                    className="border border-secondary",
+                    style={
+                        "height": "75vh",
+                    },
+                    figure=fig
+                )
+            
+            except:                
+                notify = dmc.Notification(
+                    id="notify",
+                    title = "خطا",
+                    message = ["داده‌ای برای نمایش موجود نمی‌باشد!!!"],
+                    color='red',
+                    action = "show",
+                )                
+                title = ""
+                
+                content = ""
+            
+            return [
+                    [
+                        html.H3(
+                            className="pt-3",
+                            children=title
+                        ),
+                        content,
+                    ],
+                    0,
+                    0,
+                    0,
+                    0,
+                    notify
+                ]
+            
+        elif button_id == "WELL_MAP_BUTTON":
+            
+            # try:
+                
+            df = gpd.GeoDataFrame.from_postgis(
+                sql="SELECT * FROM well",
+                con=engine_layers,
+                geom_col="geometry"
+            )
+            
+            df_json = json.loads(df.to_json())
+
+            for feature in df_json["features"]:
+                feature['id'] = feature['properties']['LOCATION']
+            
+            fig_data = go.Scattermapbox(
+                lat=df.Y,
+                lon=df.X,
+                mode='markers',
+                marker=go.scattermapbox.Marker(size=8),
+                text=[df['LOCATION'][i] + '<br>' + df['AQUIFER'][i] + '<br>' + df['MAHDOUDE'][i] for i in range(df.shape[0])],
+                hoverinfo='text',
+                hovertemplate='<span style="color:white;">%{text}</span><extra></extra>'
+            )
+            
+            fig_layout = {
+                "margin": {'l':0, 'r':0, 'b':0, 't':0},
+                "mapbox": {
+                    'style': "stamen-terrain",
+                    'zoom': 6,
+                    'center': {
+                        'lat': df.Y.mean(),
+                        'lon': df.X.mean(),
+                    }
+                },
+                "showlegend": False,
+                "hovermode": 'closest'
+            }
+            
+            fig = go.Figure(data=fig_data, layout=fig_layout)
+
+            notify = dmc.Notification(
+                id="notify",
+                title = "خبر",
+                message = ["نقشه با موفقیت نمایش داده شد."],
+                color='green',
+                action = "show",
+            )
+            
+            title = "نقشه چاه‌های مشاهده‌ای پایگاه داده"
+            
+            content = dcc.Graph(
+                className="border border-secondary",
+                style={
+                    "height": "75vh",
+                },
+                figure=fig
+            )
+            
+            # except:                
+            #     notify = dmc.Notification(
+            #         id="notify",
+            #         title = "خطا",
+            #         message = ["داده‌ای برای نمایش موجود نمی‌باشد!!!"],
+            #         color='red',
+            #         action = "show",
+            #     )                
+            #     title = ""
+                
+            #     content = ""
+            
+            return [
+                    [
+                        html.H3(
+                            className="pt-3",
+                            children=title
+                        ),
+                        content,
+                    ],
+                    0,
+                    0,
+                    0,
+                    0,
+                    notify
+                ]
         
         else:
             
@@ -276,7 +533,7 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
     @app.callback(
         Output("BUTTON-SHAPEFILES", "n_clicks"),
         Output("SELECT_SHAPEFILE_NAME", "children"),
-        Output("SELECT_SHAPEFILE_NAME", "style"),
+        Output("SELECT_SHAPEFILE_NAME", "className"),
         Output("ALERTS", "children"),
         Input("BUTTON-SHAPEFILES", "n_clicks"),
         Input('SELECT_SHAPEFILE', 'contents'),        
@@ -306,7 +563,7 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
             result = [
                 0,
                 "فایلی انتخاب نشده است!",
-                {'direction': 'rtl', 'color': 'red', 'text-align': 'center'},
+                'text-center pt-2 text-danger',
                 notify
             ]
             
@@ -325,7 +582,7 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
             result = [
                 0,
                 f"{file_filename_state[0:12]}...{file_filename_state[-8:]}" if len(file_filename_state) > 20 else file_filename_state,
-                {'direction': 'rtl', 'color': 'green', 'text-align': 'left'},
+                'text-center pt-2 text-success',
                 notify
             ]
             
@@ -340,18 +597,19 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
                 color="green",
                 action = "show",
             )
-                
-            tmp = read_zip_file(
+            
+            tmp = read_shapefile_from_zip_file(
                 contents=file_contents,
                 filename=file_filename_state,
                 path_uploaded_files=PATH_UPLOADED_FILES,
-            )
+                srid=4326,
+            )        
             
             template = pd.ExcelFile(PATH_THEMPLATE_FILE)
                 
             if file_type_value_state == "well":
                 
-                columns_template = pd.read_excel(template, sheet_name='Wells').columns
+                columns_template = pd.read_excel(template, sheet_name='Well').columns
                 
                 if set(tmp.columns) != set(columns_template):
                     
@@ -366,7 +624,7 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
                     result = [
                         0,
                         "فایلی انتخاب نشده است!",
-                        {'direction': 'rtl', 'color': 'red', 'text-align': 'center'},
+                        'text-center pt-2 text-danger',
                         notify
                     ]
                     
@@ -375,21 +633,23 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
                 else:
                     
                     tmp = tmp[columns_template]
-                    COLs = ['MAHDOUDE', 'AQUIFER', 'LOCATION']
-                    tmp[COLs] = tmp[COLs].apply(lambda x: x.str.rstrip())
-                    tmp[COLs] = tmp[COLs].apply(lambda x: x.str.lstrip())
-                    tmp[COLs] = tmp[COLs].apply(lambda x: x.str.replace('ي','ی'))
-                    tmp[COLs] = tmp[COLs].apply(lambda x: x.str.replace('ئ','ی'))
-                    tmp[COLs] = tmp[COLs].apply(lambda x: x.str.replace('ك', 'ک'))
-                    tmp = tmp.to_crs({'init': 'epsg:4326'})
-                    tmp['geometry'] = tmp['geometry'].apply(lambda x: WKTElement(x.wkt, srid = 4326))
+                    fix_columns=["MAHDOUDE", "AQUIFER", "LOCATION"]
+                    tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.rstrip())
+                    tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.lstrip())
+                    tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.replace('ي','ی'))
+                    tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.replace('ئ','ی'))
+                    tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.replace('ك', 'ک'))                   
                     
-                    tmp.to_sql(
-                        'wells',
-                        engine_layers,
+                    check_replace_append(
+                        data=tmp,
+                        db=POSTGRES_DB_LAYERS,
+                        table="well",
+                        engine=engine_layers,
                         if_exists=geodatabase_modify_value_state,
-                        index=False,
-                        dtype={'geometry': Geometry(geometry_type='POINT', srid= 4326)}
+                        geometry_type="POINT",
+                        srid=4326,
+                        geom_col="geometry",
+                        sort_columns=["MAHDOUDE", "AQUIFER", "LOCATION"],
                     )
                     
                     notify = dmc.Notification(
@@ -397,13 +657,136 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
                         title = "خبر",
                         message = ["شیپ فایل با موفقیت به پایگاه داده اضافه شد."],
                         color='green',
-                        action = "hide",
+                        action = "show",
                     )
                         
                     result = [
                         0,
                         "فایلی انتخاب نشده است!",
-                        {'direction': 'rtl', 'color': 'red', 'text-align': 'center'},
+                        'text-center pt-2 text-danger',
+                        notify
+                    ]
+                        
+                    return result
+                
+            elif file_type_value_state == "aquifer":
+                
+                columns_template = pd.read_excel(template, sheet_name='Aquifer').columns
+                
+                if set(tmp.columns) != set(columns_template):
+                    
+                    notify = dmc.Notification(
+                        id="notify",
+                        title = "خطا",
+                        message = ["ستون‌های جدول شیپ فایل انتخابی با ستون‌های جدول نمونه برابر نیستند."],
+                        color='red',
+                        action = "show",
+                    )
+                    
+                    result = [
+                        0,
+                        "فایلی انتخاب نشده است!",
+                        'text-center pt-2 text-danger',
+                        notify
+                    ]
+                    
+                    return result
+                
+                else:
+                    
+                    tmp = tmp[columns_template]
+                    fix_columns=["MAHDOUDE", "AQUIFER"]
+                    tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.rstrip())
+                    tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.lstrip())
+                    tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.replace('ي','ی'))
+                    tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.replace('ئ','ی'))
+                    tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.replace('ك', 'ک'))                   
+                    
+                    check_replace_append(
+                        data=tmp,
+                        db=POSTGRES_DB_LAYERS,
+                        table="aquifer",
+                        engine=engine_layers,
+                        if_exists=geodatabase_modify_value_state,
+                        geometry_type="MULTIPOLYGON",
+                        srid=4326,
+                        geom_col="geometry",
+                        sort_columns=["MAHDOUDE", "AQUIFER"],
+                    )
+                    
+                    notify = dmc.Notification(
+                        id="notify",
+                        title = "خبر",
+                        message = ["شیپ فایل با موفقیت به پایگاه داده اضافه شد."],
+                        color='green',
+                        action = "show",
+                    )
+                        
+                    result = [
+                        0,
+                        "فایلی انتخاب نشده است!",
+                        'text-center pt-2 text-danger',
+                        notify
+                    ]
+                        
+                    return result
+            elif file_type_value_state == "mahdoude":
+                
+                columns_template = pd.read_excel(template, sheet_name='Mahdoude').columns
+                
+                if set(tmp.columns) != set(columns_template):
+                    
+                    notify = dmc.Notification(
+                        id="notify",
+                        title = "خطا",
+                        message = ["ستون‌های جدول شیپ فایل انتخابی با ستون‌های جدول نمونه برابر نیستند."],
+                        color='red',
+                        action = "show",
+                    )
+                    
+                    result = [
+                        0,
+                        "فایلی انتخاب نشده است!",
+                        'text-center pt-2 text-danger',
+                        notify
+                    ]
+                    
+                    return result
+                
+                else:
+                    
+                    tmp = tmp[columns_template]
+                    fix_columns=["MAHDOUDE"]
+                    tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.rstrip())
+                    tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.lstrip())
+                    tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.replace('ي','ی'))
+                    tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.replace('ئ','ی'))
+                    tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.replace('ك', 'ک'))                   
+                    
+                    check_replace_append(
+                        data=tmp,
+                        db=POSTGRES_DB_LAYERS,
+                        table="mahdoude",
+                        engine=engine_layers,
+                        if_exists=geodatabase_modify_value_state,
+                        geometry_type="MULTIPOLYGON",
+                        srid=4326,
+                        geom_col="geometry",
+                        sort_columns=["MAHDOUDE"],
+                    )
+                    
+                    notify = dmc.Notification(
+                        id="notify",
+                        title = "خبر",
+                        message = ["شیپ فایل با موفقیت به پایگاه داده اضافه شد."],
+                        color='green',
+                        action = "show",
+                    )
+                        
+                    result = [
+                        0,
+                        "فایلی انتخاب نشده است!",
+                        'text-center pt-2 text-danger',
                         notify
                     ]
                         
@@ -421,7 +804,7 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
                 result = [
                     0,
                     "فایلی انتخاب نشده است!",
-                    {'direction': 'rtl', 'color': 'red', 'text-align': 'center'},
+                    'text-center pt-2 text-danger',
                     notify
                 ]
                 
@@ -440,7 +823,7 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
             result = [
                 0,
                 "فایلی انتخاب نشده است!",
-                {'direction': 'rtl', 'color': 'red', 'text-align': 'center'},
+                'text-center pt-2 text-danger',
                 notify
             ]
             

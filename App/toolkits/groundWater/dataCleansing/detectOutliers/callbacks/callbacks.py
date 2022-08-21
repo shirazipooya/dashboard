@@ -56,7 +56,7 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                 con=engine
             )
         
-            return [{'label': i, 'value': i} for i in df.MAHDOUDE.values]
+            return [{'label': i, 'value': i} for i in sorted(df.MAHDOUDE.values)]
         else:
             return [{}]
 
@@ -75,7 +75,7 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                 con=engine
             )
             df = df[df["MAHDOUDE"].isin(study_area_selected)]
-            return [{'label': i, 'value': i} for i in df.AQUIFER.values]
+            return [{'label': i, 'value': i} for i in sorted(df.AQUIFER.values)]
         else:
             return [{}]
 
@@ -98,7 +98,7 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                 )
                 df = df[df["MAHDOUDE"].isin(study_area_selected)]
                 df = df[df["AQUIFER"].isin(aquifer_selected)]
-                return [{'label': i, 'value': i} for i in df.LOCATION.values]
+                return [{'label': i, 'value': i} for i in sorted(df.LOCATION.values)]
             else:
                 return [{}]
         else:
