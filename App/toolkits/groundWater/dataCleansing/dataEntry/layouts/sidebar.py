@@ -79,25 +79,6 @@ select_worksheet = html.Div(
     ]
 )
 
-select_date_type = html.Div(
-    className='form-group p-3', 
-    children=[
-        dcc.RadioItems(
-            id='SELECT_DATE_TYPE', 
-            value='persian_ymd',
-            options=[
-                {'label': 'تاریخ شمسی با فرمت "01-01-1400"', 'value': 'persian_date'},
-                {'label': 'تاریخ شمسی با فرمت سال، ماه و روز', 'value': 'persian_ymd'},
-                {'label': 'تاریخ میلادی با فرمت "01-01-2020"', 'value': 'gregorian_date'},
-                {'label': 'تاریخ میلادی با فرمت سال، ماه و روز', 'value': 'gregorian_ymd'},
-            ],
-            inputClassName="mx-2",
-            labelClassName="my-2",
-            labelStyle={'display': 'block'},
-        ) 
-    ]
-)
-
 database_modify = html.Div(
     className='form-group p-3', 
     children=[
@@ -176,16 +157,12 @@ sidebar = html.Div(
     className="m-0 p-0",
     children=[
         html.Div(
+            className="form-group p-0 m-0 pb-3",
             children=[
                 html.H5(
                     children="مرحله اول: فراخوانی داده‌ها",
                     className="text-center p-2"
                 ),                
-                dmc.Divider(
-                    variant="solid",
-                    class_name="pb-3",
-                    size="md"
-                ),  
                 dmc.Accordion(
                     class_name="bg-light my-rtl",
                     iconPosition="right",
@@ -228,18 +205,19 @@ sidebar = html.Div(
             ]
         ),
         
+        dmc.Divider(
+            variant="solid",
+            class_name="pb-3",
+            size="md"
+        ),  
+        
         html.Div(
-            className="form-group p-0 pt-5 m-0",
+            className="form-group p-0 m-0",
             children=[
                 html.H5(
                     children="مرحله دوم: فراخوانی شیپ فایل‌ها",
                     className="text-center p-2"
                 ),                
-                dmc.Divider(
-                    variant="solid",
-                    class_name="pb-3",
-                    size="md"
-                ),  
                 dmc.Accordion(
                     class_name="bg-light my-rtl",
                     iconPosition="right",

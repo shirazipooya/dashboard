@@ -50,7 +50,8 @@ def layout():
             ),
             dcc.Store(
                 id='STORAGE',
-                storage_type='memory'
+                storage_type='memory',
+                data={}
             ),
             dcc.Interval(
                 id='INTERVAL',

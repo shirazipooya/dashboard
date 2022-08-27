@@ -6,6 +6,7 @@ import itertools
 import plotly.graph_objects as go
 from sqlalchemy import *
 import Assets.jalali as jalali
+from persiantools.jdatetime import JalaliDate, JalaliDateTime
 from App.db import POSTGRES_USER_NAME, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT
 
 
@@ -15,6 +16,8 @@ from App.db import POSTGRES_USER_NAME, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRE
 # -----------------------------------------------------------------------------
 PATH_THEMPLATE_FILE = "./Assets/Files/HydrographDataTemplate.xlsx"
 
+PATH_UPLOADED_FILES = "./Assets/Files/Uploaded_Files"
+
 
 # -----------------------------------------------------------------------------
 # DATABASE CONNECTION
@@ -22,6 +25,10 @@ PATH_THEMPLATE_FILE = "./Assets/Files/HydrographDataTemplate.xlsx"
 POSTGRES_DB_NAME = "data"
 db = f"postgresql://{POSTGRES_USER_NAME}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB_NAME}"
 engine = create_engine(db, echo=False)
+
+POSTGRES_DB_LAYERS = "layers"
+db_layers = f"postgresql://{POSTGRES_USER_NAME}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB_LAYERS}"
+engine_layers = create_engine(db_layers, echo=False)
 
 
 # -----------------------------------------------------------------------------
@@ -326,5 +333,14 @@ def clean_geoinfo_raw_data_table(
         pass
 
 
-
-
+def chech_persian_date_ymd(
+    year_persian,
+    month_persian,
+    day_persian,
+):
+    try:
+        date_persian = str(year_persian) + "-" + str(month_persian) + "-" + str(day_persian)
+        date_gregorian = JalaliDate(year_persian, month_persian, day_persian).to_gregorian()
+        return date_persian, date_gregorian
+    except:
+        return pd.NA, pd.NA

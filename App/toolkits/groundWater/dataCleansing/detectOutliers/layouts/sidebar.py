@@ -165,23 +165,56 @@ extreme_value_check = html.Div(
     ]
 )
 
+
+action_date = html.Div(
+    className='form-group p-3 text-center', 
+    children=[
+        dbc.Button(
+            id='BUTTON_SHOW_WRONG_DATE',
+            className="me-1 w-50",
+            size="md",
+            children='نمایش تاریخ‌های اشتباه', 
+            color='dark',
+            outline=True,
+            n_clicks=0
+        )
+    ]
+)
+
+
 action_type = html.Div(
     className='form-group p-3', 
     children=[
-        dcc.RadioItems(
+        dcc.Checklist(
+            className="row",
             id='ACTION_TYPE', 
-            value='manual',
+            value=['date', 'zeros'],
             options=[
-                {'label': 'دستی', 'value': 'manual'},
-                {'label': 'خودکار', 'value': 'automatic', 'disabled': True},
+                {'label': 'اصلاح تاریخ‌های اشتباه', 'value': 'date', 'disabled': True},
+                {'label': 'حذف مقادیر صفر سطح ایستابی', 'value': 'zeros', 'disabled': False},
+            ],
+            inputClassName="mx-2",
+            labelClassName="my-2",
+            inline=False
+        ) 
+    ]
+)
+
+select_date_type = html.Div(
+    className='form-group p-3', 
+    children=[
+        dcc.RadioItems(
+            id='SELECT_DATE_TYPE', 
+            value='persian_ymd',
+            options=[
+                {'label': 'تاریخ شمسی با فرمت "01-01-1400"', 'value': 'persian_date'},
+                {'label': 'تاریخ شمسی با فرمت سال، ماه و روز', 'value': 'persian_ymd'},
+                {'label': 'تاریخ میلادی با فرمت "01-01-2020"', 'value': 'gregorian_date'},
+                {'label': 'تاریخ میلادی با فرمت سال، ماه و روز', 'value': 'gregorian_ymd'},
             ],
             inputClassName="mx-2",
             labelClassName="my-2",
             labelStyle={'display': 'block'},
-            style={
-                'display': 'flex',
-                'justify-content': 'space-around'
-            },
         ) 
     ]
 )
@@ -190,57 +223,111 @@ action_type = html.Div(
 sidebar = html.Div(
     className="m-0 p-0",
     children=[
-        
-        html.H5(
-            children="شناسایی داده‌های پرت",
-            className="text-center p-2"
+        html.Div(
+            className='form-group p-0 m-0 pb-3',
+            children=[
+                html.H5(
+                    children="مرحله اول: چک کردن تاریخ",
+                    className="text-center p-2"
+                ),     
+                
+                dmc.Accordion(
+                    class_name="bg-light my-rtl",
+                    iconPosition="right",
+                    children=[
+                        dmc.AccordionItem(
+                            children=[
+                                select_date_type
+                            ],
+                            label="گام 1: انتخاب فرمت ورودی تاریخ",
+                            
+                        ),
+                        dmc.AccordionItem(
+                            children=[
+                                action_date
+                            ],
+                            label="گام 2: نمایش تاریخ‌های اشتباه",
+                            
+                        ),
+                        dmc.AccordionItem(
+                            children=[
+                                ""
+                            ],
+                            label="گام 3: اصلاح یا حذف ردیف‌های جدول",
+                            
+                        ),
+                    ],
+                ),
+
+                html.Div(
+                    className='px-5 py-3 text-center',
+                    children=[
+                        dbc.Button(
+                            id='BUTTON_STAGE_1',
+                            className="me-1 w-50",
+                            size="md",
+                            children='ذخیره تغییرات', 
+                            color='dark',
+                            n_clicks=0
+                        )
+                    ],
+                )
+            ],
         ),
-        
+
         dmc.Divider(
             variant="solid",
             class_name="pb-3",
             size="md"
-        ),        
+        ),  
         
-        dmc.Accordion(
-            class_name="bg-light my-rtl",
-            iconPosition="right",
-            children=[
-                dmc.AccordionItem(
-                    children=[
-                        select_well,
-                    ],
-                    label="گام 1: انتخاب چاه مشاهده‌ای",
-                ),
-                dmc.AccordionItem(
-                    children=[
-                        extreme_value_check
-                    ],
-                    label="گام 2: انتخاب حد شناسایی داده‌های پرت",
-                ),
-                dmc.AccordionItem(
-                    children=[
-                        action_type
-                    ],
-                    label="گام 3: انتخاب روش اصلاح داده‌ها",
-                    
-                ),
-            ],
-        ),
-
         html.Div(
-            className='px-5 py-3 text-center',
+            className='form-group p-0 m-0 pb-3',
             children=[
-                dbc.Button(
-                    id='BUTTON',
-                    className="me-1 w-50",
-                    size="md",
-                    children='ذخیره تغییرات', 
-                    color='dark',
-                    n_clicks=0
+                html.H5(
+                    children="مرحله دوم: اصلاح دستی داده‌ها",
+                    className="text-center p-2"
+                ),     
+                
+                dmc.Accordion(
+                    class_name="bg-light my-rtl",
+                    iconPosition="right",
+                    children=[
+                        dmc.AccordionItem(
+                            children=[
+                                select_well,
+                            ],
+                            label="گام 1: انتخاب چاه مشاهده‌ای",
+                        ),
+                        dmc.AccordionItem(
+                            children=[
+                                extreme_value_check
+                            ],
+                            label="گام 2: انتخاب حد شناسایی داده‌های پرت",
+                        ),
+                        dmc.AccordionItem(
+                            children=[
+                                ""
+                            ],
+                            label="گام 3: انتخاب نقاط از روی نمودار و اصلاح مقادیر جدول",
+                        ),
+                    ],
+                ),
+
+                html.Div(
+                    className='px-5 py-3 text-center',
+                    children=[
+                        dbc.Button(
+                            id='BUTTON_STAGE_2',
+                            className="me-1 w-50",
+                            size="md",
+                            children='ذخیره تغییرات', 
+                            color='dark',
+                            n_clicks=0
+                        )
+                    ],
                 )
             ],
-        )
-
+        ),
     ]
 )
