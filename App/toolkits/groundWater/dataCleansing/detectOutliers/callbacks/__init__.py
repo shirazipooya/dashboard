@@ -18,14 +18,38 @@ PATH_THEMPLATE_FILE = "./Assets/Files/HydrographDataTemplate.xlsx"
 
 PATH_UPLOADED_FILES = "./Assets/Files/Uploaded_Files"
 
+NO_MATCHING_GRAPH_FOUND = {
+    "layout": {
+        "xaxis": {"visible": False},
+        "yaxis": {"visible": False},
+        "annotations": [
+            {
+                "text": "No Graph Found ...",
+                "xref": "paper",
+                "yref": "paper",
+                "showarrow": False,
+                "font": {"size": 36}
+            }
+        ]
+    }
+}
 
 # -----------------------------------------------------------------------------
-# DATABASE CONNECTION
+# DATABASE CONNECTION: data
 # -----------------------------------------------------------------------------
 POSTGRES_DB_NAME = "data"
+TABLE_NAME_RAW_DATA = "raw_data"
+TABLE_NAME_MODIFIED_DATA = "modified_data"
+TABLE_NAME_RAW_DATA_DELETED = "raw_data_deleted"
+TABLE_NAME_RAW_DATA_MODIFIED = "raw_data_modified"
+
 db = f"postgresql://{POSTGRES_USER_NAME}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB_NAME}"
 engine = create_engine(db, echo=False)
 
+
+# -----------------------------------------------------------------------------
+# DATABASE CONNECTION: layers
+# -----------------------------------------------------------------------------
 POSTGRES_DB_LAYERS = "layers"
 db_layers = f"postgresql://{POSTGRES_USER_NAME}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB_LAYERS}"
 engine_layers = create_engine(db_layers, echo=False)
@@ -76,7 +100,7 @@ def read_data_from_spreadsheet(
 
 def create_geoinfo_data_table(
     geoinfo_data,
-    engin,
+    engine,
     table_name,
     geoinfo_data_column,
     if_exists
@@ -110,14 +134,14 @@ def create_geoinfo_data_table(
     if (if_exists == 'replace') or (table_name not in table_name_list_exist):
         geoinfo_data.to_sql(
             name=table_name,
-            con=engin,
+            con=engine,
             if_exists='replace',
             index=False
         )
     else:
         geoinfo_data_exist = pd.read_sql_query(
             sql=f"SELECT * FROM {table_name}",
-            con=engin
+            con=engine
         )
                     
         geoinfo_data = pd.concat(
@@ -128,7 +152,7 @@ def create_geoinfo_data_table(
         
         geoinfo_data.to_sql(
             name=table_name,
-            con=engin,
+            con=engine,
             if_exists='replace',
             index=False
         )
@@ -136,7 +160,7 @@ def create_geoinfo_data_table(
 
 def create_raw_data_table(
     raw_data,
-    engin,
+    engine,
     table_name,
     raw_data_column,
     if_exists,
@@ -235,14 +259,14 @@ def create_raw_data_table(
     if (if_exists == 'replace') or (table_name not in table_name_list_exist):
         raw_data.to_sql(
             name=table_name,
-            con=engin,
+            con=engine,
             if_exists='replace',
             index=False
         )
     else:
         raw_data_exist = pd.read_sql_query(
             sql=f"SELECT * FROM {table_name}",
-            con=engin
+            con=engine
         )
         
         raw_data = pd.concat(
@@ -253,14 +277,14 @@ def create_raw_data_table(
         
         raw_data.to_sql(
             name=table_name,
-            con=engin,
+            con=engine,
             if_exists='replace',
             index=False
         )
 
 
 def clean_geoinfo_raw_data_table(
-    engin,
+    engine,
     table_name_geoinfo,
     table_name_raw_data,
 ):
@@ -282,12 +306,12 @@ def clean_geoinfo_raw_data_table(
         
         geoinfo_data = pd.read_sql_query(
             sql=f"SELECT * FROM {table_name_geoinfo}",
-            con=engin
+            con=engine
         )
         
         raw_data = pd.read_sql_query(
             sql=f"SELECT * FROM {table_name_raw_data}",
-            con=engin
+            con=engine
         )
         
         geoinfo_data_tmp = geoinfo_data.copy()
@@ -317,14 +341,14 @@ def clean_geoinfo_raw_data_table(
         
         geoinfo_data.to_sql(
             name=table_name_geoinfo,
-            con=engin,
+            con=engine,
             if_exists='replace',
             index=False
         )
         
         raw_data.to_sql(
             name=table_name_raw_data,
-            con=engin,
+            con=engine,
             if_exists='replace',
             index=False
         )

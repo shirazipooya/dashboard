@@ -1,4 +1,4 @@
-from dash import html, dash_table
+from dash import html, dash_table, dcc
 import dash_bootstrap_components as dbc
 
 table_date = dash_table.DataTable(
@@ -13,6 +13,48 @@ table_date = dash_table.DataTable(
         {"column_id": "AQUIFER", "direction": "asc"},
         {"column_id": "LOCATION", "direction": "asc"},
     ],
+    page_size=14,
+    style_as_list_view=True,
+    style_table={
+        'overflowX': 'auto',
+        'overflowY': 'auto',
+        'direction': 'rtl',
+    },
+    style_cell={
+        'font-family': "Vazir-Regular-FD",
+        'border': '1px solid grey',
+        'font-size': '14px',
+        'text_align': 'center',
+        'minWidth': 150,
+        'maxWidth': 200,
+    },
+    style_header={
+        'backgroundColor': 'rgb(210, 210, 210)',
+        'border':'1px solid grey',
+        'fontWeight': 'bold',
+        'text_align': 'center',
+        'height': 'auto',
+    },
+    style_data={
+        'color': 'black',
+        'backgroundColor': 'white'
+    },
+    style_data_conditional=[
+        {
+            'if': {'row_index': 'odd'},
+            'backgroundColor': 'rgb(245, 245, 245)',
+        }
+    ]
+)
+
+
+table_graph = dash_table.DataTable(
+    id="TABLE_GRAPH",
+    editable=True,
+    row_deletable=True,
+    filter_action="native",
+    sort_action="native",
+    sort_mode="multi",
     page_size=14,
     style_as_list_view=True,
     style_table={
@@ -74,7 +116,26 @@ body = html.Div(
             className='row p-1 m-0',
             children=[
                 html.Div(
-                    id='GRAPH',
+                    children=[
+                        dcc.Graph(
+                            id='GRAPH',
+                            figure={
+                                "layout": {
+                                    "xaxis": {"visible": False},
+                                    "yaxis": {"visible": False},
+                                    "annotations": [
+                                        {
+                                            "text": "No Graph Found ...",
+                                            "xref": "paper",
+                                            "yref": "paper",
+                                            "showarrow": False,
+                                            "font": {"size": 36}
+                                        }
+                                    ]
+                                }
+                            }
+                        )
+                    ],
                     className='col p-0 m-0 w-100',
                     dir="rtl"
                 )
@@ -84,9 +145,17 @@ body = html.Div(
             className='row p-1 m-0',
             children=[
                 html.Div(
-                    id='TABLE-SELECTED',
+                    id='DIV_TABLE_GRAPH',
+                    children=[
+                        html.H3(
+                            className="pt-3",
+                            children="جدول داده‌های انتخاب شده از نمودار"
+                        ),
+                        table_graph,
+                    ],
                     className='col p-0 m-0 w-100',
-                    dir="rtl"
+                    dir="rtl",
+                    hidden=True,
                 )
             ]
         ),
@@ -96,7 +165,8 @@ body = html.Div(
                 html.Div(
                     id='TABLE',
                     className='col p-0 m-0 w-100',
-                    dir="rtl"
+                    dir="rtl",
+                    hidden=True,
                 )
             ]
         ),

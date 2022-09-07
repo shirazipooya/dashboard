@@ -224,6 +224,12 @@ sidebar = html.Div(
     className="m-0 p-0",
     children=[
         html.Div(
+            className='text-center pb-4',
+            children=[
+                html.H2("شناسایی داده‌های پرت")
+            ],
+        ),
+        html.Div(
             className='form-group p-0 m-0 pb-3',
             children=[
                 html.H5(
@@ -239,36 +245,54 @@ sidebar = html.Div(
                             children=[
                                 select_date_type
                             ],
-                            label="گام 1: انتخاب فرمت ورودی تاریخ",
+                            label="1- انتخاب فرمت ورودی تاریخ",
                             
                         ),
                         dmc.AccordionItem(
                             children=[
                                 action_date
                             ],
-                            label="گام 2: نمایش تاریخ‌های اشتباه",
+                            label="2- نمایش تاریخ‌های اشتباه",
                             
                         ),
                         dmc.AccordionItem(
                             children=[
                                 ""
                             ],
-                            label="گام 3: اصلاح یا حذف ردیف‌های جدول",
+                            label="3- اصلاح یا حذف ردیف‌های جدول",
                             
                         ),
                     ],
                 ),
 
                 html.Div(
-                    className='px-5 py-3 text-center',
+                    className='row px-5 py-3 text-center',
                     children=[
-                        dbc.Button(
-                            id='BUTTON_STAGE_1',
-                            className="me-1 w-50",
-                            size="md",
-                            children='ذخیره تغییرات', 
-                            color='dark',
-                            n_clicks=0
+                        html.Div(
+                            className='col p-0 px-2 m-0',
+                            children=[
+                                dbc.Button(
+                                    id='BUTTON_STAGE_1',
+                                    className="me-1 w-100",
+                                    size="md",
+                                    children='ذخیره تغییرات', 
+                                    color='dark',
+                                    n_clicks=0
+                                ),
+                            ],
+                        ),
+                        html.Div(
+                            className='col p-0 px-2 m-0',
+                            children=[
+                                dbc.Button(
+                                    id='BUTTON_DATE',
+                                    className="me-1 w-100",
+                                    size="md",
+                                    children='تنظیم تاریخ', 
+                                    color='dark',
+                                    n_clicks=0,
+                                )
+                            ],
                         )
                     ],
                 )
@@ -278,7 +302,7 @@ sidebar = html.Div(
         dmc.Divider(
             variant="solid",
             class_name="pb-3",
-            size="md"
+            size="sm"
         ),  
         
         html.Div(
@@ -297,19 +321,31 @@ sidebar = html.Div(
                             children=[
                                 select_well,
                             ],
-                            label="گام 1: انتخاب چاه مشاهده‌ای",
+                            label="1- انتخاب چاه مشاهده‌ای",
                         ),
                         dmc.AccordionItem(
                             children=[
                                 extreme_value_check
                             ],
-                            label="گام 2: انتخاب حد شناسایی داده‌های پرت",
+                            label="2- انتخاب حد شناسایی داده‌های پرت",
                         ),
                         dmc.AccordionItem(
                             children=[
-                                ""
+                                html.Div(
+                                    className='px-5 py-3 text-center',
+                                    children=[
+                                        dbc.Button(
+                                            id='BUTTON_SHOW_TABLE_GRAPH',
+                                            className="me-1",
+                                            size="md",
+                                            children='نمایش جدول نقاط انتخاب شده', 
+                                            color='dark',
+                                            n_clicks=0
+                                        )
+                                    ],
+                                )
                             ],
-                            label="گام 3: انتخاب نقاط از روی نمودار و اصلاح مقادیر جدول",
+                            label="3- انتخاب نقاط از روی نمودار و اصلاح مقادیر جدول",
                         ),
                     ],
                 ),
@@ -318,7 +354,7 @@ sidebar = html.Div(
                     className='px-5 py-3 text-center',
                     children=[
                         dbc.Button(
-                            id='BUTTON_STAGE_2',
+                            id='BUTTON_TABLE_GRAPH',
                             className="me-1 w-50",
                             size="md",
                             children='ذخیره تغییرات', 

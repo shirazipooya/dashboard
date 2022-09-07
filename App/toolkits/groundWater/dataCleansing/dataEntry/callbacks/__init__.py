@@ -419,23 +419,23 @@ def create_update_modified_data_table(
             index=False
         )
         
-        tmp = pd.DataFrame(
-            columns=raw_data.columns
-        )
+        # tmp = pd.DataFrame(
+        #     columns=raw_data.columns
+        # )
         
-        tmp.to_sql(
-            name=table_name_raw_data_deleted,
-            con=engine,
-            if_exists='replace',
-            index=False
-        )
+        # tmp.to_sql(
+        #     name=table_name_raw_data_deleted,
+        #     con=engine,
+        #     if_exists='replace',
+        #     index=False
+        # )
         
-        tmp.to_sql(
-            name=table_name_raw_data_modified,
-            con=engine,
-            if_exists='replace',
-            index=False
-        )
+        # tmp.to_sql(
+        #     name=table_name_raw_data_modified,
+        #     con=engine,
+        #     if_exists='replace',
+        #     index=False
+        # )
     
     else:
         

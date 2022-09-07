@@ -84,10 +84,10 @@ database_modify = html.Div(
     children=[
         dcc.RadioItems(
             id='DATABASE_MODIFY', 
-            value='append',
+            value='replace',
             options=[
                 {'label': 'جایگزینی با پایگاه داده خام موجود', 'value': 'replace'},
-                {'label': 'به‌روزرسانی پایگاه داده خام موجود', 'value': 'append'},
+                {'label': 'به‌روزرسانی پایگاه داده خام موجود', 'value': 'append', 'disabled': True},
             ],
             inputClassName="mx-2",
             labelClassName="my-2",
@@ -157,10 +157,16 @@ sidebar = html.Div(
     className="m-0 p-0",
     children=[
         html.Div(
+            className='text-center pb-4',
+            children=[
+                html.H2("فراخوانی داده‌ها")
+            ],
+        ),
+        html.Div(
             className="form-group p-0 m-0 pb-3",
             children=[
                 html.H5(
-                    children="مرحله اول: فراخوانی داده‌ها",
+                    children="مرحله اول: فراخوانی داده‌های سطح آب",
                     className="text-center p-2"
                 ),                
                 dmc.Accordion(
@@ -171,20 +177,20 @@ sidebar = html.Div(
                             children=[
                                 upload_file,
                             ],
-                            label="گام 1: انتخاب فایل صفحه گسترده",
+                            label="1- انتخاب فایل صفحه گسترده",
                         ),
                         dmc.AccordionItem(
                             children=[
                                 select_worksheet
                             ],
-                            label="گام 2: انتخاب کاربرگ",
+                            label="2- انتخاب کاربرگ",
                             
                         ),
                         dmc.AccordionItem(
                             children=[
                                 database_modify
                             ],
-                            label="گام 3: نحوه تغییرات پایگاه داده",
+                            label="3- نحوه تغییرات پایگاه داده",
                             
                         )
                     ],
@@ -208,7 +214,7 @@ sidebar = html.Div(
         dmc.Divider(
             variant="solid",
             class_name="pb-3",
-            size="md"
+            size="sm"
         ),  
         
         html.Div(
@@ -226,19 +232,19 @@ sidebar = html.Div(
                             children=[
                                 upload_shapefile
                             ],
-                            label="گام 1: انتخاب شیپ فایل",
+                            label="1- انتخاب شیپ فایل",
                         ),
                         dmc.AccordionItem(
                             children=[
                                 shapefile_type
                             ],
-                            label="گام 2: انتخاب نوع شیپ فایل",
+                            label="2- انتخاب نوع شیپ فایل",
                         ),
                         dmc.AccordionItem(
                             children=[
                                 geodatabase_modify
                             ],
-                            label="گام 3: نحوه تغییرات پایگاه داده",
+                            label="3- نحوه تغییرات پایگاه داده",
                         ),
                     ],
                 ),
