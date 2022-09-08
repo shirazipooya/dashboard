@@ -8,7 +8,6 @@ from dash.dependencies import Output, Input, State
 from dash.exceptions import PreventUpdate
 from dash_extensions.enrich import DashLogger
 import dash_mantine_components as dmc
-from dash_iconify import DashIconify
 import dash_datatables as ddt
 from geoalchemy2 import Geometry, WKTElement
 import plotly.graph_objects as go

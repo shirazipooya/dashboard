@@ -2,7 +2,6 @@ from re import A
 from dash import html, dcc
 import dash_mantine_components as dmc
 import dash_bootstrap_components as dbc
-from dash_iconify import DashIconify
 
 
 upload_file = html.Div(
