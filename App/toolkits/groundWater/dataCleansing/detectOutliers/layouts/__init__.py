@@ -58,7 +58,13 @@ def layout():
                 interval=1000,
                 n_intervals=0,
                 max_intervals=1
-            ) 
+            ), 
+            dcc.Interval(
+                id='INTERVAL-STUDYAREA',
+                interval=5,
+                n_intervals=0,
+                max_intervals=1
+            ), 
         ]
     )
     

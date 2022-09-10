@@ -1,8 +1,22 @@
-from re import A
 from dash import html, dcc
 import dash_mantine_components as dmc
 import dash_bootstrap_components as dbc
 
+NO_MAP_AVAILABLE = {
+    "layout": {
+        "xaxis": {"visible": False},
+        "yaxis": {"visible": False},
+        "annotations": [
+            {
+                "text": "No Map Available ...",
+                "xref": "paper",
+                "yref": "paper",
+                "showarrow": False,
+                "font": {"size": 24}
+            }
+        ]
+    }
+}
 
 select_well = html.Div(
     className='form-group p-3', 
@@ -89,6 +103,7 @@ select_well = html.Div(
                         ),
                         dcc.Graph(
                             id='MAP',
+                            figure=NO_MAP_AVAILABLE,
                             className="border border-secondary p-0 m-0",
                             style={
                                 "height": "300px",
@@ -171,7 +186,7 @@ action_date = html.Div(
     children=[
         dbc.Button(
             id='BUTTON_SHOW_WRONG_DATE',
-            className="me-1 w-50",
+            className="me-1",
             size="md",
             children='نمایش تاریخ‌های اشتباه', 
             color='dark',
@@ -257,10 +272,15 @@ sidebar = html.Div(
                         ),
                         dmc.AccordionItem(
                             children=[
-                                ""
+                                html.Div(
+                                    className='px-1 py-3 text-center',
+                                    children=[
+                                        "از جدول «ردیف‌ها با تاریخ اشتباه» تاریخ‌های نمایش داده شده را اصلاح یا با کلیک بر روی علامت ضربدر آن ردیف را حذف کنید و در ادامه روی «ذخیره تغییرات» و سپس «تنظیم تاریخ» کلیک نمایید."
+                                    ],
+                                )
                             ],
                             label="3- اصلاح یا حذف ردیف‌های جدول",
-                            
+
                         ),
                     ],
                 ),
@@ -332,16 +352,9 @@ sidebar = html.Div(
                         dmc.AccordionItem(
                             children=[
                                 html.Div(
-                                    className='px-5 py-3 text-center',
+                                    className='px-1 py-3 text-center',
                                     children=[
-                                        dbc.Button(
-                                            id='BUTTON_SHOW_TABLE_GRAPH',
-                                            className="me-1",
-                                            size="md",
-                                            children='نمایش جدول نقاط انتخاب شده', 
-                                            color='dark',
-                                            n_clicks=0
-                                        )
+                                        "با استفاده از ابزار انتخاب نمودار، داده‌هایی که نیاز به اصلاح دارند را انتخاب و در جدول نمایش داده شده، داده‌های انتخابی را اصلاح کنید. پس از انجام تغییرات روی «ذخیره تغییرات» کلیک نمایید."
                                     ],
                                 )
                             ],
@@ -349,17 +362,37 @@ sidebar = html.Div(
                         ),
                     ],
                 ),
-
                 html.Div(
-                    className='px-5 py-3 text-center',
+                    className='row px-5 py-3 text-center',
                     children=[
-                        dbc.Button(
-                            id='BUTTON_TABLE_GRAPH',
-                            className="me-1 w-50",
-                            size="md",
-                            children='ذخیره تغییرات', 
-                            color='dark',
-                            n_clicks=0
+                        html.Div(
+                            className='col p-0 px-2 m-0',
+                            children=[
+                                dbc.Button(
+                                    id='BUTTON_TABLE_GRAPH',
+                                    className="me-1 w-100",
+                                    size="md",
+                                    children='ذخیره تغییرات', 
+                                    color='dark',
+                                    n_clicks=0
+                                ),
+                            ],
+                        ),
+                        html.Div(
+                            className='col p-0 px-2 m-0',
+                            children=[
+                                html.A(
+                                    children = 
+                                        dbc.Button(
+                                            className="me-1 w-100",
+                                            size="md",
+                                            children='بارگذاری صفحه', 
+                                            color='dark',
+                                            n_clicks=0
+                                        ),
+                                    href='/groundwater/dataCleansing/detectOutliers/'
+                                ) 
+                            ],
                         )
                     ],
                 )
