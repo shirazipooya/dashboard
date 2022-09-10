@@ -264,7 +264,9 @@ def create_raw_data_table(
 
     raw_data = raw_data.drop_duplicates().sort_values(
         by=sort_columns
-    ).reset_index(drop=True)  
+    ).reset_index(drop=True)
+    
+    raw_data['DESCRIPTION'] = raw_data['DESCRIPTION'].fillna("")
 
     conn = psycopg2.connect(
                 database=POSTGRES_DB_NAME,

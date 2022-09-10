@@ -320,7 +320,7 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                 
                 df_selected_modify = pd.DataFrame(data_table_state)
                 
-                df_selected_modify["DESCRIPTION"] = "تاریخ اصلاح شده است."
+                df_selected_modify["DESCRIPTION"] = df_selected_modify["DESCRIPTION"] + "تاریخ اصلاح شده است."
                                 
                 df = pd.read_sql_query(
                     sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA}",
@@ -792,7 +792,7 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                             )
                         )
                         
-                        tmp = df[df["DESCRIPTION"] == "تاریخ اصلاح شده است."]
+                        tmp = df[df["DESCRIPTION"].str.contains("تاریخ اصلاح شده است.")]
                         
                         fig.add_trace(
                             go.Scatter(
@@ -802,12 +802,12 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                                 name=f'تاریخ اصلاح شده',
                                 marker=dict(
                                     color='black',
-                                    size=8,
+                                    size=12,
                                 ),
                             )
                         )                        
                         
-                        tmp = df[df["DESCRIPTION"] == "سطح ایستابی اصلاح شده است."]
+                        tmp = df[df["DESCRIPTION"].str.contains("سطح ایستابی اصلاح شده است.")]
                         
                         fig.add_trace(
                             go.Scatter(
@@ -1134,7 +1134,7 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
             if len(storage_state["index_selected_data"]) != 0:
                 
                 df_selected_data = pd.DataFrame(table_selected_data_state)
-                df_selected_data["DESCRIPTION"] = "سطح ایستابی اصلاح شده است."
+                df_selected_data["DESCRIPTION"] = df_selected_data["DESCRIPTION"] + "سطح ایستابی اصلاح شده است."
                                 
                 df = pd.read_sql_query(
                     sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA}",
