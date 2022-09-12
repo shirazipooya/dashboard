@@ -1,6 +1,8 @@
+import itertools
 import numpy as np
 import pandas as pd
 import sqlalchemy as sa
+import psycopg2
 import plotly.graph_objects as go
 from persiantools.jdatetime import JalaliDate, JalaliDateTime
 from App.db import POSTGRES_USER_NAME, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT
@@ -137,6 +139,8 @@ def f_interpolate(
         
         df = df.reset_index(drop=True)
         
+        df.loc[df[df["WATER_TABLE"].isna()].index, "DESCRIPTION"] = df.loc[df[df["WATER_TABLE"].isna()].index, "DESCRIPTION"] + f"روش بازسازی داده‌ها - {method}"
+                
         if method in ["polynomial", "spline"]:
             if limit == 0:
                 df["WATER_TABLE"] = df["WATER_TABLE"].interpolate(method=method, order=order)
@@ -169,3 +173,92 @@ def ymd_persian_to_date(
         return date_persian, date_gregorian
     except:
         return pd.NA, pd.NA
+    
+    
+# -----------------------------------------------------------------------------
+# FUNCTION FIND TABLE
+# -----------------------------------------------------------------------------
+def find_table(
+    database,
+    table,
+    user,
+    password,
+    host,
+    port,
+):
+    conn = psycopg2.connect(
+        database=database,
+        user=user,
+        password=password,
+        host=host,
+        port=port
+    )
+    conn.autocommit = True    
+    cursor = conn.cursor()    
+    sql = '''SELECT table_name FROM information_schema.tables;'''
+    cursor.execute(sql)
+    table_name_list_exist = list(itertools.chain.from_iterable(cursor.fetchall()))
+    conn.close()
+    
+    if table in table_name_list_exist:
+        return True
+    else:
+        return False
+
+
+# -----------------------------------------------------------------------------
+# FUNCTION UPDATE TABLE
+# -----------------------------------------------------------------------------
+def update_table(
+    data,
+    table_exist,
+    table_name,
+    engine,
+    study_area=None,
+    aquifer=None,
+    well=None,
+):
+
+    if table_exist:
+        
+        data_exist = pd.read_sql_query(
+            sql=f"SELECT * FROM {table_name}",
+            con=engine
+        )
+        
+        if (study_area is not None) and (aquifer is not None) and (well is not None):
+            df = data_exist.drop(
+                data_exist[(data_exist['MAHDOUDE'] == study_area) & (data_exist['AQUIFER'] == aquifer) & (data_exist['LOCATION'] == well)].index
+            ).reset_index(drop=True)
+        elif (study_area is not None) and (aquifer is not None) and (well is None):
+            df = data_exist.drop(
+                data_exist[(data_exist['MAHDOUDE'] == study_area) & (data_exist['AQUIFER'] == aquifer)].index
+            ).reset_index(drop=True)
+        elif (study_area is not None) and (aquifer is None) and (well is None):
+            df = data_exist.drop(
+                data_exist[(data_exist['MAHDOUDE'] == study_area)].index
+            ).reset_index(drop=True)
+        else:
+            df = pd.DataFrame(columns=data_exist.columns)
+        
+        data = pd.concat(
+            [df, data]
+        ).drop_duplicates().sort_values(
+            by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]
+        ).reset_index(drop=True)
+        
+        data.to_sql(
+            name=table_name,
+            con=engine,
+            if_exists='replace',
+            index=False
+        )
+        
+    else:
+        
+        data.to_sql(
+            name=table_name,
+            con=engine,
+            if_exists='replace',
+            index=False
+        )

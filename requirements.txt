@@ -17,3 +17,4 @@ SQLAlchemy
 GeoAlchemy2
 Shapely
 persiantools
+swifter[groupby]

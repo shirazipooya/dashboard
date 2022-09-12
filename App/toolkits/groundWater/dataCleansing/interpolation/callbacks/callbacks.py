@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import geopandas as gpd
 import psycopg2
+import swifter
 from dash import no_update
 from dash.dependencies import Output, Input, State
 import plotly.graph_objects as go
@@ -123,13 +124,15 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
         Output('AQUIFER_SELECT', 'value'),
         Output('WELL_SELECT', 'value'),
         Output('INTERPOLATE_METHODS', 'value'),
+        Output('SAVE_INTERPOLATE_METHODS', 'value'),
+        Output('SAVE_WHICH_WELL', 'value'),
+        
         Input('STUDY_AREA_SELECT', 'value'),
         Input('AQUIFER_SELECT', 'value'),
         Input('WELL_SELECT', 'value'),
-        Input('INTERPOLATE_METHODS', 'value'),
     )
     def update_dropdown_list(
-        study_area, aquifer, well, methods
+        study_area, aquifer, well
     ):
         if (study_area is not None and len(study_area) != 0) and\
             (aquifer is None or len(aquifer) == 0) and\
@@ -139,7 +142,9 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
                 no_update,
                 [],
                 [],
-                []
+                [],
+                None,
+                None,
             ]
             
             return result
@@ -152,7 +157,9 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
                 [],
                 [],
                 [],
-                []
+                [],
+                None,
+                None,
             ]
             
             return result
@@ -163,7 +170,9 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
                 no_update,
                 no_update,
                 no_update,
-                no_update
+                no_update,
+                no_update,
+                no_update,
             ]
             
             return result
@@ -446,10 +455,10 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
                             
                             notify = dmc.Notification(
                                 id ="notify",
-                                title = "خطا",
-                                message = ["برای مقایسه حداکثر دو روش قابل انتخاب است!"],
+                                title = "",
+                                message = [""],
                                 color = 'red',
-                                action = "show",
+                                action = "hide",
                             )
                             
                             result = [
@@ -584,10 +593,10 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
                             
                             notify = dmc.Notification(
                                 id ="notify",
-                                title = "خطا",
-                                message = ["برای مقایسه حداکثر دو روش قابل انتخاب است!"],
+                                title = "",
+                                message = [""],
                                 color = 'red',
-                                action = "show",
+                                action = "hide",
                             )
                             
                             result = [
@@ -770,6 +779,333 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
         else:
             
             return NO_MATCHING_GRAPH_FOUND
+
+
+    # -----------------------------------------------------------------------------
+    # CALLBACK: OPTION FOR DROPDOWN WHICH-WELL
+    # -----------------------------------------------------------------------------  
+    @app.callback(
+        Output('SAVE_WHICH_WELL', 'options'),
+        Input('STUDY_AREA_SELECT', 'value'),
+        Input('AQUIFER_SELECT', 'value'),
+        Input('WELL_SELECT', 'value'),
+    ) 
+    def which_well_selected(
+        study_area, aquifer, well
+    ):
+        if study_area is not None and len(study_area) != 0 and\
+            aquifer is not None and len(aquifer) != 0 and\
+                well is not None and len(well) != 0:
+                    
+                    return [
+                        {'label': 'همه چاه‌های مشاهده‌ای', 'value': 0},
+                        {'label': f'همه چاه‌های محدوده‌ مطالعاتی {study_area}', 'value': 1},
+                        {'label': f'همه چاه‌های آبخوان‌ {aquifer}', 'value': 2},
+                        {'label': f'چاه مشاهده‌ای {well}', 'value': 3},
+                    ]
+                    
+        elif study_area is not None and len(study_area) != 0 and\
+            aquifer is not None and len(aquifer) != 0:
+            
+                return [
+                    {'label': 'همه چاه‌های مشاهده‌ای', 'value': 0},
+                    {'label': f'همه چاه‌های محدوده‌ مطالعاتی {study_area}', 'value': 1},
+                    {'label': f'همه چاه‌های آبخوان‌ {aquifer}', 'value': 2},
+                ]
+                
+        elif study_area is not None and len(study_area) != 0:
+            
+                return [
+                    {'label': 'همه چاه‌های مشاهده‌ای', 'value': 0},
+                    {'label': f'همه چاه‌های محدوده‌ مطالعاتی {study_area}', 'value': 1},
+                ]
+                
+        else:
+            
+            return [
+                {'label': 'همه چاه‌های مشاهده‌ای', 'value': 0},
+            ]
+
+
+    # -----------------------------------------------------------------------------
+    # CALLBACK: SAVE INTERPOLATED DATA
+    # -----------------------------------------------------------------------------  
+    @app.callback(
+        Output('SAVE_INTERPOLATE_BUTTON', 'n_clicks'),
+        Output("ALERTS", "children"),
+        Input('SAVE_INTERPOLATE_BUTTON', 'n_clicks'),
+        Input('STUDY_AREA_SELECT', 'value'),
+        Input('AQUIFER_SELECT', 'value'),
+        Input('WELL_SELECT', 'value'),
+        Input('SAVE_INTERPOLATE_METHODS', 'value'),
+        Input('SAVE_ORDER_INTERPOLATE_METHODS', 'value'),
+        Input('SAVE_NUMBER_MONTHS', 'value'),
+        Input('SAVE_WHICH_WELL', 'value'),
+    ) 
+    def save_interpolation(
+        n, study_area, aquifer, well, method, order, limit, which_well
+    ):
+        if n != 0:
+            
+            if method is not None and len(method) != 0:
+                
+                table_exist = find_table(
+                    database=POSTGRES_DB_NAME,
+                    table=TABLE_NAME_INTERPOLATED_DATA,
+                    user=POSTGRES_USER_NAME,
+                    password=POSTGRES_PASSWORD,
+                    host=POSTGRES_HOST,
+                    port=POSTGRES_PORT
+                )
+                
+                if which_well is not None:
+                    
+                    if which_well == 0:
+
+                        sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA}"
+
+                        df = pd.read_sql_query(
+                            sql = sql,
+                            con = engine
+                        )
+                                                
+                        df = df.groupby(
+                            by=["MAHDOUDE", "AQUIFER", "LOCATION"]
+                        ).apply(lambda x: f_interpolate(
+                            df=x,
+                            method=method,
+                            order=order,
+                            limit=limit,
+                            time_scale="monthly"
+                        )).reset_index(drop=True)
+                        
+                        df = df.sort_values(
+                            by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]
+                        )
+                        
+                        update_table(
+                            data=df,
+                            table_exist=table_exist,
+                            table_name=TABLE_NAME_INTERPOLATED_DATA,
+                            engine=engine,
+                            study_area=None,
+                            aquifer=None,
+                            well=None,
+                        )
+                        
+                        notify = dmc.Notification(
+                            id ="notify",
+                            title = "خبر",
+                            message = ["تغییرات با موفقیت آپدیت شد!"],
+                            color = 'green',
+                            action = "show",
+                        )
+                        
+                        result = [
+                            0,
+                            notify
+                        ]
+                    
+                        return result
+                    
+                    elif which_well == 1:
+                        
+                        sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" = '{study_area}'"
+
+                        df = pd.read_sql_query(
+                            sql = sql,
+                            con = engine
+                        )
+                        
+                        df = df.groupby(
+                            by=["MAHDOUDE", "AQUIFER", "LOCATION"]
+                        ).apply(lambda x: f_interpolate(
+                            df=x,
+                            method=method,
+                            order=order,
+                            limit=limit,
+                            time_scale="monthly"
+                        )).reset_index(drop=True)
+                        
+                        df = df.sort_values(
+                            by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]
+                        )
+                                            
+                        update_table(
+                            data=df,
+                            table_exist=table_exist,
+                            table_name=TABLE_NAME_INTERPOLATED_DATA,
+                            engine=engine,
+                            study_area=study_area,
+                            aquifer=None,
+                            well=None,
+                        )
+                        
+                        notify = dmc.Notification(
+                            id ="notify",
+                            title = "خبر",
+                            message = ["تغییرات با موفقیت آپدیت شد!"],
+                            color = 'green',
+                            action = "show",
+                        )
+                        
+                        result = [
+                            0,
+                            notify
+                        ]
+                    
+                        return result
+                    
+                    elif which_well == 2:
+                        
+                        sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}'"
+
+                        df = pd.read_sql_query(
+                            sql = sql,
+                            con = engine
+                        )
+                                                
+                        df = df.groupby(
+                            by=["MAHDOUDE", "AQUIFER", "LOCATION"]
+                        ).apply(lambda x: f_interpolate(
+                            df=x,
+                            method=method,
+                            order=order,
+                            limit=limit,
+                            time_scale="monthly"
+                        )).reset_index(drop=True)
+                        
+                        df = df.sort_values(
+                            by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]
+                        )
+                                                
+                        update_table(
+                            data=df,
+                            table_exist=table_exist,
+                            table_name=TABLE_NAME_INTERPOLATED_DATA,
+                            engine=engine,
+                            study_area=study_area,
+                            aquifer=aquifer,
+                            well=None,
+                        )
+                        
+                        notify = dmc.Notification(
+                            id ="notify",
+                            title = "خبر",
+                            message = ["تغییرات با موفقیت آپدیت شد!"],
+                            color = 'green',
+                            action = "show",
+                        )
+                        
+                        result = [
+                            0,
+                            notify
+                        ]
+                    
+                        return result
+                    
+                    elif which_well == 3:
+                        
+                        sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" = '{well}'"
+
+                        df = pd.read_sql_query(
+                            sql = sql,
+                            con = engine
+                        )
+                                                
+                        df = df.groupby(
+                            by=["MAHDOUDE", "AQUIFER", "LOCATION"]
+                        ).apply(lambda x: f_interpolate(
+                            df=x,
+                            method=method,
+                            order=order,
+                            limit=limit,
+                            time_scale="monthly"
+                        )).reset_index(drop=True)
+                        
+                        df = df.sort_values(
+                            by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]
+                        )
+                                                
+                        update_table(
+                            data=df,
+                            table_exist=table_exist,
+                            table_name=TABLE_NAME_INTERPOLATED_DATA,
+                            engine=engine,
+                            study_area=study_area,
+                            aquifer=aquifer,
+                            well=well,
+                        )
+                        
+                        notify = dmc.Notification(
+                            id ="notify",
+                            title = "خبر",
+                            message = ["تغییرات با موفقیت آپدیت شد!"],
+                            color = 'green',
+                            action = "show",
+                        )
+                        
+                        result = [
+                            0,
+                            notify
+                        ]
+                    
+                        return result
+                    
+                    else:
+                        
+                        pass
+                
+                else:
+                    
+                    notify = dmc.Notification(
+                        id ="notify",
+                        title = "خطا",
+                        message = ["محدوده اعمال تغییرات انتخاب نشده است!"],
+                        color = 'red',
+                        action = "show",
+                    )
+                    
+                    result = [
+                        0,
+                        notify
+                    ]
+                    
+                    return result
+            
+            else:
+                
+                notify = dmc.Notification(
+                    id ="notify",
+                    title = "خطا",
+                    message = ["روش درون‌یابی انتخاب نشده است!"],
+                    color = 'red',
+                    action = "show",
+                )
+                
+                result = [
+                    0,
+                    notify
+                ]
+                
+                return result
+        
+        else:
+            
+            notify = dmc.Notification(
+                id ="notify",
+                title = "",
+                message = [""],
+                color = 'green',
+                action = "hide",
+            )
+            
+            result = [
+                0,
+                notify
+            ]
+            
+            return result
 
 
 
