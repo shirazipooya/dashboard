@@ -357,7 +357,7 @@ def clean_geoinfo_raw_data_table(
         pass
 
 
-def chech_persian_date_ymd(
+def check_persian_date_ymd(
     year_persian,
     month_persian,
     day_persian,

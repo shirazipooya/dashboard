@@ -471,7 +471,7 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                     cols = ['YEAR_PERSIAN', 'MONTH_PERSIAN', 'DAY_PERSIAN']                        
                     df[cols] = df[cols].apply(pd.to_numeric, errors='coerce')
                     df[cols] = df[cols].astype(pd.Int64Dtype())
-                    date_persian, date_gregorian = np.vectorize(chech_persian_date_ymd)(df.YEAR_PERSIAN, df.MONTH_PERSIAN, df.DAY_PERSIAN)
+                    date_persian, date_gregorian = np.vectorize(check_persian_date_ymd)(df.YEAR_PERSIAN, df.MONTH_PERSIAN, df.DAY_PERSIAN)
                     df["DATE_PERSIAN"] = list(date_persian)
                     df["DATE_GREGORIAN"] = list(date_gregorian)
                     
@@ -590,7 +590,7 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                     cols_g = ['YEAR_GREGORIAN', 'MONTH_GREGORIAN', 'DAY_GREGORIAN']                       
                     df[cols_p] = df[cols_p].apply(pd.to_numeric, errors='coerce')
                     df[cols_p] = df[cols_p].astype(pd.Int64Dtype())
-                    date_persian, date_gregorian = np.vectorize(chech_persian_date_ymd)(df.YEAR_PERSIAN, df.MONTH_PERSIAN, df.DAY_PERSIAN)
+                    date_persian, date_gregorian = np.vectorize(check_persian_date_ymd)(df.YEAR_PERSIAN, df.MONTH_PERSIAN, df.DAY_PERSIAN)
                     df["DATE_PERSIAN"] = list(date_persian)
                     df["DATE_GREGORIAN"] = list(date_gregorian)
                     df[cols_p] = df['DATE_PERSIAN'].str.split('-', 2, expand=True)
