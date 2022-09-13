@@ -61,7 +61,7 @@ def layout():
             ), 
             dcc.Interval(
                 id='INTERVAL-STUDYAREA',
-                interval=5,
+                interval=1,
                 n_intervals=0,
                 max_intervals=1
             ), 

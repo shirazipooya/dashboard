@@ -71,24 +71,8 @@ body = html.Div(
     style={"height": "85vh"},
     children=[
         html.Div(
-            className='row p-1 m-0',
-            children=[
-                html.Div(
-                    children=[
-                        html.H3(
-                            className="pt-3",
-                            children="جدول ردیف‌ها با تاریخ اشتباه"
-                        ),
-                        table_error_date,
-                    ],
-                    id='DIV_TABLE_ERROR_DATE',
-                    hidden=True,
-                    className='col p-0 m-0 w-100',
-                    dir="rtl"
-                )
-            ]
-        ),
-        html.Div(
+            id="DIV_GRAPH",
+            hidden=False,
             className='row p-1 m-0',
             children=[
                 html.Div(
@@ -104,26 +88,21 @@ body = html.Div(
             ]
         ),
         html.Div(
+            id="DIV_GRAPH_SYNCHRONIZED",
+            hidden=True,
             className='row p-1 m-0',
             children=[
                 html.Div(
-                    id='DIV_TABLE_SELECTED_DATA',
-                    className='col p-0 m-0 w-100',
-                    dir="rtl",
-                    hidden=True,
-                )
-            ]
-        ),
-        html.Div(
-            className='row p-1 m-0',
-            children=[
-                html.Div(
-                    id='DIV_TABLE',
-                    hidden=False,
+                    children=[
+                        dcc.Graph(
+                            id='GRAPH_SYNCHRONIZED',
+                            figure=NO_MATCHING_GRAPH_FOUND
+                        )
+                    ],
                     className='col p-0 m-0 w-100',
                     dir="rtl"
                 )
             ]
-        ),
+        )
     ]
 )

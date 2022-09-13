@@ -140,6 +140,8 @@ def f_interpolate(
         df = df.reset_index(drop=True)
         
         df.loc[df[df["WATER_TABLE"].isna()].index, "DESCRIPTION"] = df.loc[df[df["WATER_TABLE"].isna()].index, "DESCRIPTION"] + f"روش بازسازی داده‌ها - {method}"
+        
+        df['DESCRIPTION'] = df['DESCRIPTION'].fillna("")
                 
         if method in ["polynomial", "spline"]:
             if limit == 0:

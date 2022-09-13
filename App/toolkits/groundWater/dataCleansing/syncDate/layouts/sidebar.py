@@ -40,7 +40,8 @@ select_well = html.Div(
                         ),
                         dcc.Dropdown(
                             id='STUDY_AREA_SELECT', 
-                            multi=True,
+                            multi=False,
+                            clearable=True,
                             placeholder='انتخاب محدوده مطالعاتی',
                         ) 
                     ]
@@ -61,7 +62,8 @@ select_well = html.Div(
                         ),
                         dcc.Dropdown(
                             id='AQUIFER_SELECT', 
-                            multi=True,
+                            multi=False,
+                            clearable=True,
                             placeholder='انتخاب آبخوان',
                         )  
                     ]
@@ -82,7 +84,8 @@ select_well = html.Div(
                         ),
                         dcc.Dropdown(
                             id='WELL_SELECT', 
-                            multi=True,
+                            multi=False,
+                            clearable=True,
                             placeholder='انتخاب چاه مشاهده‌ای',
                         ) 
                     ]
@@ -116,206 +119,187 @@ select_well = html.Div(
     ]
 )
 
-extreme_value_check = html.Div(
+compare_days = html.Div(
     className='form-group p-3', 
     children=[
         html.Div(
-            className="row py-1 m-0 align-items-center justify-content-around",
+            className="form-group",
             children=[
                 html.Div(
-                    className='col-9 p-0 m-0',
+                    className="form-group inline m-0 my-1 d-flex align-items-center",
+                    style={
+                        'display': 'flex',
+                    },
                     children=[
                         html.Label(
-                            className='text-center align-items-center',
+                            className='text-right m-0',
                             dir='rtl', 
+                            children='تبدیل به روز',
+                            style={
+                                "font-size": "1rem",
+                            }
+                        ),
+                        html.Div(
+                            className='w-50',
                             children=[
-                                html.I(className='fas fa-caret-left px-1'),
-                                'روش میانگین',
-                            ]
-                        )
-                    ],
+                                dcc.Dropdown(
+                                    id='SYNC_DAY',
+                                    value=15,
+                                    options=[
+                                        {"label": day, "value": day} for day in range(1,31)
+                                    ],
+                                    multi=False,
+                                    clearable=False,
+                                    className="mx-3"
+                                ),
+                            ],
+                        ),
+                        html.Label(
+                            className='text-center m-0',
+                            dir='rtl', 
+                            children='هر ماه',
+                            style={
+                                "font-size": "1rem",
+                            }
+                        ),
+
+                    ]
                 ),
                 html.Div(
-                    className='col-3 p-0 m-0 text-center',
+                    className='row px-5 pt-3 text-center',
                     children=[
-                        dcc.Dropdown(
-                            id='MEAN_METHOD', 
-                            value=4,
-                            options=[{"label": f"{x}x", "value": x} for x in [i for i in range(1, 11)]],
-                            clearable=False
-                        ) 
+                        html.Div(
+                            className='col p-0 px-2 m-0',
+                            children=[
+                                dbc.Button(
+                                    id='SYNC_DATE_BUTTON',
+                                    className="me-1 w-50",
+                                    size="md",
+                                    children='مقایسه', 
+                                    color='dark',
+                                    n_clicks=0
+                                ),
+                            ],
+                        )
                     ],
                 )
             ]
-        ),
-        html.Div(
-            className="row py-1 m-0 align-items-center justify-content-around",
-            children=[
-                html.Div(
-                    className='col-9 p-0 m-0',
-                    children=[
-                        html.Label(
-                            className='text-center align-items-center',
-                            dir='rtl', 
-                            children=[
-                                html.I(className='fas fa-caret-left px-1'),
-                                'روش مشتق',
-                            ]
-                        )
-                    ],
-                ),
-                html.Div(
-                    className='col-3 p-0 m-0 text-center',
-                    children=[
-                        dcc.Dropdown(
-                            id='DERIVATIVE_METHOD',
-                            value=4,
-                            options=[{"label": f"{x}%", "value": x} for x in [i for i in range(1, 11)]],
-                            clearable=False
-                        ) 
-                    ],
-                )
-            ]
-        ),
-    ]
-)
-
-
-action_date = html.Div(
-    className='form-group p-3 text-center', 
-    children=[
-        dbc.Button(
-            id='BUTTON_SHOW_WRONG_DATE',
-            className="me-1",
-            size="md",
-            children='نمایش تاریخ‌های اشتباه', 
-            color='dark',
-            outline=True,
-            n_clicks=0
         )
     ]
 )
 
 
-action_type = html.Div(
+save_sync_date_result = html.Div(
     className='form-group p-3', 
     children=[
-        dcc.Checklist(
-            className="row",
-            id='ACTION_TYPE', 
-            value=['date', 'zeros'],
-            options=[
-                {'label': 'اصلاح تاریخ‌های اشتباه', 'value': 'date', 'disabled': True},
-                {'label': 'حذف مقادیر صفر سطح ایستابی', 'value': 'zeros', 'disabled': False},
-            ],
-            inputClassName="mx-2",
-            labelClassName="my-2",
-            inline=False
-        ) 
-    ]
-)
-
-select_date_type = html.Div(
-    className='form-group p-3', 
-    children=[
-        dcc.RadioItems(
-            id='SELECT_DATE_TYPE', 
-            value='persian_ymd',
-            options=[
-                {'label': 'تاریخ شمسی با فرمت "01-01-1400"', 'value': 'persian_date'},
-                {'label': 'تاریخ شمسی با فرمت سال، ماه و روز', 'value': 'persian_ymd'},
-                {'label': 'تاریخ میلادی با فرمت "01-01-2020"', 'value': 'gregorian_date'},
-                {'label': 'تاریخ میلادی با فرمت سال، ماه و روز', 'value': 'gregorian_ymd'},
-            ],
-            inputClassName="mx-2",
-            labelClassName="my-2",
-            labelStyle={'display': 'block'},
-        ) 
-    ]
-)
-
-
-sidebar = html.Div(
-    className="m-0 p-0",
-    children=[
         html.Div(
-            className='text-center pb-4',
+            className="form-group",
             children=[
-                html.H2("شناسایی داده‌های پرت")
-            ],
-        ),
-        html.Div(
-            className='form-group p-0 m-0 pb-3',
-            children=[
-                html.H5(
-                    children="مرحله اول: چک کردن تاریخ",
-                    className="text-center p-2"
-                ),     
-                
-                dmc.Accordion(
-                    class_name="bg-light my-rtl",
-                    iconPosition="right",
-                    children=[
-                        dmc.AccordionItem(
-                            children=[
-                                select_date_type
-                            ],
-                            label="1- انتخاب فرمت ورودی تاریخ",
-                            
-                        ),
-                        dmc.AccordionItem(
-                            children=[
-                                action_date
-                            ],
-                            label="2- نمایش تاریخ‌های اشتباه",
-                            
-                        ),
-                        dmc.AccordionItem(
-                            children=[
-                                html.Div(
-                                    className='px-1 py-3 text-center',
-                                    children=[
-                                        "از جدول «ردیف‌ها با تاریخ اشتباه» تاریخ‌های نمایش داده شده را اصلاح یا با کلیک بر روی علامت ضربدر آن ردیف را حذف کنید و در ادامه روی «ذخیره تغییرات» و سپس «تنظیم تاریخ» کلیک نمایید."
-                                    ],
-                                )
-                            ],
-                            label="3- اصلاح یا حذف ردیف‌های جدول",
-
-                        ),
-                    ],
-                ),
-
                 html.Div(
-                    className='row px-5 py-3 text-center',
+                    className="form-group inline m-0 my-1 d-flex align-items-center",
+                    style={
+                        'display': 'flex',
+                    },
+                    children=[
+                        html.Label(
+                            className='text-right m-0',
+                            dir='rtl', 
+                            children='تبدیل به روز',
+                            style={
+                                "font-size": "1rem",
+                            }
+                        ),
+                        html.Div(
+                            className='w-50',
+                            children=[
+                                dcc.Dropdown(
+                                    id='SAVE_SYNC_DAY',
+                                    value=15,
+                                    options=[
+                                        {"label": day, "value": day} for day in range(1,31)
+                                    ],
+                                    multi=False,
+                                    clearable=False,
+                                    className="mx-3"
+                                ),
+                            ],
+                        ),
+                        html.Label(
+                            className='text-center m-0',
+                            dir='rtl', 
+                            children='هر ماه',
+                            style={
+                                "font-size": "1rem",
+                            }
+                        ),
+
+                    ]
+                ),
+                html.Div(
+                    className="form-group inline m-0 my-1 pt-2",
+                    style={
+                        # 'display': 'flex',
+                        # 'justify-content': 'space-between',
+                        'align-items': 'center'
+                    },
+                    children=[
+                        html.Label(
+                            className='text-center',
+                            dir='rtl', 
+                            children=[
+                                html.I(className='fas fa-caret-left px-1'),
+                                'بازسازی داده‌های مفقودی برای:',
+                            ],
+                            style={
+                                "font-size": "1rem",
+                            }
+                        ),
+                        html.Div(
+                            className="w-100 p-0 m-0 pt-1 text-center",
+                            children=[
+                                dcc.Dropdown(
+                                    id='SAVE_WHICH_WELL',
+                                    clearable=True,
+                                    placeholder="انتخاب روش‌ ...",
+                                    options=[
+                                        {'label': 'همه چاه‌های مشاهده‌ای', 'value': 0},
+                                    ]
+                                ) 
+                            ]
+                        )
+                    ]
+                ),
+                html.Div(
+                    className='row px-5 pt-3 text-center',
                     children=[
                         html.Div(
                             className='col p-0 px-2 m-0',
                             children=[
                                 dbc.Button(
-                                    id='BUTTON_STAGE_1',
-                                    className="me-1 w-100",
+                                    id='SAVE_SYNC_DATE_BUTTON',
+                                    className="me-1",
                                     size="md",
-                                    children='ذخیره تغییرات', 
+                                    children='ذخیره محاسبات', 
                                     color='dark',
                                     n_clicks=0
                                 ),
                             ],
-                        ),
-                        html.Div(
-                            className='col p-0 px-2 m-0',
-                            children=[
-                                dbc.Button(
-                                    id='BUTTON_DATE',
-                                    className="me-1 w-100",
-                                    size="md",
-                                    children='تنظیم تاریخ', 
-                                    color='dark',
-                                    n_clicks=0,
-                                )
-                            ],
                         )
                     ],
                 )
+            ]
+        )
+    ]
+)
+
+sidebar = html.Div(
+    className="m-0 p-0",
+    children=[
+        
+        html.Div(
+            className='text-center pb-4',
+            children=[
+                html.H4("هماهنگ‌سازی تاریخ")
             ],
         ),
 
@@ -328,74 +312,30 @@ sidebar = html.Div(
         html.Div(
             className='form-group p-0 m-0 pb-3',
             children=[
-                html.H5(
-                    children="مرحله دوم: اصلاح دستی داده‌ها",
-                    className="text-center p-2"
-                ),     
-                
                 dmc.Accordion(
                     class_name="bg-light my-rtl",
                     iconPosition="right",
                     children=[
                         dmc.AccordionItem(
                             children=[
-                                select_well,
+                                select_well
                             ],
                             label="1- انتخاب چاه مشاهده‌ای",
                         ),
                         dmc.AccordionItem(
                             children=[
-                                extreme_value_check
+                                compare_days
                             ],
-                            label="2- انتخاب حد شناسایی داده‌های پرت",
+                            label="2- مقایسه روش‌های مختلف بازسازی",
                         ),
                         dmc.AccordionItem(
                             children=[
-                                html.Div(
-                                    className='px-1 py-3 text-center',
-                                    children=[
-                                        "با استفاده از ابزار انتخاب نمودار، داده‌هایی که نیاز به اصلاح دارند را انتخاب و در جدول نمایش داده شده، داده‌های انتخابی را اصلاح کنید. پس از انجام تغییرات روی «ذخیره تغییرات» کلیک نمایید."
-                                    ],
-                                )
+                                save_sync_date_result
                             ],
-                            label="3- انتخاب نقاط از روی نمودار و اصلاح مقادیر جدول",
+                            label="3- ذخیره داده‌های بازسازی شده",
                         ),
                     ],
                 ),
-                html.Div(
-                    className='row px-5 py-3 text-center',
-                    children=[
-                        html.Div(
-                            className='col p-0 px-2 m-0',
-                            children=[
-                                dbc.Button(
-                                    id='BUTTON_TABLE_GRAPH',
-                                    className="me-1 w-100",
-                                    size="md",
-                                    children='ذخیره تغییرات', 
-                                    color='dark',
-                                    n_clicks=0
-                                ),
-                            ],
-                        ),
-                        html.Div(
-                            className='col p-0 px-2 m-0',
-                            children=[
-                                html.A(
-                                    children = 
-                                        dbc.Button(
-                                            className="me-1 w-100",
-                                            size="md",
-                                            children='بارگذاری صفحه', 
-                                            color='dark',
-                                            n_clicks=0
-                                        ),
-                                    href='/groundwater/dataCleansing/detectOutliers/'
-                                ) 
-                            ],
-                        )
-                    ],
-                )
             ],
         ),
     ]
