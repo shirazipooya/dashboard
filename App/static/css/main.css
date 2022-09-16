@@ -82,3 +82,12 @@ div.cell.cell-1-1.dash-fixed-content {
   padding: 0 !important;
   margin: 0 !important;
 }
+
+.__mantine-ref-icon.mantine-Accordion-icon.mantine-1b57wu {
+  justify-content: left !important;
+  margin-left: 0px !important;
+}
+
+.mantine-UnstyledButton-root.__mantine-ref-control.mantine-Accordion-control.mantine-916gpk {
+  padding-right: 16px !important;
+}

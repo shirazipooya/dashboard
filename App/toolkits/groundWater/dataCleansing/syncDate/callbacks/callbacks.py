@@ -14,7 +14,6 @@ import dash_mantine_components as dmc
 from . import *
 
 
-
 def toolkits__groundWater__dataCleansing__syncDate__callbacks(app):
     
     # -----------------------------------------------------------------------------
@@ -772,6 +771,17 @@ def toolkits__groundWater__dataCleansing__syncDate__callbacks(app):
                         well=None,
                     )
                     
+                    update_table_data(
+                        table_name_syncdate=TABLE_NAME_SYNCDATE_DATA,
+                        table_name_data=TABLE_NAME_DATA,
+                        engine=engine,
+                        database=POSTGRES_DB_NAME,
+                        user=POSTGRES_USER_NAME,
+                        password=POSTGRES_PASSWORD,
+                        host=POSTGRES_HOST,
+                        port=POSTGRES_PORT
+                    )
+                    
                     notify = dmc.Notification(
                         id ="notify",
                         title = "خبر",
@@ -833,6 +843,17 @@ def toolkits__groundWater__dataCleansing__syncDate__callbacks(app):
                         study_area=study_area,
                         aquifer=None,
                         well=None,
+                    )
+                    
+                    update_table_data(
+                        table_name_syncdate=TABLE_NAME_SYNCDATE_DATA,
+                        table_name_data=TABLE_NAME_DATA,
+                        engine=engine,
+                        database=POSTGRES_DB_NAME,
+                        user=POSTGRES_USER_NAME,
+                        password=POSTGRES_PASSWORD,
+                        host=POSTGRES_HOST,
+                        port=POSTGRES_PORT
                     )
                     
                     notify = dmc.Notification(
@@ -899,6 +920,17 @@ def toolkits__groundWater__dataCleansing__syncDate__callbacks(app):
                         well=None,
                     )
                     
+                    update_table_data(
+                        table_name_syncdate=TABLE_NAME_SYNCDATE_DATA,
+                        table_name_data=TABLE_NAME_DATA,
+                        engine=engine,
+                        database=POSTGRES_DB_NAME,
+                        user=POSTGRES_USER_NAME,
+                        password=POSTGRES_PASSWORD,
+                        host=POSTGRES_HOST,
+                        port=POSTGRES_PORT
+                    )
+                    
                     notify = dmc.Notification(
                         id ="notify",
                         title = "خبر",
@@ -960,6 +992,17 @@ def toolkits__groundWater__dataCleansing__syncDate__callbacks(app):
                         study_area=study_area,
                         aquifer=aquifer,
                         well=well,
+                    )
+                    
+                    update_table_data(
+                        table_name_syncdate=TABLE_NAME_SYNCDATE_DATA,
+                        table_name_data=TABLE_NAME_DATA,
+                        engine=engine,
+                        database=POSTGRES_DB_NAME,
+                        user=POSTGRES_USER_NAME,
+                        password=POSTGRES_PASSWORD,
+                        host=POSTGRES_HOST,
+                        port=POSTGRES_PORT
                     )
                     
                     notify = dmc.Notification(

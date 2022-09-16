@@ -56,10 +56,12 @@ BASE_MAP.update_layout(
 # DATABASE CONNECTION: data
 # -----------------------------------------------------------------------------
 POSTGRES_DB_NAME = "data"
+TABLE_NAME_GEOINFO = "geoinfo"
 TABLE_NAME_RAW_DATA = "raw_data"
 TABLE_NAME_MODIFIED_DATA = "modified_data"
 TABLE_NAME_INTERPOLATED_DATA = "interpolated_data"
 TABLE_NAME_SYNCDATE_DATA = "syncdate_data"
+TABLE_NAME_DATA = "data"
 
 db = f"postgresql://{POSTGRES_USER_NAME}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB_NAME}"
 engine = sa.create_engine(db, echo=False)
@@ -224,6 +226,49 @@ def update_table(
         
         data.to_sql(
             name=table_name,
+            con=engine,
+            if_exists='replace',
+            index=False
+        )
+
+
+# -----------------------------------------------------------------------------
+# FUNCTION UPDATE TABLE DATA
+# -----------------------------------------------------------------------------
+def update_table_data(
+    table_name_syncdate,
+    table_name_data,
+    engine,
+    database,
+    user,
+    password,
+    host,
+    port
+):
+    table_syncdate_exist = find_table(
+        database=database,
+        table=table_name_syncdate,
+        user=user,
+        password=password,
+        host=host,
+        port=port
+    )
+    
+    if table_syncdate_exist:
+
+        data_syncdate = pd.read_sql_query(
+            sql=f"SELECT * FROM {table_name_syncdate}",
+            con=engine
+        )
+        
+        data = data_syncdate.dropna(subset=['WATER_TABLE']).drop_duplicates()
+        
+        data = data.sort_values(
+            by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]
+        ).reset_index(drop=True)        
+                
+        data.to_sql(
+            name=table_name_data,
             con=engine,
             if_exists='replace',
             index=False
