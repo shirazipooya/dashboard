@@ -70,23 +70,23 @@ body = html.Div(
                 )
             ]
         ),
-        html.Div(
-            hidden=False,
-            className='row p-0 m-0 border border-light border-bottom-0',
-            style={"--bs-border-width": "10px"},
-            children=[
-                html.Div(
-                    id='UNIT_HYDROGRAPH_TABLE',
-                    children=[
-                        dcc.Graph(
-                            figure=NO_MATCHING_TABLE_FOUND
-                        )
-                    ],
-                    className='col p-0 m-0 w-100',
-                    dir="rtl"
-                )
-            ]
-        ),
+        # html.Div(
+        #     hidden=False,
+        #     className='row p-0 m-0 border border-light border-bottom-0',
+        #     style={"--bs-border-width": "10px"},
+        #     children=[
+        #         html.Div(
+        #             id='UNIT_HYDROGRAPH_TABLE',
+        #             children=[
+        #                 dcc.Graph(
+        #                     figure=NO_MATCHING_TABLE_FOUND
+        #                 )
+        #             ],
+        #             className='col p-0 m-0 w-100',
+        #             dir="rtl"
+        #         )
+        #     ]
+        # ),
         html.Div(
             hidden=False,
             className='row p-0 m-0',

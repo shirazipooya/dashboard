@@ -55,8 +55,8 @@ def layout():
             ),
             dcc.Interval(
                 id='INTERVAL',
-                interval=1000,
-                n_intervals=0,
+                interval=10,
+                n_intervals=1,
                 max_intervals=1
             ), 
             dcc.Interval(

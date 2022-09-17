@@ -13,8 +13,8 @@ POSTGRES_PASSWORD = '1234'
 POSTGRES_HOST = 'localhost'
 POSTGRES_PORT = '5432'
 
-MY_DB_LIST = [ "data", "layers", "hydrograph", "thiessen"]
-MY_DB_POSTGIS_LIST = ["layers", "thiessen"]
+MY_DB_LIST = [ "data", "layers"]
+MY_DB_POSTGIS_LIST = ["layers"]
 
 conn = psycopg2.connect(
     database="postgres",

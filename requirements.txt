@@ -15,6 +15,10 @@ psycopg2
 psycopg2-binary
 SQLAlchemy
 GeoAlchemy2
-Shapely
+shapely
 persiantools
 swifter[groupby]
+fiona
+pyogrio
+rtree
+pyproj

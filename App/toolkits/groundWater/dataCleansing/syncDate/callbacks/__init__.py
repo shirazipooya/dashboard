@@ -263,10 +263,28 @@ def update_table_data(
         
         data = data_syncdate.dropna(subset=['WATER_TABLE']).drop_duplicates()
         
+        data_geoinfo = pd.read_sql_query(
+            sql=f"SELECT * FROM {TABLE_NAME_GEOINFO}",
+            con=engine
+        )
+        
+        data = data.merge(
+            right=data_geoinfo[["MAHDOUDE", "AQUIFER", "LOCATION", "LEVEL_SRTM"]],
+            how="left",
+            on=["MAHDOUDE", "AQUIFER", "LOCATION"],
+        )
+        
+        data["WATER_LEVEL"] = data["LEVEL_SRTM"] - data["WATER_TABLE"]
+            
+        data.drop(
+            columns=["LEVEL_SRTM"],
+            inplace=True
+        )
+        
         data = data.sort_values(
             by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]
-        ).reset_index(drop=True)        
-                
+        ).reset_index(drop=True)
+        
         data.to_sql(
             name=table_name_data,
             con=engine,

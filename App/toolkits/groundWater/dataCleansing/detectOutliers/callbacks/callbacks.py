@@ -320,7 +320,9 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                 
                 df_selected_modify = pd.DataFrame(data_table_state)
                 
-                df_selected_modify["DESCRIPTION"] = df_selected_modify["DESCRIPTION"] + "تاریخ اصلاح شده است."
+                if len(df_selected_modify) != 0:
+                
+                    df_selected_modify["DESCRIPTION"] = df_selected_modify["DESCRIPTION"] + "تاریخ اصلاح شده است."
                                 
                 df = pd.read_sql_query(
                     sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA}",
