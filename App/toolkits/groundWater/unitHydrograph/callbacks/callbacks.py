@@ -143,7 +143,7 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                         
             aquifer_layers = df_aquifer_layers['AQUIFER'].values.tolist()
             
-            if all(row in df_aquifer_layers for row in df_aquifer_data):
+            if all(row in aquifer_layers for row in aquifer_data):
                 
                 notify = dmc.Notification(
                     id ="notify",
@@ -646,13 +646,14 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                                 
                                 tmp['UNIT_HYDROGRAPH_TWA'] = (tmp["WATER_LEVEL"] * tmp['THISSEN_LOCATION']) / tmp['THISSEN_AQUIFER']
                                 
-                                tmp['STORAGE_COEFFICIENT_AQUIFER'] = (tmp["STORAGE_COEFFICIENT"] * tmp['THISSEN_LOCATION']) / tmp['THISSEN_AQUIFER']
+                                # tmp['STORAGE_COEFFICIENT_AQUIFER'] = (tmp["STORAGE_COEFFICIENT"] * tmp['THISSEN_LOCATION']) / tmp['THISSEN_AQUIFER']
+                                tmp['STORAGE_COEFFICIENT_AQUIFER'] = sc
                                 
                                 tmp = tmp.groupby(
                                     by=["MAHDOUDE", "AQUIFER", "YEAR_PERSIAN", "MONTH_PERSIAN"]
                                 ).agg({
                                     "UNIT_HYDROGRAPH_TWA": 'sum',
-                                    "STORAGE_COEFFICIENT_AQUIFER": 'sum',
+                                    "STORAGE_COEFFICIENT_AQUIFER": 'mean',
                                     "THISSEN_AQUIFER": 'mean', 
                                 }).reset_index()
                                 
@@ -661,7 +662,7 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                                 ).reset_index(drop=True)
                                 
                                 result = result.merge(
-                                    tmp[['MAHDOUDE', 'AQUIFER', 'YEAR_PERSIAN', 'MONTH_PERSIAN', 'UNIT_HYDROGRAPH_TWA']], 
+                                    tmp[['MAHDOUDE', 'AQUIFER', 'YEAR_PERSIAN', 'MONTH_PERSIAN', 'UNIT_HYDROGRAPH_TWA', 'THISSEN_AQUIFER', "STORAGE_COEFFICIENT_AQUIFER"]], 
                                     how="outer", 
                                     on=["MAHDOUDE", "AQUIFER", "YEAR_PERSIAN", "MONTH_PERSIAN"]
                                 ).sort_values(

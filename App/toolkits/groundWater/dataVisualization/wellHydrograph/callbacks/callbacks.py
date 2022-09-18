@@ -144,7 +144,7 @@ def toolkits__groundWater__dataVisualization__wellHydrograph__callbacks(app):
                         
             aquifer_layers = df_aquifer_layers['AQUIFER'].values.tolist()
             
-            if all(row in df_aquifer_layers for row in df_aquifer_data):
+            if all(row in aquifer_layers for row in aquifer_data):
                 
                 notify = dmc.Notification(
                     id ="notify",
@@ -225,7 +225,7 @@ def toolkits__groundWater__dataVisualization__wellHydrograph__callbacks(app):
                             
                 well_layers = df_well_layers['LOCATION'].values.tolist()
                 
-                if all(row in df_well_layers for row in df_well_data):
+                if all(row in well_layers for row in well_data):
                     
                     notify = dmc.Notification(
                         id ="notify",
