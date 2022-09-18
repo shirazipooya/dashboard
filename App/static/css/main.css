@@ -91,3 +91,23 @@ div.cell.cell-1-1.dash-fixed-content {
 .mantine-UnstyledButton-root.__mantine-ref-control.mantine-Accordion-control.mantine-916gpk {
   padding-right: 16px !important;
 }
+
+.mantine-UnstyledButton-root.__mantine-ref-control.mantine-Accordion-control.mantine-916gpk {
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 1.25rem 1.25rem;
+  margin-bottom: 0;
+  background-color: #fefefe;
+  border: 1.5px solid #ccc;
+  cursor: pointer;
+}
+
+.mantine-UnstyledButton-root.__mantine-ref-control.mantine-Accordion-control.mantine-916gpk:hover {
+  background-color: #f0f0f0;
+  transition: 0.1s linear all;
+}
+
+.mantine-10o5s20.mantine-Accordion-contentInner {
+  margin-left: .5rem!important;
+  background-color: #ffffff;
+}

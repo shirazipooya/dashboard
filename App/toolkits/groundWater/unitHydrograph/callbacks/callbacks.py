@@ -671,14 +671,14 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                                 #* TWA ADJUSTED
                                 
                                 median_diff = tmp_data.groupby(by=["MAHDOUDE", "AQUIFER", "LOCATION"])["WATER_LEVEL"].diff().reset_index(drop=True).abs().median()
-
-                                df_thiessen_change = tmp_data.swifter.groupby(by=["MAHDOUDE", "AQUIFER", "YEAR_PERSIAN", "MONTH_PERSIAN"])["LOCATION"]\
+                                
+                                df_thiessen_change = tmp_data.groupby(by=["MAHDOUDE", "AQUIFER", "YEAR_PERSIAN", "MONTH_PERSIAN"])["LOCATION"]\
                                     .apply(list)\
                                         .reset_index(name='LOCATION_LIST').sort_values(["YEAR_PERSIAN", "MONTH_PERSIAN"])
-                                                        
+                                                                                                
                                 df_thiessen_change_aquifer = df_thiessen_change.groupby(by=["MAHDOUDE", "AQUIFER"])\
                                     .apply(check_thiessen_change).reset_index(drop=True)
-                                
+                                                                
                                 result = result.merge(
                                     right=df_thiessen_change_aquifer[["MAHDOUDE", "AQUIFER", "YEAR_PERSIAN", "MONTH_PERSIAN", "THISSEN_CHANGE"]],
                                     how='left',
@@ -1073,717 +1073,148 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
             
 
     
-    # # -----------------------------------------------------------------------------
-    # # CALLBACK: SYNC DATE
-    # # -----------------------------------------------------------------------------  
-    # @app.callback(
-    #     Output('SYNC_DATE_BUTTON', 'n_clicks'),
-    #     Output('GRAPH_SYNCHRONIZED', 'figure'),
-    #     Output('DIV_GRAPH_SYNCHRONIZED', 'hidden'),
-    #     Output('DIV_GRAPH', 'hidden'),
-    #     Output("ALERTS", "children"),
+    # -----------------------------------------------------------------------------
+    # CALLBACK: SAVE UNIT HYDROGRAPH
+    # -----------------------------------------------------------------------------  
+    @app.callback(
+        Output('SAVE_UNIT_HYDROGRAPH', 'n_clicks'),
+        Output("ALERTS", "children"),       
+        Input('SAVE_UNIT_HYDROGRAPH', 'n_clicks'),
+    ) 
+    def save_unit_hydrograph(
+        n,
+    ):
+        if n != 0:
+            
+            table_exist = find_table(
+                database=POSTGRES_DB_DATA,
+                table=DB_DATA_TABLE_TEMPORARY,
+                user=POSTGRES_USER_NAME,
+                password=POSTGRES_PASSWORD,
+                host=POSTGRES_HOST,
+                port=POSTGRES_PORT
+            )
+            
+            if table_exist:
+            
+                sql = f"SELECT * FROM {DB_DATA_TABLE_TEMPORARY}"
+
+                df = pd.read_sql_query(
+                    sql = sql,
+                    con = ENGINE_DATA
+                )
+            
+                df = df.sort_values(
+                    by=["MAHDOUDE", "AQUIFER", "DATE_GREGORIAN"]
+                ).reset_index(drop=True)
+                
+                table_exist = find_table(
+                    database=POSTGRES_DB_DATA,
+                    table=DB_DATA_TABLE_HYDROGRAPH,
+                    user=POSTGRES_USER_NAME,
+                    password=POSTGRES_PASSWORD,
+                    host=POSTGRES_HOST,
+                    port=POSTGRES_PORT
+                )
+                
+                if table_exist:
+                    
+                    study_area = df["MAHDOUDE"].unique()[0]
+                    aquifer = df["AQUIFER"].unique()[0]
+                    
+                    data_exist = pd.read_sql_query(
+                        sql=f"SELECT * FROM {DB_DATA_TABLE_HYDROGRAPH}",
+                        con=ENGINE_DATA
+                    )
+                    
+                    indexes = data_exist[ (data_exist['MAHDOUDE'] == study_area) & (data_exist['AQUIFER'] == aquifer) ].index
+                
+                    data_exist.drop(indexes, inplace=True)
+                    
+                    frames = [data_exist, df]
+                    
+                    data = pd.concat(frames)
+                    
+                    data = data.sort_values(
+                        by=["MAHDOUDE", "AQUIFER", "DATE_GREGORIAN"]
+                    ).reset_index(drop=True)
+                    
+                    data.to_sql(
+                        name=DB_DATA_TABLE_HYDROGRAPH,
+                        con=ENGINE_DATA,
+                        if_exists='replace',
+                        index=False
+                    )
+                    
+                    notify = dmc.Notification(
+                        id ="notify",
+                        title = "خبر",
+                        message = ["هیدروگراف با موفقت ذخیره گردید!"],
+                        color = 'green',
+                        action = "show"
+                    )
+                    
+                    result = [
+                        0,
+                        notify,
+                    ]
+                    
+                    return result
+                
+                else:
+                    
+                    df.to_sql(
+                        name=DB_DATA_TABLE_HYDROGRAPH,
+                        con=ENGINE_DATA,
+                        if_exists='replace',
+                        index=False
+                    )
+                
+                    notify = dmc.Notification(
+                        id ="notify",
+                        title = "خبر",
+                        message = ["هیدروگراف با موفقت ذخیره گردید!"],
+                        color = 'green',
+                        action = "show"
+                    )
+                    
+                    result = [
+                        0,
+                        notify,
+                    ]
+                    
+                    return result
+                    
+            else:
+                
+                notify = dmc.Notification(
+                    id ="notify",
+                    title = "خطا",
+                    message = ["ابتدا بر روی محاسبه هیدروگراف کلیک کنید!"],
+                    color = 'red',
+                    action = "show"
+                )
+                
+                result = [
+                    0,
+                    notify,
+                ]
+                
+                return result
         
-    #     Input('SYNC_DATE_BUTTON', 'n_clicks'),
-    #     Input('STUDY_AREA_SELECT', 'value'),
-    #     Input('AQUIFER_SELECT', 'value'),
-    #     Input('WELL_SELECT', 'value'),
-    #     Input('SYNC_DAY', 'value'),
-    # ) 
-    # def sync_date(
-    #     n, study_area, aquifer, well, day,
-    # ):
-    #     if n != 0:
+        else:
             
-    #         if well is not None and len(well) != 0:
-                
-    #             sql = f"SELECT * FROM {TABLE_NAME_INTERPOLATED_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" = '{well}'"
-
-    #             df = pd.read_sql_query(
-    #                 sql = sql,
-    #                 con = ENGINE_DATA
-    #             )
-                
-    #             if len(df) == 0:
-                
-    #                 notify = dmc.Notification(
-    #                     id ="notify",
-    #                     title = "خطا",
-    #                     message = ["در پایگاه داده هیچ داده‌ای برای این چاه مشاهده‌ای وجود ندارد! لطفا گام سوم را برای این چاه مشاهده‌ای یا محدوده مطالعاتی انجام دهید."],
-    #                     color = 'red',
-    #                     action = "show",
-    #                     autoClose=10000
-    #                 )
-                    
-    #                 result = [
-    #                     0,
-    #                     NO_MATCHING_GRAPH_FOUND,
-    #                     True,
-    #                     False,
-    #                     notify
-    #                 ]
-                    
-    #                 return result
-
-    #             tmp = df.groupby(
-    #                 by=["MAHDOUDE", "AQUIFER", "LOCATION"]
-    #             ).apply(lambda x: f_syncdate(
-    #                 df=x,
-    #                 day=day
-    #             )).reset_index(drop=True)
-                            
-    #             tmp.sort_values(
-    #                 by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]
-    #             ).reset_index(drop=True)
-                
-    #             fig = go.Figure()
-        
-    #             fig.add_trace(
-    #                 go.Scatter(
-    #                     x=df['DATE_GREGORIAN'],
-    #                     y=df['WATER_TABLE'],
-    #                     mode='lines+markers',
-    #                     name=f'داده‌های کنترل کیفی شده',
-    #                     marker=dict(
-    #                         color='blue',
-    #                         size=10,
-    #                     ),
-    #                     line=dict(
-    #                         color='black',
-    #                         width=0.5
-    #                     )  
-    #                 )
-    #             )
-                
-    #             fig.add_trace(
-    #                 go.Scatter(
-    #                     x=tmp['DATE_GREGORIAN'],
-    #                     y=tmp['WATER_TABLE'],
-    #                     mode='lines+markers',
-    #                     name=f'داده‌های هماهنگ‌سازی شده تاریخ برای روز {day}ام',
-    #                     marker=dict(
-    #                         color='black',
-    #                         size=10,
-    #                     ),
-    #                     line=dict(
-    #                         color='black',
-    #                         width=1
-    #                     )  
-    #                 )
-    #             )
-                
-    #             fig.update_layout(
-    #                 hoverlabel=dict(
-    #                     namelength = -1
-    #                 ),
-    #                 yaxis_title="عمق سطح آب - متر",
-    #                 xaxis_title='تاریخ',
-    #                 autosize=False,
-    #                 font=dict(
-    #                     family="Vazir-Regular-FD",
-    #                     size=14,
-    #                     color="RebeccaPurple"
-    #                 ),
-    #                 xaxis=dict(
-    #                     tickformat="%Y-%m-%d",
-    #                 ),
-    #                 title=dict(
-    #                     text=f'عمق ماهانه سطح آب چاه مشاهده‌ای {well} (متر)',
-    #                     yanchor="top",
-    #                     y=0.98,
-    #                     xanchor="center",
-    #                     x=0.500
-    #                 ),
-    #                 margin=dict(
-    #                     l=50,
-    #                     r=0,
-    #                     b=30,
-    #                     t=50,
-    #                     pad=0
-    #                 ),
-    #                 legend=dict(
-    #                     yanchor="top",
-    #                     y=0.99,
-    #                     xanchor="left",
-    #                     x=0.01
-    #                 )
-    #             )
-                
-    #             fig.update_xaxes(calendar='jalali')
-                
-    #             notify = dmc.Notification(
-    #                 id ="notify",
-    #                 title = "",
-    #                 message = [""],
-    #                 color = 'red',
-    #                 action = "hide",
-    #             )
-                
-    #             result = [
-    #                 0,
-    #                 fig,
-    #                 False,
-    #                 True,
-    #                 notify
-    #             ]
-                
-    #             return result
+            notify = dmc.Notification(
+                id ="notify",
+                title = "",
+                message = [""],
+                color = 'red',
+                action = "hide"
+            )
             
-    #         else:
-                
-    #             notify = dmc.Notification(
-    #                 id ="notify",
-    #                 title = "خطا",
-    #                 message = ["چاه مشاهده‌ای انتخاب نشده است!"],
-    #                 color = 'red',
-    #                 action = "show",
-    #             )
-                
-    #             result = [
-    #                 0,
-    #                 NO_MATCHING_GRAPH_FOUND,
-    #                 True,
-    #                 False,
-    #                 notify
-    #             ]
-                
-    #             return result
+            result = [
+                0,
+                notify,
+            ]
             
-    #     else:
-            
-    #         notify = dmc.Notification(
-    #             id ="notify",
-    #             title = "",
-    #             message = [""],
-    #             color = 'green',
-    #             action = "hide",
-    #         )
-            
-    #         result = [
-    #             0,
-    #             NO_MATCHING_GRAPH_FOUND,
-    #             True,
-    #             False,
-    #             notify
-    #         ]
-            
-    #         return result
-
-
-    # # -----------------------------------------------------------------------------
-    # # CALLBACK: SHOW GRAPH
-    # # ----------------------------------------------------------------------------- 
-    # @app.callback(
-    #     Output("GRAPH", "figure"),
-    #     Output("ALERTS", "children"),
-    #     Input('STUDY_AREA_SELECT', 'value'),
-    #     Input('AQUIFER_SELECT', 'value'),
-    #     Input('WELL_SELECT', 'value'),
-    # )
-    # def show_graph(
-    #     study_area, aquifer, well
-    # ):
-    #     if study_area is not None and len(study_area) != 0 and\
-    #         aquifer is not None and len(aquifer) != 0 and\
-    #             well is not None and len(well) != 0:
-                                        
-    #                 sql = f"SELECT * FROM {TABLE_NAME_INTERPOLATED_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" = '{well}'"
-
-    #                 df = pd.read_sql_query(
-    #                     sql = sql,
-    #                     con = ENGINE_DATA
-    #                 )
-                                        
-    #                 if len(df) == 0:
-                        
-    #                     notify = dmc.Notification(
-    #                         id ="notify",
-    #                         title = "خطا",
-    #                         message = ["در پایگاه داده هیچ داده‌ای برای این چاه مشاهده‌ای وجود ندارد! لطفا گام سوم را برای این چاه مشاهده‌ای یا محدوده مطالعاتی انجام دهید."],
-    #                         color = 'red',
-    #                         action = "show",
-    #                         autoClose=10000
-    #                     )
-                        
-    #                     result = [
-    #                         NO_MATCHING_GRAPH_FOUND,
-    #                         notify
-    #                     ]
-            
-    #                     return result
-                        
-                    
-    #                 col_sort = ['MAHDOUDE', 'AQUIFER', 'LOCATION', 'DATE_GREGORIAN']                    
-    #                 df = df.sort_values(by=col_sort).reset_index(drop=True)
-                                        
-    #                 fig = go.Figure()
-                    
-    #                 fig.add_trace(
-    #                     go.Scatter(
-    #                         x=df['DATE_GREGORIAN'],
-    #                         y=df['WATER_TABLE'],
-    #                         mode='lines+markers',
-    #                         name=f'داده‌های کنترل کیفی شده',
-    #                         marker=dict(
-    #                             color='blue',
-    #                             size=10,
-    #                         ),
-    #                         line=dict(
-    #                             color='black',
-    #                             width=1
-    #                         )  
-    #                     )
-    #                 )
-                    
-    #                 tmp = df[df["DESCRIPTION"].str.contains("روش بازسازی")]
-                                        
-    #                 fig.add_trace(
-    #                     go.Scatter(
-    #                         x=tmp['DATE_GREGORIAN'],
-    #                         y=tmp['WATER_TABLE'],
-    #                         mode='markers',
-    #                         name=f'داده‌های بازسازی شده',
-    #                         marker=dict(
-    #                             color='red',
-    #                             size=10,
-    #                         ),
-
-    #                     )
-    #                 )
-
-    #                 fig.update_layout(
-    #                     hoverlabel=dict(
-    #                         namelength = -1
-    #                     ),
-    #                     yaxis_title="عمق سطح آب - متر",
-    #                     xaxis_title='تاریخ',
-    #                     autosize=False,
-    #                     font=dict(
-    #                         family="Vazir-Regular-FD",
-    #                         size=14,
-    #                         color="RebeccaPurple"
-    #                     ),
-    #                     xaxis=dict(
-    #                         tickformat="%Y-%m-%d",
-    #                     ),
-    #                     title=dict(
-    #                         text=f'عمق ماهانه سطح آب چاه مشاهده‌ای {well} (متر)',
-    #                         yanchor="top",
-    #                         y=0.98,
-    #                         xanchor="center",
-    #                         x=0.500
-    #                     ),
-    #                     margin=dict(
-    #                         l=50,
-    #                         r=0,
-    #                         b=30,
-    #                         t=50,
-    #                         pad=0
-    #                     ),
-    #                     legend=dict(
-    #                         yanchor="top",
-    #                         y=0.99,
-    #                         xanchor="left",
-    #                         x=0.01
-    #                     )
-    #                 )
-                    
-    #                 fig.update_xaxes(calendar='jalali')
-                    
-    #                 notify = dmc.Notification(
-    #                     id ="notify",
-    #                     title = "",
-    #                     message = [""],
-    #                     color = 'green',
-    #                     action = "hide",
-    #                 )
-                    
-    #                 result = [
-    #                     fig,
-    #                     notify
-    #                 ]
-            
-    #                 return result
-
-    #     else:
-            
-    #         notify = dmc.Notification(
-    #             id ="notify",
-    #             title = "",
-    #             message = [""],
-    #             color = 'green',
-    #             action = "hide",
-    #         )
-            
-    #         result = [
-    #             NO_MATCHING_GRAPH_FOUND,
-    #             notify
-    #         ]
-            
-    #         return result
-
-
-    # # -----------------------------------------------------------------------------
-    # # CALLBACK: OPTION FOR DROPDOWN WHICH-WELL
-    # # -----------------------------------------------------------------------------  
-    # @app.callback(
-    #     Output('SAVE_WHICH_WELL', 'options'),
-    #     Input('STUDY_AREA_SELECT', 'value'),
-    #     Input('AQUIFER_SELECT', 'value'),
-    #     Input('WELL_SELECT', 'value'),
-    # ) 
-    # def which_well_selected(
-    #     study_area, aquifer, well
-    # ):
-    #     if study_area is not None and len(study_area) != 0 and\
-    #         aquifer is not None and len(aquifer) != 0 and\
-    #             well is not None and len(well) != 0:
-                    
-    #                 return [
-    #                     {'label': 'همه چاه‌های مشاهده‌ای', 'value': 0},
-    #                     {'label': f'همه چاه‌های محدوده‌ مطالعاتی {study_area}', 'value': 1},
-    #                     {'label': f'همه چاه‌های آبخوان‌ {aquifer}', 'value': 2},
-    #                     {'label': f'چاه مشاهده‌ای {well}', 'value': 3},
-    #                 ]
-                    
-    #     elif study_area is not None and len(study_area) != 0 and\
-    #         aquifer is not None and len(aquifer) != 0:
-            
-    #             return [
-    #                 {'label': 'همه چاه‌های مشاهده‌ای', 'value': 0},
-    #                 {'label': f'همه چاه‌های محدوده‌ مطالعاتی {study_area}', 'value': 1},
-    #                 {'label': f'همه چاه‌های آبخوان‌ {aquifer}', 'value': 2},
-    #             ]
-                
-    #     elif study_area is not None and len(study_area) != 0:
-            
-    #             return [
-    #                 {'label': 'همه چاه‌های مشاهده‌ای', 'value': 0},
-    #                 {'label': f'همه چاه‌های محدوده‌ مطالعاتی {study_area}', 'value': 1},
-    #             ]
-                
-    #     else:
-            
-    #         return [
-    #             {'label': 'همه چاه‌های مشاهده‌ای', 'value': 0},
-    #         ]
-
-
-    # # -----------------------------------------------------------------------------
-    # # CALLBACK: SAVE SYNCDATE DATA
-    # # -----------------------------------------------------------------------------  
-    # @app.callback(
-    #     Output('SAVE_SYNC_DATE_BUTTON', 'n_clicks'),
-    #     Output("ALERTS", "children"),
-    #     Input('SAVE_SYNC_DATE_BUTTON', 'n_clicks'),
-    #     Input('STUDY_AREA_SELECT', 'value'),
-    #     Input('AQUIFER_SELECT', 'value'),
-    #     Input('WELL_SELECT', 'value'),
-    #     Input('SAVE_SYNC_DAY', 'value'),
-    #     Input('SAVE_WHICH_WELL', 'value'),
-    # ) 
-    # def save_syncdate(
-    #     n, study_area, aquifer, well, day, which_well
-    # ):
-    #     if n != 0:
-            
-    #         if which_well is not None:
-                
-    #             table_exist = find_table(
-    #                 database=POSTGRES_DB_DATA,
-    #                 table=TABLE_NAME_SYNCDATE_DATA,
-    #                 user=POSTGRES_USER_NAME,
-    #                 password=POSTGRES_PASSWORD,
-    #                 host=POSTGRES_HOST,
-    #                 port=POSTGRES_PORT
-    #             )
-                
-    #             if which_well == 0:
-
-    #                 sql = f"SELECT * FROM {TABLE_NAME_INTERPOLATED_DATA}"
-
-    #                 df = pd.read_sql_query(
-    #                     sql = sql,
-    #                     con = ENGINE_DATA
-    #                 )
-                    
-    #                 if len(df) == 0:
-                
-    #                     notify = dmc.Notification(
-    #                         id ="notify",
-    #                         title = "خطا",
-    #                         message = ["در پایگاه داده هیچ داده‌ای برای این چاه مشاهده‌ای، آبخوان یا محدوده مطالعاتی وجود ندارد! لطفا گام سوم را برای این چاه مشاهده‌ای، آبخوان یا محدوده مطالعاتی انجام دهید."],
-    #                         color = 'red',
-    #                         action = "show",
-    #                         autoClose=10000
-    #                     )
-                        
-    #                     result = [
-    #                         0,
-    #                         notify
-    #                     ]
-                        
-    #                     return result
-                                            
-    #                 df = df.groupby(
-    #                     by=["MAHDOUDE", "AQUIFER", "LOCATION"]
-    #                 ).apply(lambda x: f_syncdate(
-    #                     df=x,
-    #                     day=day
-    #                 )).reset_index(drop=True)
-                    
-    #                 df = df.sort_values(
-    #                     by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]
-    #                 )
-                    
-    #                 update_table(
-    #                     data=df,
-    #                     table_exist=table_exist,
-    #                     table_name=TABLE_NAME_SYNCDATE_DATA,
-    #                     engine=engine,
-    #                     study_area=None,
-    #                     aquifer=None,
-    #                     well=None,
-    #                 )
-                    
-    #                 notify = dmc.Notification(
-    #                     id ="notify",
-    #                     title = "خبر",
-    #                     message = ["تغییرات با موفقیت آپدیت شد!"],
-    #                     color = 'green',
-    #                     action = "show",
-    #                 )
-                    
-    #                 result = [
-    #                     0,
-    #                     notify
-    #                 ]
-                
-    #                 return result
-                
-    #             elif which_well == 1:
-                    
-    #                 sql = f"SELECT * FROM {TABLE_NAME_INTERPOLATED_DATA} WHERE \"MAHDOUDE\" = '{study_area}'"
-
-    #                 df = pd.read_sql_query(
-    #                     sql = sql,
-    #                     con = engine
-    #                 )
-                    
-    #                 if len(df) == 0:
-                
-    #                     notify = dmc.Notification(
-    #                         id ="notify",
-    #                         title = "خطا",
-    #                         message = ["در پایگاه داده هیچ داده‌ای برای این چاه مشاهده‌ای، آبخوان یا محدوده مطالعاتی وجود ندارد! لطفا گام سوم را برای این چاه مشاهده‌ای، آبخوان یا محدوده مطالعاتی انجام دهید."],
-    #                         color = 'red',
-    #                         action = "show",
-    #                         autoClose=10000
-    #                     )
-                        
-    #                     result = [
-    #                         0,
-    #                         notify
-    #                     ]
-                        
-    #                     return result
-                    
-    #                 df = df.groupby(
-    #                     by=["MAHDOUDE", "AQUIFER", "LOCATION"]
-    #                 ).apply(lambda x: f_syncdate(
-    #                     df=x,
-    #                     day=day
-    #                 )).reset_index(drop=True)
-                    
-    #                 df = df.sort_values(
-    #                     by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]
-    #                 )
-                                        
-    #                 update_table(
-    #                     data=df,
-    #                     table_exist=table_exist,
-    #                     table_name=TABLE_NAME_SYNCDATE_DATA,
-    #                     engine=engine,
-    #                     study_area=study_area,
-    #                     aquifer=None,
-    #                     well=None,
-    #                 )
-                    
-    #                 notify = dmc.Notification(
-    #                     id ="notify",
-    #                     title = "خبر",
-    #                     message = ["تغییرات با موفقیت آپدیت شد!"],
-    #                     color = 'green',
-    #                     action = "show",
-    #                 )
-                    
-    #                 result = [
-    #                     0,
-    #                     notify
-    #                 ]
-                
-    #                 return result
-                
-    #             elif which_well == 2:
-                    
-    #                 sql = f"SELECT * FROM {TABLE_NAME_INTERPOLATED_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}'"
-
-    #                 df = pd.read_sql_query(
-    #                     sql = sql,
-    #                     con = engine
-    #                 )
-
-    #                 if len(df) == 0:
-                
-    #                     notify = dmc.Notification(
-    #                         id ="notify",
-    #                         title = "خطا",
-    #                         message = ["در پایگاه داده هیچ داده‌ای برای این چاه مشاهده‌ای، آبخوان یا محدوده مطالعاتی وجود ندارد! لطفا گام سوم را برای این چاه مشاهده‌ای، آبخوان یا محدوده مطالعاتی انجام دهید."],
-    #                         color = 'red',
-    #                         action = "show",
-    #                         autoClose=10000
-    #                     )
-                        
-    #                     result = [
-    #                         0,
-    #                         notify
-    #                     ]
-                        
-    #                     return result
-                    
-                                            
-    #                 df = df.groupby(
-    #                     by=["MAHDOUDE", "AQUIFER", "LOCATION"]
-    #                 ).apply(lambda x: f_syncdate(
-    #                     df=x,
-    #                     day=day
-    #                 )).reset_index(drop=True)
-                    
-    #                 df = df.sort_values(
-    #                     by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]
-    #                 )
-                                            
-    #                 update_table(
-    #                     data=df,
-    #                     table_exist=table_exist,
-    #                     table_name=TABLE_NAME_SYNCDATE_DATA,
-    #                     engine=engine,
-    #                     study_area=study_area,
-    #                     aquifer=aquifer,
-    #                     well=None,
-    #                 )
-                    
-    #                 notify = dmc.Notification(
-    #                     id ="notify",
-    #                     title = "خبر",
-    #                     message = ["تغییرات با موفقیت آپدیت شد!"],
-    #                     color = 'green',
-    #                     action = "show",
-    #                 )
-                    
-    #                 result = [
-    #                     0,
-    #                     notify
-    #                 ]
-                
-    #                 return result
-                
-    #             elif which_well == 3:
-                    
-    #                 sql = f"SELECT * FROM {TABLE_NAME_INTERPOLATED_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" = '{well}'"
-
-    #                 df = pd.read_sql_query(
-    #                     sql = sql,
-    #                     con = engine
-    #                 )
-                    
-    #                 if len(df) == 0:
-                
-    #                     notify = dmc.Notification(
-    #                         id ="notify",
-    #                         title = "خطا",
-    #                         message = ["در پایگاه داده هیچ داده‌ای برای این چاه مشاهده‌ای، آبخوان یا محدوده مطالعاتی وجود ندارد! لطفا گام سوم را برای این چاه مشاهده‌ای، آبخوان یا محدوده مطالعاتی انجام دهید."],
-    #                         color = 'red',
-    #                         action = "show",
-    #                         autoClose=10000
-    #                     )
-                        
-    #                     result = [
-    #                         0,
-    #                         notify
-    #                     ]
-                        
-    #                     return result
-                                            
-    #                 df = df.groupby(
-    #                     by=["MAHDOUDE", "AQUIFER", "LOCATION"]
-    #                 ).apply(lambda x: f_syncdate(
-    #                     df=x,
-    #                     day=day
-    #                 )).reset_index(drop=True)
-                    
-    #                 df = df.sort_values(
-    #                     by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]
-    #                 )
-                                            
-    #                 update_table(
-    #                     data=df,
-    #                     table_exist=table_exist,
-    #                     table_name=TABLE_NAME_SYNCDATE_DATA,
-    #                     engine=engine,
-    #                     study_area=study_area,
-    #                     aquifer=aquifer,
-    #                     well=well,
-    #                 )
-                    
-    #                 notify = dmc.Notification(
-    #                     id ="notify",
-    #                     title = "خبر",
-    #                     message = ["تغییرات با موفقیت آپدیت شد!"],
-    #                     color = 'green',
-    #                     action = "show",
-    #                 )
-                    
-    #                 result = [
-    #                     0,
-    #                     notify
-    #                 ]
-                
-    #                 return result
-                
-    #             else:
-                    
-    #                 pass
-                
-    #         else:
-                
-    #             notify = dmc.Notification(
-    #                 id ="notify",
-    #                 title = "خطا",
-    #                 message = ["محدوده هماهنگ‌سازی تاریخ انتخاب نشده است!"],
-    #                 color = 'red',
-    #                 action = "show",
-    #             )
-                
-    #             result = [
-    #                 0,
-    #                 notify
-    #             ]
-                
-    #             return result
-        
-    #     else:
-            
-    #         notify = dmc.Notification(
-    #             id ="notify",
-    #             title = "",
-    #             message = [""],
-    #             color = 'green',
-    #             action = "hide",
-    #         )
-            
-    #         result = [
-    #             0,
-    #             notify
-    #         ]
-            
-    #         return result
+            return result

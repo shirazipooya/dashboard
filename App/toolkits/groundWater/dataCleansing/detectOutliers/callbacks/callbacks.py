@@ -688,8 +688,6 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
         if study_area is not None and len(study_area) != 0 and\
             aquifer is not None and len(aquifer) != 0 and\
                 well is not None and len(well) != 0:
-                    
-                    # try:
                 
                     if (len(study_area) == 1) and (len(aquifer) == 1) and (len(well) == 1):
                         sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" = '{well[0]}'"
@@ -716,7 +714,9 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                     col_sort = ['MAHDOUDE', 'AQUIFER', 'LOCATION', 'DATE_GREGORIAN']                
                     df_modified = df_m.drop_duplicates().sort_values(by=col_sort).reset_index(drop=True).copy()
                     
-                    
+                    if len(df_modified["WATER_TABLE"].dropna().to_list()) == 0:
+                        return NO_MATCHING_GRAPH_FOUND
+                        
                     # MEAN METHOD:                
                     df_modified["WATER_TABLE_PAD"] = df_modified["WATER_TABLE"].interpolate(method="pad")    
                     df_modified["DIFF"] = df_modified["WATER_TABLE_PAD"].diff().abs()
@@ -1136,7 +1136,9 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
             if len(storage_state["index_selected_data"]) != 0:
                 
                 df_selected_data = pd.DataFrame(table_selected_data_state)
-                df_selected_data["DESCRIPTION"] = df_selected_data["DESCRIPTION"] + "سطح ایستابی اصلاح شده است."
+                
+                if df_selected_data.shape[0] != 0:
+                    df_selected_data["DESCRIPTION"] = df_selected_data["DESCRIPTION"] + "سطح ایستابی اصلاح شده است."
                                 
                 df = pd.read_sql_query(
                     sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA}",

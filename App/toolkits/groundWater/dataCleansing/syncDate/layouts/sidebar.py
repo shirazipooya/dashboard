@@ -302,12 +302,6 @@ sidebar = html.Div(
                 html.H4("هماهنگ‌سازی تاریخ")
             ],
         ),
-
-        dmc.Divider(
-            variant="solid",
-            class_name="pb-3",
-            size="sm"
-        ),  
         
         html.Div(
             className='form-group p-0 m-0 pb-3',
