@@ -823,6 +823,22 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                                 ),
                             )
                         )
+                        
+                        
+                        tmp = df[df["WATER_TABLE"] == 0]
+                        
+                        fig.add_trace(
+                            go.Scatter(
+                                x=tmp['DATE_GREGORIAN'],
+                                y=tmp['WATER_TABLE'],
+                                mode='markers',
+                                name=f'سطح ایستابی با مقدار صفر',
+                                marker=dict(
+                                    color='violet',
+                                    size=12,
+                                ),
+                            )
+                        )
 
                     fig.update_layout(
                         hoverlabel=dict(

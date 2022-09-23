@@ -8,7 +8,7 @@ import psycopg2
 import swifter
 import statistics
 from geoalchemy2 import Geometry, WKTElement
-from dash import no_update, dcc
+from dash import no_update, dcc, dash_table
 from dash.dependencies import Output, Input, State
 import plotly.graph_objects as go
 import plotly.express as px
@@ -512,6 +512,9 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
         Output('CALCULATE_UNIT_HYDROGRAPH', 'n_clicks'),
         Output("ALERTS", "children"),
         Output('INTERVAL', 'n_intervals'),
+        Output('SELECT_DATE_THIESSEN', 'value'),
+        Output('DIV_SELECT_DATE_THIESSEN', 'hidden'),
+        Output('UNIT_HYDROGRAPH_GRAPH', 'children'),        
         Input('CALCULATE_UNIT_HYDROGRAPH', 'n_clicks'),
         State('STUDY_AREA_SELECT', 'value'),
         State('AQUIFER_SELECT', 'value'),
@@ -646,14 +649,13 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                                 
                                 tmp['UNIT_HYDROGRAPH_TWA'] = (tmp["WATER_LEVEL"] * tmp['THISSEN_LOCATION']) / tmp['THISSEN_AQUIFER']
                                 
-                                # tmp['STORAGE_COEFFICIENT_AQUIFER'] = (tmp["STORAGE_COEFFICIENT"] * tmp['THISSEN_LOCATION']) / tmp['THISSEN_AQUIFER']
-                                tmp['STORAGE_COEFFICIENT_AQUIFER'] = sc
-                                
+                                tmp['STORAGE_COEFFICIENT_AQUIFER'] = (tmp["STORAGE_COEFFICIENT"] * tmp['THISSEN_LOCATION']) / tmp['THISSEN_AQUIFER']
+
                                 tmp = tmp.groupby(
                                     by=["MAHDOUDE", "AQUIFER", "YEAR_PERSIAN", "MONTH_PERSIAN"]
                                 ).agg({
                                     "UNIT_HYDROGRAPH_TWA": 'sum',
-                                    "STORAGE_COEFFICIENT_AQUIFER": 'mean',
+                                    "STORAGE_COEFFICIENT_AQUIFER": 'sum',
                                     "THISSEN_AQUIFER": 'mean', 
                                 }).reset_index()
                                 
@@ -758,7 +760,12 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                         result = [
                             0,
                             notify,
-                            0
+                            0,
+                            None,
+                            True,
+                            dcc.Graph(
+                                figure=NO_MATCHING_GRAPH_FOUND
+                            )
                         ]
                         
                         return result
@@ -776,7 +783,12 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                         result = [
                             0,
                             notify,
-                            1
+                            1,
+                            None,
+                            True,
+                            dcc.Graph(
+                                figure=NO_MATCHING_GRAPH_FOUND
+                            )
                         ]
                     
                         return result
@@ -794,7 +806,12 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                     result = [
                         0,
                         notify,
-                        1
+                        1,
+                        None,
+                        True,
+                        dcc.Graph(
+                            figure=NO_MATCHING_GRAPH_FOUND
+                        )
                     ]
                 
                     return result
@@ -812,7 +829,12 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                 result = [
                     0,
                     notify,
-                    1
+                    1,
+                    None,
+                    True,
+                    dcc.Graph(
+                        figure=NO_MATCHING_GRAPH_FOUND
+                    )
                 ]
             
                 return result
@@ -831,7 +853,10 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
             result = [
                 0,
                 notify,
-                1
+                1,
+                no_update,
+                no_update,
+                no_update,
             ]
             
             return result
@@ -841,15 +866,14 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
     # -----------------------------------------------------------------------------  
     @app.callback(
         Output('SHOW_UNIT_HYDROGRAPH', 'n_clicks'),        
-        Output('UNIT_HYDROGRAPH_GRAPH', 'children'),
-        # Output('UNIT_HYDROGRAPH_TABLE', 'children'),        
+        Output('UNIT_HYDROGRAPH_GRAPH', 'children'),       
         Input('SHOW_UNIT_HYDROGRAPH', 'n_clicks'),
     ) 
     def graph(
         n
     ):
         if n != 0:
-            
+                
             sql = f"SELECT * FROM {DB_DATA_TABLE_TEMPORARY}"
 
             df = pd.read_sql_query(
@@ -1051,9 +1075,6 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                 dcc.Graph(
                     figure=fig
                 ),
-                # dcc.Graph(
-                #     figure=NO_MATCHING_TABLE_FOUND
-                # )
             ]
             
             return result
@@ -1065,15 +1086,330 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                 dcc.Graph(
                     figure=NO_MATCHING_GRAPH_FOUND
                 ),
-                # dcc.Graph(
-                #     figure=NO_MATCHING_TABLE_FOUND
-                # )
             ]
             
             return result
             
 
+    # -----------------------------------------------------------------------------
+    # CALLBACK: GRAPH
+    # -----------------------------------------------------------------------------  
+    @app.callback(        
+        Output('SHOW_THIESSEN_MAP', 'n_clicks'),
+        Output('DIV_SELECT_DATE_THIESSEN', 'hidden'), 
+        Output('SELECT_DATE_THIESSEN', 'options'),         
+        Output('SELECT_DATE_THIESSEN', 'value'),
+        Output('MAP_THIESSEN', 'figure'),
+        Output('THIESSEN_TABLE', 'children'),
+        Input('SHOW_THIESSEN_MAP', 'n_clicks'),
+        Input('SELECT_DATE_THIESSEN', 'value'),
+    ) 
+    def thiessen_map(
+        n, date_thiessen
+    ):
+        if n != 0:
+            
+            # SECTION: SELECT DATE THIESSEN
+            sql_thiessen = f"SELECT * FROM {DB_LAYERS_TABLE_TEMPORARY}"
+                    
+            df_thiessen = gpd.GeoDataFrame.from_postgis(
+                sql=sql_thiessen,
+                con=ENGINE_LAYERS,
+                geom_col="geometry"
+            )
+            
+            df_thiessen["YM_PERSIAN"] = df_thiessen["YEAR_PERSIAN"] + "-" + df_thiessen["MONTH_PERSIAN"]
+            
+            dt = sorted(list(df_thiessen["YM_PERSIAN"].unique()))
+
+            df_thiessen = df_thiessen[df_thiessen["YM_PERSIAN"] == dt[0]]
+            
+            df_thiessen["PERCENTAGE"] = (df_thiessen["THISSEN_LOCATION"] * 100) / df_thiessen["THISSEN_AQUIFER"]
+            df_thiessen["PERCENTAGE"] = df_thiessen["PERCENTAGE"].round(1)
+                                    
+            map_thiessen = px.choropleth_mapbox(
+                data_frame=df_thiessen,
+                geojson=df_thiessen.geometry,
+                locations=df_thiessen.index,
+                color="PERCENTAGE",
+                color_continuous_scale="RdYlGn_r",
+                hover_name="LOCATION",
+                hover_data={"LOCATION": False},
+                opacity=0.4,
+            )
+            
+            map_thiessen.update_coloraxes(showscale=False)
     
+            map_thiessen.update_layout(
+                mapbox = {
+                    'style': "stamen-terrain",
+                    'zoom': 8,
+                    'center': {
+                        'lat': df_thiessen.centroid.y.mean(),
+                        'lon': df_thiessen.centroid.x.mean(),
+                    },
+                },
+                autosize=True,
+                showlegend = False,
+                hovermode='closest',
+                margin = {'l':0, 'r':0, 'b':0, 't':0},
+            )
+            
+            map_thiessen.update_layout(
+                mapbox_accesstoken=MAPBOX_TOKEN
+            )
+            
+            # DATA
+            study_area = df_thiessen["MAHDOUDE"].unique()[0]
+            aquifer = df_thiessen["AQUIFER"].unique()[0]
+            well = list(df_thiessen["LOCATION"].unique())
+            year = dt[0][0:4]
+            month = dt[0][5:]
+                        
+            sql = f"SELECT * FROM {DB_DATA_TABLE_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" IN {*well,} AND \"YEAR_PERSIAN\" = '{year}' AND \"MONTH_PERSIAN\" = '{month}';"
+            
+            df_water_level = pd.read_sql_query(
+                sql=sql,
+                con=ENGINE_DATA
+            )
+            
+            df_water_level = df_water_level[["MAHDOUDE", "AQUIFER", "LOCATION", "WATER_TABLE", "WATER_LEVEL"]].merge(
+                df_thiessen[["MAHDOUDE", "AQUIFER", "LOCATION", "THISSEN_LOCATION", "THISSEN_AQUIFER"]],
+                on=["MAHDOUDE", "AQUIFER", "LOCATION"],
+                how="outer"
+            )
+            
+            df_water_level["THISSEN"] = df_water_level["THISSEN_LOCATION"] / df_water_level["THISSEN_AQUIFER"]
+            
+            df_water_level["THISSEN"] = df_water_level["THISSEN"].round(2)
+            
+            df_water_level["HYDROGRAPH"] = df_water_level["THISSEN"] * df_water_level["WATER_LEVEL"]
+            
+            df_water_level["HYDROGRAPH"] = df_water_level["HYDROGRAPH"].round(1)
+            
+            df_water_level["WATER_LEVEL"] = df_water_level["WATER_LEVEL"].round(1)
+            
+            df_water_level["WATER_TABLE"] = df_water_level["WATER_TABLE"].round(1)
+            
+            df_water_level = df_water_level.drop(['MAHDOUDE', 'AQUIFER', 'THISSEN_LOCATION', 'THISSEN_AQUIFER'], axis=1)
+            
+            df_water_level = df_water_level.sort_values(by=['HYDROGRAPH'], ascending=False)
+                        
+            table_content = dash_table.DataTable(
+                columns=[
+                    {"name": i, "id": i} for i in df_water_level.columns
+                ],
+                data=df_water_level.to_dict('records'),
+                page_size=10,
+                filter_action="native",
+                sort_action="native",
+                sort_mode="single",
+                style_as_list_view=True,
+                style_table={
+                    # 'overflowX': 'auto',
+                    'overflowY': 'auto',
+                    'direction': 'rtl',
+                },
+                style_cell={
+                    'font-family': "Vazir-Regular-FD",
+                    'border': '1px solid grey',
+                    'font-size': '16px',
+                    'text_align': 'center',
+                    'minWidth': 50,
+                    'maxWidth': 100,
+                    'direction': 'ltr',
+                    'padding': '5px',
+                },
+                style_header={
+                    'backgroundColor': 'rgb(210, 210, 210)',
+                    'border':'1px solid grey',
+                    'fontWeight': 'bold',
+                    'text_align': 'center',
+                    'height': 'auto',
+                },
+                style_data={
+                    'color': 'black',
+                    'backgroundColor': 'white'
+                },
+                style_data_conditional=[
+                    {
+                        'if': {'row_index': 'odd'},
+                        'backgroundColor': 'rgb(245, 245, 245)',
+                    }
+                ]
+            )
+            
+            result = [
+                0, 
+                False,
+                [{'label': i, 'value': i} for i in dt],
+                dt[0],
+                map_thiessen,
+                table_content
+            ]
+            
+            return result
+        
+        elif date_thiessen is not None:
+            
+            # SECTION: SELECT DATE THIESSEN
+            sql_thiessen = f"SELECT * FROM {DB_LAYERS_TABLE_TEMPORARY}"
+                    
+            df_thiessen = gpd.GeoDataFrame.from_postgis(
+                sql=sql_thiessen,
+                con=ENGINE_LAYERS,
+                geom_col="geometry"
+            )
+            
+            df_thiessen["YM_PERSIAN"] = df_thiessen["YEAR_PERSIAN"] + "-" + df_thiessen["MONTH_PERSIAN"]
+            
+            dt = sorted(list(df_thiessen["YM_PERSIAN"].unique()))
+
+            df_thiessen = df_thiessen[df_thiessen["YM_PERSIAN"] == date_thiessen]
+            
+            df_thiessen["PERCENTAGE"] = (df_thiessen["THISSEN_LOCATION"] * 100) / df_thiessen["THISSEN_AQUIFER"]
+            df_thiessen["PERCENTAGE"] = df_thiessen["PERCENTAGE"].round(1)
+                        
+            map_thiessen = px.choropleth_mapbox(
+                data_frame=df_thiessen,
+                geojson=df_thiessen.geometry,
+                locations=df_thiessen.index,
+                color="PERCENTAGE",
+                color_continuous_scale="RdYlGn_r",
+                hover_name="LOCATION",
+                hover_data={"LOCATION": False},
+                opacity=0.4,
+            )
+            
+            map_thiessen.update_coloraxes(showscale=False)
+    
+            map_thiessen.update_layout(
+                mapbox = {
+                    'style': "stamen-terrain",
+                    'zoom': 8,
+                    'center': {
+                        'lat': df_thiessen.centroid.y.mean(),
+                        'lon': df_thiessen.centroid.x.mean(),
+                    },
+                },
+                showlegend = False,
+                hovermode='closest',
+                margin = {'l':0, 'r':0, 'b':0, 't':0}
+            )
+            
+            map_thiessen.update_layout(
+                mapbox_accesstoken=MAPBOX_TOKEN
+            )
+            
+            
+            # DATA
+            study_area = df_thiessen["MAHDOUDE"].unique()[0]
+            aquifer = df_thiessen["AQUIFER"].unique()[0]
+            well = list(df_thiessen["LOCATION"].unique())
+            year = date_thiessen[0:4]
+            month = date_thiessen[5:]
+                        
+            sql = f"SELECT * FROM {DB_DATA_TABLE_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" IN {*well,} AND \"YEAR_PERSIAN\" = '{year}' AND \"MONTH_PERSIAN\" = '{month}';"
+            
+            df_water_level = pd.read_sql_query(
+                sql=sql,
+                con=ENGINE_DATA
+            )
+            
+            df_water_level = df_water_level[["MAHDOUDE", "AQUIFER", "LOCATION", "WATER_TABLE", "WATER_LEVEL"]].merge(
+                df_thiessen[["MAHDOUDE", "AQUIFER", "LOCATION", "THISSEN_LOCATION", "THISSEN_AQUIFER"]],
+                on=["MAHDOUDE", "AQUIFER", "LOCATION"],
+                how="outer"
+            )
+            
+            df_water_level["THISSEN"] = df_water_level["THISSEN_LOCATION"] / df_water_level["THISSEN_AQUIFER"]
+            
+            df_water_level["THISSEN"] = df_water_level["THISSEN"].round(2)
+            
+            df_water_level["HYDROGRAPH"] = df_water_level["THISSEN"] * df_water_level["WATER_LEVEL"]
+            
+            df_water_level["HYDROGRAPH"] = df_water_level["HYDROGRAPH"].round(1)
+            
+            df_water_level["WATER_LEVEL"] = df_water_level["WATER_LEVEL"].round(1)
+            
+            df_water_level["WATER_TABLE"] = df_water_level["WATER_TABLE"].round(1)
+            
+            df_water_level = df_water_level.drop(['MAHDOUDE', 'AQUIFER', 'THISSEN_LOCATION', 'THISSEN_AQUIFER'], axis=1)
+            
+            df_water_level = df_water_level.sort_values(by=['HYDROGRAPH'], ascending=False)
+                        
+            table_content = dash_table.DataTable(
+                columns=[
+                    {"name": i, "id": i} for i in df_water_level.columns
+                ],
+                data=df_water_level.to_dict('records'),
+                page_size=10,
+                filter_action="native",
+                sort_action="native",
+                sort_mode="single",
+                style_as_list_view=True,
+                style_table={
+                    # 'overflowX': 'auto',
+                    'overflowY': 'auto',
+                    'direction': 'rtl',
+                },
+                style_cell={
+                    'font-family': "Vazir-Regular-FD",
+                    'border': '1px solid grey',
+                    'font-size': '16px',
+                    'text_align': 'center',
+                    'minWidth': 50,
+                    'maxWidth': 100,
+                    'direction': 'ltr',
+                    'padding': '5px',
+                },
+                style_header={
+                    'backgroundColor': 'rgb(210, 210, 210)',
+                    'border':'1px solid grey',
+                    'fontWeight': 'bold',
+                    'text_align': 'center',
+                    'height': 'auto',
+                },
+                style_data={
+                    'color': 'black',
+                    'backgroundColor': 'white'
+                },
+                style_data_conditional=[
+                    {
+                        'if': {'row_index': 'odd'},
+                        'backgroundColor': 'rgb(245, 245, 245)',
+                    }
+                ]
+            )
+            
+            
+            result = [
+                0, 
+                False,
+                no_update,
+                no_update,
+                map_thiessen,
+                table_content
+            ]
+            
+            return result
+            
+        else:
+            
+            result = [
+                0, 
+                True,
+                [{}],
+                None,
+                NO_MATCHING_MAP_FOUND,
+                dcc.Graph(
+                    figure=NO_MATCHING_TABLE_FOUND
+                )
+            ]
+            
+            return result
+        
+
     # -----------------------------------------------------------------------------
     # CALLBACK: SAVE UNIT HYDROGRAPH
     # -----------------------------------------------------------------------------  

@@ -48,7 +48,7 @@ btn = html.Div(
                             children=[
                                 html.Small(
                                     children=[
-                                        'محاسبه هیدروگراف'
+                                        '1. محاسبه هیدروگراف'
                                     ],
                                 ),
                             ],
@@ -67,7 +67,7 @@ btn = html.Div(
                             children=[
                                 html.Small(
                                     children=[
-                                        'نمایش هیدروگراف'
+                                        '2. نمایش هیدروگراف'
                                     ],
                                 ),
                             ],
@@ -75,24 +75,43 @@ btn = html.Div(
                             n_clicks=0,
                         )
                     ],
-                )
+                ),
             ],
         ),
         html.Div(
             id='',
-            className='row p-0 m-0 ',
+            className='row p-0 m-0 pt-2',
             children=[
                 html.Div(
-                    className='col p-0 px-2 pt-2 m-0',
+                    className='col p-0 px-2 m-0',
                     children=[
                         dbc.Button(
-                            id='SAVE_UNIT_HYDROGRAPH',
-                            className="me-1 w-50",
+                            id='SHOW_THIESSEN_MAP',
+                            className="me-1 w-100",
                             size="md",
                             children=[
                                 html.Small(
                                     children=[
-                                        'ذخیره هیدروگراف'
+                                        '3. نمایش تیسن‌ها'
+                                    ],
+                                ),
+                            ],
+                            color='dark',
+                            n_clicks=0,
+                        )
+                    ],
+                ),
+                html.Div(
+                    className='col p-0 px-2 m-0',
+                    children=[
+                        dbc.Button(
+                            id='SAVE_UNIT_HYDROGRAPH',
+                            className="me-1 w-100",
+                            size="md",
+                            children=[
+                                html.Small(
+                                    children=[
+                                        '4. ذخیره هیدروگراف'
                                     ],
                                 ),
                             ],

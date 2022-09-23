@@ -64,6 +64,14 @@ NO_MATCHING_TABLE_FOUND = {
 }
 
 # -----------------------------------------------------------------------------
+# MAPBOX TOKEN
+# -----------------------------------------------------------------------------
+PATH_MAPBOX_TOKEN = "./Assets/.mapbox_token"
+MAPBOX_TOKEN = open(PATH_MAPBOX_TOKEN).read()
+
+
+
+# -----------------------------------------------------------------------------
 # BASE MAP
 # -----------------------------------------------------------------------------
 BASE_MAP = go.Figure(
@@ -247,7 +255,7 @@ def calculate_thiessen_polygons(
 ):
 
     data = data.dropna(subset=[para]).reset_index(drop=True)      
-    point = point[point[point_name].isin(point[point_name].unique())]  
+    point = point[point[point_name].isin(data[point_name].unique())]  
     point['POINT_IS_IN_LIMIT'] = point['geometry'].apply(lambda x: limit.contains(x))   
     point = point[point['POINT_IS_IN_LIMIT']].reset_index(drop=True)
     
