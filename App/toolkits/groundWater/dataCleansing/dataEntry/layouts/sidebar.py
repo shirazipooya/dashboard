@@ -28,10 +28,16 @@ upload_file = html.Div(
         html.Div(
             className='pt-3 text-center',
             children=[
-                html.A(
-                    children=["دانلود نمونه فایل ورودی"],
-                    href='HydrographDataTemplate.xlsx'
-                )
+                html.Div([
+                    dbc.Button(
+                        "دانلود نمونه فایل ورودی",
+                        id="btn_xlsx",
+                        color="link"
+                    ),
+                    dcc.Download(
+                        id="download_xlsx"
+                    )
+                ])
             ],
         )
     ]

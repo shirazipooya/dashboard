@@ -14,7 +14,20 @@ import plotly.graph_objects as go
 import plotly.express as px
 from . import *
 
+
 def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
+    
+    @app.callback(
+        Output("download_xlsx", "data"),
+        Input("btn_xlsx", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def download_template_file(
+        n
+    ):
+        return dcc.send_file(
+            "./Assets/Files/HydrographDataTemplate.xlsx"
+    )
     
     @app.callback(
         Output("CONTENT", "children"),
