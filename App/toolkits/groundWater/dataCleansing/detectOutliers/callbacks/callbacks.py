@@ -1,5 +1,6 @@
 import os
 import json
+import swifter
 from persiantools.jdatetime import JalaliDate, JalaliDateTime
 import pandas as pd
 import numpy as np
@@ -480,6 +481,16 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                     index_wrong_date = df[df['DATE_GREGORIAN'].isnull()].index.tolist()
                     df_wrong_date = df[df['DATE_GREGORIAN'].isna()]
                     
+                    df_duplicated = df[df.duplicated(subset=['MAHDOUDE', 'AQUIFER', 'LOCATION', 'YEAR_PERSIAN', 'MONTH_PERSIAN'], keep=False)]
+                    df_duplicated_index = df[df.duplicated(subset=['MAHDOUDE', 'AQUIFER', 'LOCATION', 'YEAR_PERSIAN', 'MONTH_PERSIAN'], keep=False)].index
+                    
+                    index_wrong_date = list(index_wrong_date) + list(df_duplicated_index)
+                    
+                    df_wrong_date = pd.concat([df_wrong_date, df_duplicated]).sort_values(
+                        by=['MAHDOUDE', 'AQUIFER', 'LOCATION', 'YEAR_PERSIAN', 'MONTH_PERSIAN']
+                    ).reset_index(drop=True)
+                    
+                    
                     storage_state["index_wrong_date"] = index_wrong_date
                     
                     if len(index_wrong_date) != 0:
@@ -613,6 +624,16 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                 col_sort = ['MAHDOUDE', 'AQUIFER', 'LOCATION', 'DATE_GREGORIAN']                
                 df = df.drop_duplicates().sort_values(by=col_sort).reset_index(drop=True)
                 
+                df = df.groupby(
+                    by=["MAHDOUDE", "AQUIFER", "LOCATION"]
+                ).apply(
+                    lambda x: fill_gap_date(
+                        df=x
+                    )
+                ).reset_index(drop=True)
+                
+                df['DESCRIPTION'] = df['DESCRIPTION'].fillna("")
+                
                 df.to_sql(
                     name=TABLE_NAME_MODIFIED_DATA,
                     con=engine,
@@ -744,6 +765,8 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                         df = df.sort_values(
                             by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]
                         ).reset_index(drop=True)
+                        
+                        print(df)
                         
                         fig.add_trace(
                             go.Scatter(
@@ -1135,73 +1158,124 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
             ]
             return result
     
+
     
     @app.callback(
         Output("BUTTON_TABLE_GRAPH", "n_clicks"),
         Output("ALERTS", "children"),
         Output('STORAGE', 'data'),
+        Input('WELL_SELECT', 'value'),
         Input("BUTTON_TABLE_GRAPH", "n_clicks"),
         State("TABLE_SELECTED_DATA", "data"),
         State('STORAGE', 'data'),
     )
     def modify_selected_data(
-        n_clicks, table_selected_data_state, storage_state
+        well_selected, n_clicks, table_selected_data_state, storage_state
     ):
         if n_clicks != 0:
             
-            if len(storage_state["index_selected_data"]) != 0:
-                
-                df_selected_data = pd.DataFrame(table_selected_data_state)
-                
-                if df_selected_data.shape[0] != 0:
-                    df_selected_data["DESCRIPTION"] = df_selected_data["DESCRIPTION"] + "سطح ایستابی اصلاح شده است."
-                                
-                df = pd.read_sql_query(
-                    sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA}",
-                    con = engine
-                )
-                
-                df = df.drop(storage_state["index_selected_data"])
-                
-                df = pd.concat([df, df_selected_data]).reset_index(drop=True)
-                
-                df['WATER_TABLE'] = df['WATER_TABLE'].astype('float64')
-                
-                df["DATE_GREGORIAN"] = df["DATE_GREGORIAN"].apply(pd.to_datetime)
-                
-                df.to_sql(
-                    name=TABLE_NAME_MODIFIED_DATA,
-                    con=engine,
-                    if_exists='replace',
-                    index=False
-                )
-                
-                storage_state["index_selected_data"] = []
-                
-                notify = dmc.Notification(
-                    id ="notify",
-                    title = "خبر",
-                    message = ["پایگاه داده با موفقیت بروزرسانی شد."],
-                    color = 'green',
-                    action = "show",
-                )
+            if well_selected is not None and len(well_selected) == 1:
+            
+                if len(storage_state["index_selected_data"]) != 0:
+                    
+                    df = pd.read_sql_query(
+                        sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA}",
+                        con = engine
+                    )
+                    
+                    df_selected_data = pd.DataFrame(table_selected_data_state) 
+                    
+                    if df_selected_data.shape[0] != 0:
                         
-                result = [
-                    0,
-                    storage_state,
-                    notify,
-                ]
+                        study_area = df_selected_data["MAHDOUDE"].unique()[0]
+                        aquifer = df_selected_data["AQUIFER"].unique()[0]
+                        well = df_selected_data["LOCATION"].unique()[0]
+                        
+                        for i, row in df_selected_data.iterrows():
+                            
+                            date_persian = row["DATE_PERSIAN"]
+                            
+                            if df.loc[(df.MAHDOUDE == study_area) & (df.AQUIFER == aquifer) & (df.LOCATION == well) & (df.DATE_PERSIAN == date_persian)]["WATER_TABLE"].item() != df_selected_data.loc[(df_selected_data.MAHDOUDE == study_area) & (df_selected_data.AQUIFER == aquifer) & (df_selected_data.LOCATION == well) & (df_selected_data.DATE_PERSIAN == date_persian)]["WATER_TABLE"].item():
+                                
+                                df_selected_data.loc[i, "DESCRIPTION"] = df_selected_data.loc[i, "DESCRIPTION"] +  "سطح ایستابی اصلاح شده است."                    
+                    
+                    df = df.drop(storage_state["index_selected_data"])
+                    
+                    df = pd.concat([df, df_selected_data]).reset_index(drop=True)
+                    
+                    df['WATER_TABLE'] = df['WATER_TABLE'].astype('float64')
+                    
+                    df["DATE_GREGORIAN"] = df["DATE_GREGORIAN"].apply(pd.to_datetime)
+                    
+                    
+                    if df_selected_data.shape[0] != 0:
+                        
+                        study_area = df_selected_data["MAHDOUDE"].unique()[0]
+                        aquifer = df_selected_data["AQUIFER"].unique()[0]
+                        well = df_selected_data["LOCATION"].unique()[0]                        
+                        df_w = df.loc[(df.MAHDOUDE == study_area) & (df.AQUIFER == aquifer) & (df.LOCATION == well)]                        
+                        df_w_index = df.loc[(df.MAHDOUDE == study_area) & (df.AQUIFER == aquifer) & (df.LOCATION == well)].index                        
+                        df_w = fill_gap_date(df=df_w)                        
+                        df_w['DESCRIPTION'] = df_w['DESCRIPTION'].fillna("")
+                        
+                        df.drop(df_w_index , inplace=True)
+                        df = pd.concat([df, df_w]).sort_values(
+                            by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]
+                        ).reset_index(drop=True)
+                    
+                    
+                    
+                    df.to_sql(
+                        name=TABLE_NAME_MODIFIED_DATA,
+                        con=engine,
+                        if_exists='replace',
+                        index=False
+                    )
+                    
+                    storage_state["index_selected_data"] = []
+                    
+                    notify = dmc.Notification(
+                        id ="notify",
+                        title = "خبر",
+                        message = ["پایگاه داده با موفقیت بروزرسانی شد."],
+                        color = 'green',
+                        action = "show",
+                    )
+                            
+                    result = [
+                        0,
+                        storage_state,
+                        notify,
+                    ]
+                    
+                    return result
                 
-                return result
+                else:
+                    
+                    notify = dmc.Notification(
+                        id ="notify",
+                        title = "",
+                        message = [""],
+                        color = 'red',
+                        action = "hide",
+                    )
+                            
+                    result = [
+                        0,
+                        storage_state,
+                        notify
+                    ]
+                    
+                    return result
             
             else:
                 
                 notify = dmc.Notification(
                     id ="notify",
-                    title = "",
-                    message = [""],
+                    title = "خطا",
+                    message = ["فقط یک چاه میتواند انتخاب شود!"],
                     color = 'red',
-                    action = "hide",
+                    action = "show",
                 )
                         
                 result = [

@@ -1,5 +1,6 @@
 import base64
 import io
+import numpy as np
 import pandas as pd
 import psycopg2
 import itertools
@@ -365,6 +366,86 @@ def check_persian_date_ymd(
     try:
         date_persian = str(year_persian) + "-" + str(month_persian) + "-" + str(day_persian)
         date_gregorian = JalaliDate(year_persian, month_persian, day_persian).to_gregorian()
+        return date_persian, date_gregorian
+    except:
+        return pd.NA, pd.NA
+
+
+# -----------------------------------------------------------------------------
+# FUNCTION FIL GAP DATE
+# -----------------------------------------------------------------------------
+def fill_gap_date(
+    df
+):
+    cols_p = ['YEAR_PERSIAN', 'MONTH_PERSIAN', 'DAY_PERSIAN']                        
+    cols_g = ['YEAR_GREGORIAN', 'MONTH_GREGORIAN', 'DAY_GREGORIAN']
+    
+    persian_date_min = df["DATE_PERSIAN"].min()                     
+    persian_date_max = df["DATE_PERSIAN"].max()        
+    persian_date_min_list = persian_date_min.split("-")
+    persian_date_max_list = persian_date_max.split("-")
+    
+    year = list(range(int(persian_date_min_list[0]), int(persian_date_max_list[0]) + 1))
+    month = list(range(1, 13))        
+    tmp = pd.DataFrame(
+        {
+            "YEAR_PERSIAN": np.repeat(year, 12, axis=0),
+            "MONTH_PERSIAN": month * len(year)
+        }
+    )        
+    tmp["YEAR_PERSIAN"] = tmp["YEAR_PERSIAN"].astype(str).str.zfill(4)
+    tmp["MONTH_PERSIAN"] = tmp["MONTH_PERSIAN"].astype(str).str.zfill(2)
+    
+    df = pd.merge(left=df, right=tmp, on=["YEAR_PERSIAN", "MONTH_PERSIAN"], how="outer").reset_index(drop=True)
+            
+    df["MAHDOUDE"] = df["MAHDOUDE"].interpolate(method="pad")
+    df["AQUIFER"] = df["AQUIFER"].interpolate(method="pad")
+    df["LOCATION"] = df["LOCATION"].interpolate(method="pad")
+    df["DAY_PERSIAN"] = df["DAY_PERSIAN"].interpolate(method="pad")
+    
+    df[cols_p] = df[cols_p].apply(pd.to_numeric, errors='coerce')
+    df[cols_p] = df[cols_p].astype(pd.Int64Dtype())
+    
+    date_persian, date_gregorian = np.vectorize(ymd_persian_to_date)(df.YEAR_PERSIAN, df.MONTH_PERSIAN, df.DAY_PERSIAN)
+    
+    df["DATE_PERSIAN"] = list(date_persian)
+    df["DATE_GREGORIAN"] = list(date_gregorian)
+    
+    df[cols_p] = df['DATE_PERSIAN'].str.split('-', 2, expand=True)
+    df[cols_g] = df['DATE_GREGORIAN'].astype(str).str.split('-', 2, expand=True)
+    
+    df["YEAR_PERSIAN"] = df["YEAR_PERSIAN"].astype(str).str.zfill(4)
+    df["MONTH_PERSIAN"] = df["MONTH_PERSIAN"].astype(str).str.zfill(2)
+    df["DAY_PERSIAN"] = df["DAY_PERSIAN"].astype(str).str.zfill(2)
+    df["YEAR_GREGORIAN"] = df["YEAR_GREGORIAN"].str.zfill(4)
+    df["MONTH_GREGORIAN"] = df["MONTH_GREGORIAN"].str.zfill(2)
+    df["DAY_GREGORIAN"] = df["DAY_GREGORIAN"].str.zfill(2)
+    df['DATE_PERSIAN'] = df["YEAR_PERSIAN"] + "-" + df["MONTH_PERSIAN"] + "-" + df["DAY_PERSIAN"]
+    df['DATE_GREGORIAN'] = df["YEAR_GREGORIAN"] + "-" + df["MONTH_GREGORIAN"] + "-" + df["DAY_GREGORIAN"]
+    df["DATE_GREGORIAN"] = df["DATE_GREGORIAN"].apply(pd.to_datetime)
+    
+    df = df.sort_values(
+        by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]
+    )
+    
+    df = df.loc[(df['DATE_PERSIAN'] >= persian_date_min) & (df['DATE_PERSIAN'] <= persian_date_max)]
+    
+    df = df.reset_index(drop=True)
+    
+    return df
+    
+    
+# -----------------------------------------------------------------------------
+# FUNCTION CONVERT DAY, MONTH, YEAR PERSIAN TO DATE
+# -----------------------------------------------------------------------------
+def ymd_persian_to_date(
+    year,
+    month,
+    day,
+):
+    try:
+        date_persian = str(year) + "-" + str(month) + "-" + str(day)
+        date_gregorian = JalaliDate(year, month, day).to_gregorian()
         return date_persian, date_gregorian
     except:
         return pd.NA, pd.NA
