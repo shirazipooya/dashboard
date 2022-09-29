@@ -247,150 +247,149 @@ sidebar = html.Div(
         html.Div(
             className='form-group p-0 m-0 pb-3',
             children=[
-                html.H5(
-                    children="مرحله اول: چک کردن تاریخ",
-                    className="text-center p-2"
-                ),     
-                
                 dmc.Accordion(
                     class_name="bg-light my-rtl",
                     iconPosition="right",
                     children=[
                         dmc.AccordionItem(
                             children=[
-                                select_date_type
-                            ],
-                            label="1- انتخاب فرمت ورودی تاریخ",
-                            
-                        ),
-                        dmc.AccordionItem(
-                            children=[
-                                action_date
-                            ],
-                            label="2- نمایش تاریخ‌های اشتباه",
-                            
-                        ),
-                        dmc.AccordionItem(
-                            children=[
-                                html.Div(
-                                    className='px-1 py-3 text-center',
+                                dmc.Accordion(
+                                    class_name="bg-light my-rtl",
+                                    iconPosition="right",
                                     children=[
-                                        "از جدول «ردیف‌ها با تاریخ اشتباه» تاریخ‌های نمایش داده شده را اصلاح یا با کلیک بر روی علامت ضربدر آن ردیف را حذف کنید و در ادامه روی «ذخیره تغییرات» و سپس «تنظیم تاریخ» کلیک نمایید."
-                                    ],
-                                )
-                            ],
-                            label="3- اصلاح یا حذف ردیف‌های جدول",
-
-                        ),
-                    ],
-                ),
-
-                html.Div(
-                    className='row px-5 py-3 text-center',
-                    children=[
-                        html.Div(
-                            className='col p-0 px-2 m-0',
-                            children=[
-                                dbc.Button(
-                                    id='BUTTON_STAGE_1',
-                                    className="me-1 w-100",
-                                    size="md",
-                                    children='ذخیره تغییرات', 
-                                    color='dark',
-                                    n_clicks=0
-                                ),
-                            ],
-                        ),
-                        html.Div(
-                            className='col p-0 px-2 m-0',
-                            children=[
-                                dbc.Button(
-                                    id='BUTTON_DATE',
-                                    className="me-1 w-100",
-                                    size="md",
-                                    children='تنظیم تاریخ', 
-                                    color='dark',
-                                    n_clicks=0,
-                                )
-                            ],
-                        )
-                    ],
-                )
-            ],
-        ),
-        
-        html.Div(
-            className='form-group p-0 m-0 pb-3',
-            children=[
-                html.H5(
-                    children="مرحله دوم: اصلاح دستی داده‌ها",
-                    className="text-center p-2"
-                ),     
-                
-                dmc.Accordion(
-                    class_name="bg-light my-rtl",
-                    iconPosition="right",
-                    children=[
-                        dmc.AccordionItem(
-                            children=[
-                                select_well,
-                            ],
-                            label="1- انتخاب چاه مشاهده‌ای",
-                        ),
-                        dmc.AccordionItem(
-                            children=[
-                                extreme_value_check
-                            ],
-                            label="2- انتخاب حد شناسایی داده‌های پرت",
-                        ),
-                        dmc.AccordionItem(
-                            children=[
-                                html.Div(
-                                    className='px-1 py-3 text-center',
-                                    children=[
-                                        "با استفاده از ابزار انتخاب نمودار، داده‌هایی که نیاز به اصلاح دارند را انتخاب و در جدول نمایش داده شده، داده‌های انتخابی را اصلاح کنید. پس از انجام تغییرات روی «ذخیره تغییرات» کلیک نمایید."
-                                    ],
-                                )
-                            ],
-                            label="3- انتخاب نقاط از روی نمودار و اصلاح مقادیر جدول",
-                        ),
-                    ],
-                ),
-                html.Div(
-                    className='row px-5 py-3 text-center',
-                    children=[
-                        html.Div(
-                            className='col p-0 px-2 m-0',
-                            children=[
-                                dbc.Button(
-                                    id='BUTTON_TABLE_GRAPH',
-                                    className="me-1 w-100",
-                                    size="md",
-                                    children='ذخیره تغییرات', 
-                                    color='dark',
-                                    n_clicks=0
-                                ),
-                            ],
-                        ),
-                        html.Div(
-                            className='col p-0 px-2 m-0',
-                            children=[
-                                html.A(
-                                    children = 
-                                        dbc.Button(
-                                            className="me-1 w-100",
-                                            size="md",
-                                            children='بارگذاری صفحه', 
-                                            color='dark',
-                                            n_clicks=0
+                                        dmc.AccordionItem(
+                                            children=[
+                                                select_date_type
+                                            ],
+                                            label="1- انتخاب فرمت ورودی تاریخ",
+                                            
                                         ),
-                                    href='/groundwater/dataCleansing/detectOutliers/'
-                                ) 
+                                        dmc.AccordionItem(
+                                            children=[
+                                                action_date
+                                            ],
+                                            label="2- نمایش تاریخ‌های اشتباه",
+                                            
+                                        ),
+                                        dmc.AccordionItem(
+                                            children=[
+                                                html.Div(
+                                                    className='px-1 py-3 text-center',
+                                                    children=[
+                                                        "از جدول «ردیف‌ها با تاریخ اشتباه» تاریخ‌های نمایش داده شده را اصلاح یا با کلیک بر روی علامت ضربدر آن ردیف را حذف کنید و در ادامه روی «ذخیره تغییرات» و سپس «تنظیم تاریخ» کلیک نمایید."
+                                                    ],
+                                                )
+                                            ],
+                                            label="3- اصلاح یا حذف ردیف‌های جدول",
+
+                                        ),
+                                    ],
+                                ),
+                                html.Div(
+                                    className='row px-5 py-3 text-center',
+                                    children=[
+                                        html.Div(
+                                            className='col p-0 px-2 m-0',
+                                            children=[
+                                                dbc.Button(
+                                                    id='BUTTON_STAGE_1',
+                                                    className="me-1 w-100",
+                                                    size="md",
+                                                    children='ذخیره تغییرات', 
+                                                    color='dark',
+                                                    n_clicks=0
+                                                ),
+                                            ],
+                                        ),
+                                        html.Div(
+                                            className='col p-0 px-2 m-0',
+                                            children=[
+                                                dbc.Button(
+                                                    id='BUTTON_DATE',
+                                                    className="me-1 w-100",
+                                                    size="md",
+                                                    children='تنظیم تاریخ', 
+                                                    color='dark',
+                                                    n_clicks=0,
+                                                )
+                                            ],
+                                        )
+                                    ],
+                                )
                             ],
-                        )
-                    ],
+                            label="مرحله اول: چک کردن تاریخ",
+                        ),
+                        dmc.AccordionItem(
+                            children=[
+                                dmc.Accordion(
+                                    class_name="bg-light my-rtl",
+                                    iconPosition="right",
+                                    children=[
+                                        dmc.AccordionItem(
+                                            children=[
+                                                select_well,
+                                            ],
+                                            label="1- انتخاب چاه مشاهده‌ای",
+                                        ),
+                                        dmc.AccordionItem(
+                                            children=[
+                                                extreme_value_check
+                                            ],
+                                            label="2- انتخاب حد شناسایی داده‌های پرت",
+                                        ),
+                                        dmc.AccordionItem(
+                                            children=[
+                                                html.Div(
+                                                    className='px-1 py-3 text-center',
+                                                    children=[
+                                                        "با استفاده از ابزار انتخاب نمودار، داده‌هایی که نیاز به اصلاح دارند را انتخاب و در جدول نمایش داده شده، داده‌های انتخابی را اصلاح کنید. پس از انجام تغییرات روی «ذخیره تغییرات» کلیک نمایید."
+                                                    ],
+                                                )
+                                            ],
+                                            label="3- انتخاب نقاط از روی نمودار و اصلاح مقادیر جدول",
+                                        ),
+                                    ],
+                                ),
+                                html.Div(
+                                    className='row px-5 py-3 text-center',
+                                    children=[
+                                        html.Div(
+                                            className='col p-0 px-2 m-0',
+                                            children=[
+                                                dbc.Button(
+                                                    id='BUTTON_TABLE_GRAPH',
+                                                    className="me-1 w-100",
+                                                    size="md",
+                                                    children='ذخیره تغییرات', 
+                                                    color='dark',
+                                                    n_clicks=0
+                                                ),
+                                            ],
+                                        ),
+                                        html.Div(
+                                            className='col p-0 px-2 m-0',
+                                            children=[
+                                                html.A(
+                                                    children = 
+                                                        dbc.Button(
+                                                            className="me-1 w-100",
+                                                            size="md",
+                                                            children='بارگذاری صفحه', 
+                                                            color='dark',
+                                                            n_clicks=0
+                                                        ),
+                                                    href='/groundwater/dataCleansing/detectOutliers/'
+                                                ) 
+                                            ],
+                                        )
+                                    ],
+                                )
+                            ],
+                            label="مرحله دوم: اصلاح دستی داده‌ها",
+                        ),
+                    ]
                 )
-            ],
-        ),
+            ]
+        )
     ]
 )

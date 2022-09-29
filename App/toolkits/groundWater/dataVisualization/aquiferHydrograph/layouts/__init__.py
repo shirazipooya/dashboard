@@ -49,7 +49,7 @@ def layout():
                 ]
             ),
             dcc.Store(
-                id='STORAGE',
+                id='STORAGE-AQUIFER-HYDROGRAPH',
                 storage_type='local',
                 data={}
             ),

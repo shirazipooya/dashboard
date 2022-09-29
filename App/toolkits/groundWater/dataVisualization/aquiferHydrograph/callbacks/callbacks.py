@@ -396,7 +396,9 @@ def toolkits__groundWater__dataVisualization__aquiferHydrograph__callbacks(app):
     # -----------------------------------------------------------------------------  
     @app.callback(
         Output('HYDROGRAPH_GRAPH', 'children'),
-        Output('HYDROGRAPH_TABLE', 'children'),        
+        Output('HYDROGRAPH_TABLE', 'children'),
+        Output("DIV_DOWNLOAD_DATA", "hidden"),      
+        Output("STORAGE-AQUIFER-HYDROGRAPH", "data"),      
         Input('STUDY_AREA_SELECT', 'value'),
         Input('AQUIFER_SELECT', 'value'),
         Input('START_MONTH', 'value'),
@@ -430,9 +432,7 @@ def toolkits__groundWater__dataVisualization__aquiferHydrograph__callbacks(app):
                 data = data.sort_values(
                     ["MAHDOUDE", "AQUIFER", "DATE_GREGORIAN"]
                 ).reset_index(drop=True)
-            
-            print(data)
-            print(data.columns)
+
             
             if data.shape[0] >= 1:
             
@@ -500,6 +500,9 @@ def toolkits__groundWater__dataVisualization__aquiferHydrograph__callbacks(app):
                     ["سال آبی", "ماه آبی"]
                     ).reset_index(drop=True)
                 
+                download_data = data_table.copy()
+                
+                download_data = download_data.dropna(subset=["سال", "ماه"])
                 
                 if para == "WL":
                 
@@ -641,8 +644,9 @@ def toolkits__groundWater__dataVisualization__aquiferHydrograph__callbacks(app):
                     [
                         html.H5(children=title),
                         table_content
-                    ]
-                    
+                    ],
+                    False,
+                    download_data.to_dict('records')
                 ]
                 
                 return result
@@ -655,7 +659,9 @@ def toolkits__groundWater__dataVisualization__aquiferHydrograph__callbacks(app):
                     ),
                     dcc.Graph(
                         figure=NO_MATCHING_TABLE_FOUND
-                    )
+                    ),
+                    True,
+                    {}
                 ]
                 
                 return result
@@ -668,7 +674,9 @@ def toolkits__groundWater__dataVisualization__aquiferHydrograph__callbacks(app):
                 ),
                 dcc.Graph(
                     figure=NO_MATCHING_TABLE_FOUND
-                )
+                ),
+                True,
+                {}
             ]
             
             return result
@@ -732,3 +740,23 @@ def toolkits__groundWater__dataVisualization__aquiferHydrograph__callbacks(app):
                 ],
                 "TWA"
             ]
+    
+    @app.callback(
+        Output("DOWNLOAD_XLSX", "data"),
+        Input("BTN_XLSX", "n_clicks"),
+        State("STORAGE-AQUIFER-HYDROGRAPH", "data"),
+        prevent_initial_call=True
+    )
+    def generate_xlsx(
+        n_nlicks, data
+    ):
+        if n_nlicks != 0:
+            
+            df = pd.DataFrame(data)
+
+            def to_xlsx(bytes_io):
+                xslx_writer = pd.ExcelWriter(bytes_io, engine="xlsxwriter")
+                df.to_excel(xslx_writer, index=False, sheet_name="sheet1")
+                xslx_writer.save()
+
+            return dcc.send_bytes(to_xlsx, "data.xlsx")

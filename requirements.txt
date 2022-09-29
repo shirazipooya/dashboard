@@ -3,6 +3,7 @@ pandas
 scipy
 openpyxl
 xlrd
+xlsxwriter
 geopandas
 Flask
 plotly

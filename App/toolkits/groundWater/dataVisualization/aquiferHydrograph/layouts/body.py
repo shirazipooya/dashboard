@@ -80,10 +80,19 @@ body = html.Div(
                     children=[
                         dcc.Graph(
                             figure=NO_MATCHING_TABLE_FOUND
-                        )
+                        ),
                     ],
                     className='col p-0 m-0 w-100',
                     dir="rtl"
+                ),
+                html.Div(
+                    id="DIV_DOWNLOAD_DATA",
+                    className="pt-4",
+                    children=[
+                        html.Button("دانلود داده‌ها", id="BTN_XLSX", className="btn btn-primary btn-sm"),
+                        dcc.Download(id="DOWNLOAD_XLSX")
+                    ],
+                    hidden=True
                 )
             ]
         ),
