@@ -27,13 +27,3 @@ def groundwater_dataVisualization():
     return render_template(
         template_name_or_list="groundwater_dataVisualization.html"
     )
-
-
-@app.route('/groundwater/dataCleansing/dataEntry')
-def groundWater_dataCleansing_dataEntry():
-    return app.index()
-
-
-@app.route('/groundwater/dataCleansing/detectOutliers')
-def groundWater_dataCleansing_detectOutliers():
-    return app.index()

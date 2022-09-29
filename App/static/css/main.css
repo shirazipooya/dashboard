@@ -111,3 +111,13 @@ div.cell.cell-1-1.dash-fixed-content {
   margin-left: .5rem!important;
   background-color: #ffffff;
 }
+
+
+
+.dropdown-menu.show{
+  text-align: start;
+}
+
+.text-hover:hover {
+  background-color: #acacac;
+}

@@ -58,6 +58,40 @@ navbar = html.Nav(
                                         )
                                     ]
                                 ),
+                                dbc.DropdownMenu(
+                                    children=[
+                                        html.A(
+                                            className='nav-link link-hover text-hover text-dark', 
+                                            children="گام اول: فراخوانی داده‌ها",
+                                            href="/groundwater/dataCleansing/dataEntry/",
+                                        ),
+                                        html.A(
+                                            className='nav-link link-hover text-hover text-dark', 
+                                            children="گام دوم: شناسایی داده‌های پرت",
+                                            href="/groundwater/dataCleansing/detectOutliers/"
+                                        ),
+                                        html.A(
+                                            className='nav-link link-hover text-hover text-dark', 
+                                            children="گام سوم: بازسازی داده‌های مفقودی",
+                                            href="/groundwater/dataCleansing/interpolation/"
+                                        ),
+                                        html.A(
+                                            className='nav-link link-hover text-hover text-dark', 
+                                            children="گام چهارم: هماهنگ‌سازی تاریخ‌ها",
+                                            href="/groundwater/dataCleansing/syncDate/"
+                                        ),
+                                        html.A(
+                                            className='disabled nav-link link-hover text-hover text-dark', 
+                                            children="گام پنجم: بسط داده‌ها",
+                                            href="#"
+                                        ),
+                                    ],
+                                    className='nav-link navbar-brand link-hover text-info p-0 m-0',
+                                    nav=True,
+                                    in_navbar=True,
+                                    caret =False,
+                                    label="گام بعدی...",
+                                ),
                             ]
                         )
                     ],

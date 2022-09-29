@@ -185,7 +185,6 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
     def study_area_select(
         n
     ):
-        print("study_area_select1")
         conn = psycopg2.connect(
                 database=POSTGRES_DB_NAME,
                 user=POSTGRES_USER_NAME,
@@ -201,7 +200,6 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
         conn.close()
         
         if "geoinfo" in table_name_list_exist:
-            print("study_area_select2")
             df = pd.read_sql_query(
                 sql='SELECT DISTINCT "MAHDOUDE" FROM geoinfo;',
                 con=engine
@@ -209,7 +207,6 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
         
             return [{'label': i, 'value': i} for i in sorted(df.MAHDOUDE.values)]
         else:
-            print("study_area_select3")
             return [{}]
 
 
@@ -765,9 +762,7 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                         df = df.sort_values(
                             by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]
                         ).reset_index(drop=True)
-                        
-                        print(df)
-                        
+                                                
                         fig.add_trace(
                             go.Scatter(
                                 x=df['DATE_GREGORIAN'],
@@ -1206,18 +1201,18 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                     df['WATER_TABLE'] = df['WATER_TABLE'].astype('float64')
                     
                     df["DATE_GREGORIAN"] = df["DATE_GREGORIAN"].apply(pd.to_datetime)
-                    
-                    
-                    if df_selected_data.shape[0] != 0:
+                                        
+                    if len(storage_state["index_selected_data"]) != 0:
                         
-                        study_area = df_selected_data["MAHDOUDE"].unique()[0]
-                        aquifer = df_selected_data["AQUIFER"].unique()[0]
-                        well = df_selected_data["LOCATION"].unique()[0]                        
+                        tmp = df.iloc[storage_state["index_selected_data"], :]                        
+                        study_area = tmp["MAHDOUDE"].unique()[0]
+                        aquifer = tmp["AQUIFER"].unique()[0]
+                        well = tmp["LOCATION"].unique()[0] 
+                                               
                         df_w = df.loc[(df.MAHDOUDE == study_area) & (df.AQUIFER == aquifer) & (df.LOCATION == well)]                        
                         df_w_index = df.loc[(df.MAHDOUDE == study_area) & (df.AQUIFER == aquifer) & (df.LOCATION == well)].index                        
                         df_w = fill_gap_date(df=df_w)                        
                         df_w['DESCRIPTION'] = df_w['DESCRIPTION'].fillna("")
-                        
                         df.drop(df_w_index , inplace=True)
                         df = pd.concat([df, df_w]).sort_values(
                             by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]
