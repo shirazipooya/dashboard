@@ -213,35 +213,26 @@ def dropHoles(gdf):
 # FUNCTION: THIESSEN POLYGONS
 # -----------------------------------------------------------------------------    
 def thiessen_polygons(gdf, mask):
-	'''
-	CREATE VORONOI DIAGRAM / THIESSEN POLYGONS:
-	PARAMETERS:
-		gdf: POINTS / POLYGONS TO BE USED TO CREATE VORONOI DIAGRAM / THIESSEN POLYGONS.
-            Type: geopandas.GeoDataFrame
-		mask: POLYGON VECTOR USED TO CLIP THE CREATED VORONOI DIAGRAM / THIESSEN POLYGONS.
-			Type: GeoDataFrame, GeoSeries, (Multi)Polygon
-	RETURNS:
-		gdf_vd: THIESSEN POLYGONS
-			Type: geopandas.geodataframe.GeoDataFrame	
-	'''	
-	gdf.reset_index(drop=True)
-	# CONVERT TO shapely.geometry.MultiPolygon
-	smp = gdf.unary_union
-	# CREATE PRIMARY VORONOI DIAGRAM BY INVOKING shapely.ops.voronoi_diagram
-	poly = load_wkt('POLYGON ((42 24, 64 24, 64 42, 42 42, 42 24))')
-	smp_vd = svd(smp, envelope=poly)
-	# CONVERT TO GeoSeries AND explode TO SINGLE POLYGONS
-	gs = gpd.GeoSeries([smp_vd]).explode()
-	# CONVERT TO GEODATAFRAME
-	# NOTE THAT IF GDF WAS shapely.geometry.MultiPolygon, IT HAS NO ATTRIBUTE 'crs'
-	gdf_vd_primary = gpd.geodataframe.GeoDataFrame(geometry=gs, crs=gdf.crs)	
-	# RESET INDEX
-	gdf_vd_primary.reset_index(drop=True)	
-	# SPATIAL JOIN BY INTERSECTING AND DISSOLVE BY `index_right`
-	gdf_temp = (gpd.sjoin(gdf_vd_primary, gdf, how='inner', op='intersects').dissolve(by='index_right').reset_index(drop=True))
-	gdf_vd = gpd.clip(gdf_temp, mask)
-	gdf_vd = dropHoles(gdf_vd)
-	return gdf_vd
+    gdf.reset_index(drop=True)
+    # CONVERT TO shapely.geometry.MultiPolygon
+    smp = gdf.unary_union
+    # CREATE PRIMARY VORONOI DIAGRAM BY INVOKING shapely.ops.voronoi_diagram
+    poly = load_wkt('POLYGON ((42 24, 64 24, 64 42, 42 42, 42 24))')
+    smp_vd = svd(smp, envelope=poly)
+    # CONVERT TO GeoSeries AND explode TO SINGLE POLYGONS
+    gs = gpd.GeoSeries([smp_vd]).explode()
+    # CONVERT TO GEODATAFRAME
+    # NOTE THAT IF GDF WAS shapely.geometry.MultiPolygon, IT HAS NO ATTRIBUTE 'crs'
+    gdf_vd_primary = gpd.geodataframe.GeoDataFrame(geometry=gs, crs=gdf.crs)	
+    # RESET INDEX
+    gdf_vd_primary.reset_index(drop=True)
+    gdf_vd_primary = gpd.clip(gdf_vd_primary, mask)	
+    
+    # SPATIAL JOIN BY INTERSECTING AND DISSOLVE BY `index_right`
+    gdf_temp = (gpd.sjoin(gdf_vd_primary, gdf, how='inner', op='intersects').dissolve(by='index_right').reset_index(drop=True))
+    # gdf_vd = gpd.clip(gdf_temp, mask)
+    gdf_vd = dropHoles(gdf_temp)
+    return gdf_vd
 
 # -----------------------------------------------------------------------------
 # FUNCTION: CALCULATE THIESSEN POLYGONS
@@ -258,7 +249,7 @@ def calculate_thiessen_polygons(
     point = point[point[point_name].isin(data[point_name].unique())]  
     point['POINT_IS_IN_LIMIT'] = point['geometry'].apply(lambda x: limit.contains(x))   
     point = point[point['POINT_IS_IN_LIMIT']].reset_index(drop=True)
-    
+        
     if len(point) > 0:
         
         vd = thiessen_polygons(gdf=point, mask=limit)
@@ -268,7 +259,7 @@ def calculate_thiessen_polygons(
         vd = vd[[
 			point_name, 'THISSEN_POINT', 'THISSEN_LIMIT', 'geometry'
 		]]
-        
+                
         return vd
     
     else:
