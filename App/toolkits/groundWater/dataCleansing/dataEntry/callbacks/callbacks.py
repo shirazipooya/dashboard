@@ -404,74 +404,75 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
             
         elif button_id == "WELL_MAP_BUTTON":
             
-            # try:
+            try:
                 
-            df = gpd.GeoDataFrame.from_postgis(
-                sql="SELECT * FROM well",
-                con=engine_layers,
-                geom_col="geometry"
-            )
-            
-            df_json = json.loads(df.to_json())
-
-            for feature in df_json["features"]:
-                feature['id'] = feature['properties']['LOCATION']
-            
-            fig_data = go.Scattermapbox(
-                lat=df.Y,
-                lon=df.X,
-                mode='markers',
-                marker=go.scattermapbox.Marker(size=8),
-                text=[df['LOCATION'][i] + '<br>' + df['AQUIFER'][i] + '<br>' + df['MAHDOUDE'][i] for i in range(df.shape[0])],
-                hoverinfo='text',
-                hovertemplate='<span style="color:white;">%{text}</span><extra></extra>'
-            )
-            
-            fig_layout = {
-                "margin": {'l':0, 'r':0, 'b':0, 't':0},
-                "mapbox": {
-                    'style': "stamen-terrain",
-                    'zoom': 6,
-                    'center': {
-                        'lat': df.Y.mean(),
-                        'lon': df.X.mean(),
-                    }
-                },
-                "showlegend": False,
-                "hovermode": 'closest'
-            }
-            
-            fig = go.Figure(data=fig_data, layout=fig_layout)
-
-            notify = dmc.Notification(
-                id="notify",
-                title = "خبر",
-                message = ["نقشه با موفقیت نمایش داده شد."],
-                color='green',
-                action = "show",
-            )
-            
-            title = "نقشه چاه‌های مشاهده‌ای پایگاه داده"
-            
-            content = dcc.Graph(
-                className="border border-secondary",
-                style={
-                    "height": "75vh",
-                },
-                figure=fig
-            )
-            
-            # except:                
-            #     notify = dmc.Notification(
-            #         id="notify",
-            #         title = "خطا",
-            #         message = ["داده‌ای برای نمایش موجود نمی‌باشد!!!"],
-            #         color='red',
-            #         action = "show",
-            #     )                
-            #     title = ""
+                df = gpd.GeoDataFrame.from_postgis(
+                    sql="SELECT * FROM well",
+                    con=engine_layers,
+                    geom_col="geometry"
+                )
                 
-            #     content = ""
+                df_json = json.loads(df.to_json())
+
+                for feature in df_json["features"]:
+                    feature['id'] = feature['properties']['LOCATION']
+                
+                fig_data = go.Scattermapbox(
+                    lat=df.Y,
+                    lon=df.X,
+                    mode='markers',
+                    marker=go.scattermapbox.Marker(size=8),
+                    text=[df['LOCATION'][i] + '<br>' + df['AQUIFER'][i] + '<br>' + df['MAHDOUDE'][i] for i in range(df.shape[0])],
+                    hoverinfo='text',
+                    hovertemplate='<span style="color:white;">%{text}</span><extra></extra>'
+                )
+                
+                fig_layout = {
+                    "margin": {'l':0, 'r':0, 'b':0, 't':0},
+                    "mapbox": {
+                        'style': "stamen-terrain",
+                        'zoom': 6,
+                        'center': {
+                            'lat': df.Y.mean(),
+                            'lon': df.X.mean(),
+                        }
+                    },
+                    "showlegend": False,
+                    "hovermode": 'closest'
+                }
+                
+                fig = go.Figure(data=fig_data, layout=fig_layout)
+
+                notify = dmc.Notification(
+                    id="notify",
+                    title = "خبر",
+                    message = ["نقشه با موفقیت نمایش داده شد."],
+                    color='green',
+                    action = "show",
+                )
+                
+                title = "نقشه چاه‌های مشاهده‌ای پایگاه داده"
+                
+                content = dcc.Graph(
+                    className="border border-secondary",
+                    style={
+                        "height": "75vh",
+                    },
+                    figure=fig
+                )
+            
+            except:
+                
+                notify = dmc.Notification(
+                    id="notify",
+                    title = "خطا",
+                    message = ["داده‌ای برای نمایش موجود نمی‌باشد!!!"],
+                    color='red',
+                    action = "show",
+                )                
+                title = ""
+                
+                content = ""
             
             return [
                     [

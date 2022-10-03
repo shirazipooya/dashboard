@@ -89,43 +89,48 @@ body = html.Div(
                     ],
                 ),
                 html.Div(
+                    className='row p-0 m-0',
                     children=[
                         html.Div(
-                            id='DIV_SELECT_DATE_THIESSEN',
-                            hidden=True,
                             children=[
-                                dcc.Dropdown(
-                                    id="SELECT_DATE_THIESSEN",
-                                    multi=False,
-                                    clearable=True
+                                html.Div(
+                                    id='DIV_SELECT_DATE_THIESSEN',
+                                    hidden=True,
+                                    children=[
+                                        dcc.Dropdown(
+                                            id="SELECT_DATE_THIESSEN",
+                                            multi=False,
+                                            clearable=True
+                                        )
+                                    ],
+                                ),
+                                html.Div(
+                                    id='THIESSEN_TABLE',
+                                    children=[
+                                        dcc.Graph(
+                                            figure=NO_MATCHING_TABLE_FOUND
+                                        )
+                                    ],
                                 )
                             ],
+                            className='col-6 p-0 m-0 border border-light',
+                            style={"--bs-border-width": "10px"},
+                            dir="rtl"
                         ),
                         html.Div(
-                            id='THIESSEN_TABLE',
                             children=[
                                 dcc.Graph(
-                                    figure=NO_MATCHING_TABLE_FOUND
+                                    id='MAP_THIESSEN',
+                                    figure=NO_MATCHING_MAP_FOUND,
+                                    className="h-100"
                                 )
                             ],
+                            className='col-6 p-0 m-0 border border-light',
+                            style={"--bs-border-width": "10px"},
+                            dir="rtl"
                         )
                     ],
-                    className='col-6 p-0 m-0 border border-light',
-                    style={"--bs-border-width": "10px"},
-                    dir="rtl"
                 ),
-                html.Div(
-                    children=[
-                        dcc.Graph(
-                            id='MAP_THIESSEN',
-                            figure=NO_MATCHING_MAP_FOUND,
-                            className="h-100"
-                        )
-                    ],
-                    className='col-6 p-0 m-0 border border-light',
-                    style={"--bs-border-width": "10px"},
-                    dir="rtl"
-                )
             ]
         )
     ]

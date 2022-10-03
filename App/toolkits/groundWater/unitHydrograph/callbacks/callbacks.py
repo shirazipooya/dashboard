@@ -1,6 +1,7 @@
 import json
 import itertools
 import tempfile
+from threading import local
 import numpy as np
 import pandas as pd
 import geopandas as gpd
@@ -1165,6 +1166,13 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
             well = list(df_thiessen["LOCATION"].unique())
             year = dt[0][0:4]
             month = dt[0][5:]
+            
+            sql_well = f"SELECT DISTINCT \"LOCATION\" FROM {DB_DATA_TABLE_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}';"
+            
+            well_unique = pd.read_sql_query(
+                sql=sql_well,
+                con=ENGINE_DATA
+            )
                         
             sql = f"SELECT * FROM {DB_DATA_TABLE_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" IN {*well,} AND \"YEAR_PERSIAN\" = '{year}' AND \"MONTH_PERSIAN\" = '{month}';"
             
@@ -1193,8 +1201,14 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
             
             df_water_level = df_water_level.drop(['MAHDOUDE', 'AQUIFER', 'THISSEN_LOCATION', 'THISSEN_AQUIFER'], axis=1)
             
-            df_water_level = df_water_level.sort_values(by=['HYDROGRAPH'], ascending=False)
+            df_water_level = df_water_level.merge(
+                right=well_unique,
+                on="LOCATION",
+                how="right"
+            )
                         
+            df_water_level = df_water_level.sort_values(by=['HYDROGRAPH'], ascending=False)
+            
             table_content = dash_table.DataTable(
                 columns=[
                     {"name": i, "id": i} for i in df_water_level.columns
@@ -1236,7 +1250,15 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                         'if': {'row_index': 'odd'},
                         'backgroundColor': 'rgb(245, 245, 245)',
                     }
-                ]
+                ] + [
+                    {
+                        'if': {
+                            'filter_query': '{HYDROGRAPH} is blank',
+                        },
+                        'backgroundColor': '#FF4136',
+                        'color': 'white'
+                    } for col in df_water_level.columns
+                ],
             )
             
             result = [
@@ -1245,7 +1267,7 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                 [{'label': i, 'value': i} for i in dt],
                 dt[0],
                 map_thiessen,
-                table_content
+                table_content,
             ]
             
             return result
@@ -1308,6 +1330,13 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
             well = list(df_thiessen["LOCATION"].unique())
             year = date_thiessen[0:4]
             month = date_thiessen[5:]
+            
+            sql_well = f"SELECT DISTINCT \"LOCATION\" FROM {DB_DATA_TABLE_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}';"
+            
+            well_unique = pd.read_sql_query(
+                sql=sql_well,
+                con=ENGINE_DATA
+            )
                         
             sql = f"SELECT * FROM {DB_DATA_TABLE_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" IN {*well,} AND \"YEAR_PERSIAN\" = '{year}' AND \"MONTH_PERSIAN\" = '{month}';"
             
@@ -1335,6 +1364,12 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
             df_water_level["WATER_TABLE"] = df_water_level["WATER_TABLE"].round(1)
             
             df_water_level = df_water_level.drop(['MAHDOUDE', 'AQUIFER', 'THISSEN_LOCATION', 'THISSEN_AQUIFER'], axis=1)
+            
+            df_water_level = df_water_level.merge(
+                right=well_unique,
+                on="LOCATION",
+                how="right"
+            )
             
             df_water_level = df_water_level.sort_values(by=['HYDROGRAPH'], ascending=False)
                         
@@ -1379,7 +1414,15 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                         'if': {'row_index': 'odd'},
                         'backgroundColor': 'rgb(245, 245, 245)',
                     }
-                ]
+                ] + [
+                    {
+                        'if': {
+                            'filter_query': '{HYDROGRAPH} is blank',
+                        },
+                        'backgroundColor': '#FF4136',
+                        'color': 'white'
+                    } for col in df_water_level.columns
+                ],
             )
             
             
@@ -1389,7 +1432,7 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                 no_update,
                 no_update,
                 map_thiessen,
-                table_content
+                table_content,
             ]
             
             return result
@@ -1404,7 +1447,7 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                 NO_MATCHING_MAP_FOUND,
                 dcc.Graph(
                     figure=NO_MATCHING_TABLE_FOUND
-                )
+                ),
             ]
             
             return result

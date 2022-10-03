@@ -308,7 +308,7 @@ sidebar = html.Div(
                                                     id='BUTTON_DATE',
                                                     className="me-1 w-100",
                                                     size="md",
-                                                    children='تنظیم تاریخ', 
+                                                    children='تبدیل تاریخ', 
                                                     color='dark',
                                                     n_clicks=0,
                                                 )

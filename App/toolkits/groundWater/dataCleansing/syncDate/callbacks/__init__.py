@@ -82,49 +82,55 @@ def f_syncdate(
     df,
     day
 ):
-    df = df.sort_values(by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]).reset_index(drop=True)
+    if day != 0:
+        
+        df = df.sort_values(by=["MAHDOUDE", "AQUIFER", "LOCATION", "DATE_GREGORIAN"]).reset_index(drop=True)
+        
+        tmp = df[["DATE_GREGORIAN", "WATER_TABLE"]].set_index('DATE_GREGORIAN').resample('D').mean().interpolate('linear').reset_index(drop=False)
+        
+        day_persian_start = df["DAY_PERSIAN"].iloc[0]
+        day_persian_end = df["DAY_PERSIAN"].iloc[-1]
+        n = len(df)
+        cols_p = ['YEAR_PERSIAN', 'MONTH_PERSIAN', 'DAY_PERSIAN']                        
+        cols_g = ['YEAR_GREGORIAN', 'MONTH_GREGORIAN', 'DAY_GREGORIAN']
+        
+        df["DAY_PERSIAN"] = day
+        df.loc[0, 'DAY_PERSIAN'] = day_persian_start
+        df.loc[n-1, 'DAY_PERSIAN'] = day_persian_end
+        
+        df[cols_p] = df[cols_p].apply(pd.to_numeric, errors='coerce')
+        df[cols_p] = df[cols_p].astype(pd.Int64Dtype())        
+        date_persian, date_gregorian = np.vectorize(ymd_persian_to_date)(df.YEAR_PERSIAN, df.MONTH_PERSIAN, df.DAY_PERSIAN)
+        
+        df["DATE_PERSIAN"] = list(date_persian)
+        df["DATE_GREGORIAN"] = list(date_gregorian)
+        
+        df[cols_p] = df['DATE_PERSIAN'].str.split('-', 2, expand=True)
+        df[cols_g] = df['DATE_GREGORIAN'].astype(str).str.split('-', 2, expand=True)
+        
+        df["YEAR_PERSIAN"] = df["YEAR_PERSIAN"].astype(str).str.zfill(4)
+        df["MONTH_PERSIAN"] = df["MONTH_PERSIAN"].astype(str).str.zfill(2)
+        df["DAY_PERSIAN"] = df["DAY_PERSIAN"].astype(str).str.zfill(2)
+        df["YEAR_GREGORIAN"] = df["YEAR_GREGORIAN"].str.zfill(4)
+        df["MONTH_GREGORIAN"] = df["MONTH_GREGORIAN"].str.zfill(2)
+        df["DAY_GREGORIAN"] = df["DAY_GREGORIAN"].str.zfill(2)
+        df['DATE_PERSIAN'] = df["YEAR_PERSIAN"] + "-" + df["MONTH_PERSIAN"] + "-" + df["DAY_PERSIAN"]
+        df['DATE_GREGORIAN'] = df["YEAR_GREGORIAN"] + "-" + df["MONTH_GREGORIAN"] + "-" + df["DAY_GREGORIAN"]
+        df["DATE_GREGORIAN"] = df["DATE_GREGORIAN"].apply(pd.to_datetime)
+        
+        df_columns = df.columns
+        
+        df = df.drop(['WATER_TABLE'], axis=1)
+        
+        result = df.merge(tmp, on=["DATE_GREGORIAN"], how="left")
+        
+        result = result[df_columns]
+        
+        return result
     
-    tmp = df[["DATE_GREGORIAN", "WATER_TABLE"]].set_index('DATE_GREGORIAN').resample('D').mean().interpolate('linear').reset_index(drop=False)
-    
-    day_persian_start = df["DAY_PERSIAN"].iloc[0]
-    day_persian_end = df["DAY_PERSIAN"].iloc[-1]
-    n = len(df)
-    cols_p = ['YEAR_PERSIAN', 'MONTH_PERSIAN', 'DAY_PERSIAN']                        
-    cols_g = ['YEAR_GREGORIAN', 'MONTH_GREGORIAN', 'DAY_GREGORIAN']
-    
-    df["DAY_PERSIAN"] = day
-    df.loc[0, 'DAY_PERSIAN'] = day_persian_start
-    df.loc[n-1, 'DAY_PERSIAN'] = day_persian_end
-    
-    df[cols_p] = df[cols_p].apply(pd.to_numeric, errors='coerce')
-    df[cols_p] = df[cols_p].astype(pd.Int64Dtype())        
-    date_persian, date_gregorian = np.vectorize(ymd_persian_to_date)(df.YEAR_PERSIAN, df.MONTH_PERSIAN, df.DAY_PERSIAN)
-    
-    df["DATE_PERSIAN"] = list(date_persian)
-    df["DATE_GREGORIAN"] = list(date_gregorian)
-    
-    df[cols_p] = df['DATE_PERSIAN'].str.split('-', 2, expand=True)
-    df[cols_g] = df['DATE_GREGORIAN'].astype(str).str.split('-', 2, expand=True)
-    
-    df["YEAR_PERSIAN"] = df["YEAR_PERSIAN"].astype(str).str.zfill(4)
-    df["MONTH_PERSIAN"] = df["MONTH_PERSIAN"].astype(str).str.zfill(2)
-    df["DAY_PERSIAN"] = df["DAY_PERSIAN"].astype(str).str.zfill(2)
-    df["YEAR_GREGORIAN"] = df["YEAR_GREGORIAN"].str.zfill(4)
-    df["MONTH_GREGORIAN"] = df["MONTH_GREGORIAN"].str.zfill(2)
-    df["DAY_GREGORIAN"] = df["DAY_GREGORIAN"].str.zfill(2)
-    df['DATE_PERSIAN'] = df["YEAR_PERSIAN"] + "-" + df["MONTH_PERSIAN"] + "-" + df["DAY_PERSIAN"]
-    df['DATE_GREGORIAN'] = df["YEAR_GREGORIAN"] + "-" + df["MONTH_GREGORIAN"] + "-" + df["DAY_GREGORIAN"]
-    df["DATE_GREGORIAN"] = df["DATE_GREGORIAN"].apply(pd.to_datetime)
-    
-    df_columns = df.columns
-    
-    df = df.drop(['WATER_TABLE'], axis=1)
-    
-    result = df.merge(tmp, on=["DATE_GREGORIAN"], how="left")
-    
-    result = result[df_columns]
-    
-    return result
+    else:
+        
+        return df
 
 
 # -----------------------------------------------------------------------------

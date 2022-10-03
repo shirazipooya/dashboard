@@ -145,9 +145,7 @@ compare_days = html.Div(
                                 dcc.Dropdown(
                                     id='SYNC_DAY',
                                     value=15,
-                                    options=[
-                                        {"label": day, "value": day} for day in range(1,31)
-                                    ],
+                                    options=[{"label": "بدون تغییر", "value": 0}] + [{"label": day, "value": day} for day in range(1,31)],
                                     multi=False,
                                     clearable=False,
                                     className="mx-3"
@@ -215,9 +213,7 @@ save_sync_date_result = html.Div(
                                 dcc.Dropdown(
                                     id='SAVE_SYNC_DAY',
                                     value=15,
-                                    options=[
-                                        {"label": day, "value": day} for day in range(1,31)
-                                    ],
+                                    options=[{"label": "بدون تغییر", "value": 0}] + [{"label": day, "value": day} for day in range(1,31)],
                                     multi=False,
                                     clearable=False,
                                     className="mx-3"
