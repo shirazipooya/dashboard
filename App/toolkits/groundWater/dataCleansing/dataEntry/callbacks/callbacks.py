@@ -651,7 +651,11 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
                     tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.lstrip())
                     tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.replace('ي','ی'))
                     tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.replace('ئ','ی'))
-                    tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.replace('ك', 'ک'))                   
+                    tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.replace('ك', 'ک'))
+                    
+                    tmp = tmp.drop_duplicates(subset=tmp.columns.difference(['ID'])).sort_values(
+                        by=["MAHDOUDE", "AQUIFER", "LOCATION"]
+                    ).reset_index(drop=True)                 
                     
                     check_replace_append(
                         data=tmp,
@@ -713,7 +717,11 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
                     tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.lstrip())
                     tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.replace('ي','ی'))
                     tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.replace('ئ','ی'))
-                    tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.replace('ك', 'ک'))                   
+                    tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.replace('ك', 'ک'))
+                    
+                    tmp = tmp.drop_duplicates().sort_values(
+                        by=["MAHDOUDE", "AQUIFER"]
+                    ).reset_index(drop=True)                   
                     
                     check_replace_append(
                         data=tmp,
@@ -774,7 +782,11 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
                     tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.lstrip())
                     tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.replace('ي','ی'))
                     tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.replace('ئ','ی'))
-                    tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.replace('ك', 'ک'))                   
+                    tmp[fix_columns] = tmp[fix_columns].apply(lambda x: x.str.replace('ك', 'ک'))
+                    
+                    tmp = tmp.drop_duplicates().sort_values(
+                        by=["MAHDOUDE"]
+                    ).reset_index(drop=True)                   
                     
                     check_replace_append(
                         data=tmp,

@@ -105,6 +105,8 @@ def f_interpolate(
             else:
                 df["WATER_TABLE"] = df["WATER_TABLE"].interpolate(method=method, limit=limit)
         
+        df = df.dropna(subset=["WATER_TABLE"])
+        
         return df
     
     else:
