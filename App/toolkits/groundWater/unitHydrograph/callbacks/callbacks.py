@@ -611,7 +611,7 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                                     ["MAHDOUDE", "AQUIFER", "LOCATION", "YEAR_PERSIAN", "MONTH_PERSIAN", "WATER_LEVEL", "STORAGE_COEFFICIENT"]
                                 ]
                                 
-                                tmp_thissen = tmp_data.swifter.groupby(
+                                tmp_thissen = tmp_data.groupby(
                                     by=["MAHDOUDE", "AQUIFER", "YEAR_PERSIAN", "MONTH_PERSIAN"]
                                     ).apply(
                                         lambda x: calculate_thiessen_polygons(
