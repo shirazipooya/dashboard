@@ -59,6 +59,8 @@ POSTGRES_DB_NAME = "data"
 TABLE_NAME_RAW_DATA = "raw_data"
 TABLE_NAME_MODIFIED_DATA = "modified_data"
 TABLE_NAME_INTERPOLATED_DATA = "interpolated_data"
+TABLE_NAME_SYNCDATE_DATA = "syncdate_data"
+TABLE_NAME_DATA = "data"
 
 db = f"postgresql://{POSTGRES_USER_NAME}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB_NAME}"
 engine = sa.create_engine(db, echo=False)
@@ -233,6 +235,7 @@ def update_table(
     data,
     table_exist,
     table_name,
+    table_name_final,
     engine,
     study_area=None,
     aquifer=None,
@@ -246,20 +249,50 @@ def update_table(
             con=engine
         )
         
+        try:
+            data_exist_final = pd.read_sql_query(
+                sql=f"SELECT * FROM {table_name_final}",
+                con=engine
+            )
+        except:
+            pass
+        
         if (study_area is not None) and (aquifer is not None) and (well is not None):
             df = data_exist.drop(
                 data_exist[(data_exist['MAHDOUDE'] == study_area) & (data_exist['AQUIFER'] == aquifer) & (data_exist['LOCATION'] == well)].index
             ).reset_index(drop=True)
+            try:
+                df_next = data_exist_final.drop(
+                    data_exist_final[(data_exist_final['MAHDOUDE'] == study_area) & (data_exist_final['AQUIFER'] == aquifer) & (data_exist_final['LOCATION'] == well)].index
+                ).reset_index(drop=True)
+            except:
+                pass
         elif (study_area is not None) and (aquifer is not None) and (well is None):
             df = data_exist.drop(
                 data_exist[(data_exist['MAHDOUDE'] == study_area) & (data_exist['AQUIFER'] == aquifer)].index
             ).reset_index(drop=True)
+            try:
+                df_next = data_exist_final.drop(
+                    data_exist_final[(data_exist_final['MAHDOUDE'] == study_area) & (data_exist_final['AQUIFER'] == aquifer)].index
+                ).reset_index(drop=True)
+            except:
+                pass
         elif (study_area is not None) and (aquifer is None) and (well is None):
             df = data_exist.drop(
                 data_exist[(data_exist['MAHDOUDE'] == study_area)].index
             ).reset_index(drop=True)
+            try:
+                df_next = data_exist_final.drop(
+                    data_exist_final[(data_exist_final['MAHDOUDE'] == study_area)].index
+                ).reset_index(drop=True)
+            except:
+                pass
         else:
             df = pd.DataFrame(columns=data_exist.columns)
+            try:
+                df_next = data_exist_final.drop(data_exist_final.index)
+            except:
+                pass
         
         data = pd.concat(
             [df, data]
@@ -273,6 +306,16 @@ def update_table(
             if_exists='replace',
             index=False
         )
+        
+        try:
+            df_next.to_sql(
+                name=table_name_final,
+                con=engine,
+                if_exists='replace',
+                index=False
+            )
+        except:
+            pass
         
     else:
         
