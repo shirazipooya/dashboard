@@ -325,6 +325,21 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
             return False
         else:
             return True
+        
+    # -----------------------------------------------------------------------------
+    # SELECT ORDER
+    # ----------------------------------------------------------------------------- 
+    @app.callback(
+        Output('SAVE_ORDER_INTERPOLATE_METHODS', 'disabled'),
+        Input('SAVE_INTERPOLATE_METHODS', 'value'),
+    ) 
+    def save_order_interpolate_methods(
+        methods
+    ):
+        if ("polynomial" in methods) or ("spline" in methods):
+            return False
+        else:
+            return True
     
     # -----------------------------------------------------------------------------
     # CALLBACK: INTERPOLATION

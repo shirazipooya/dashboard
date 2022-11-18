@@ -98,14 +98,14 @@ def f_interpolate(
                 
         if method in ["polynomial", "spline"]:
             if limit == 0:
-                df["WATER_TABLE"] = df["WATER_TABLE"].interpolate(method=method, order=order)
+                df["WATER_TABLE"] = df["WATER_TABLE"].interpolate(method=method, order=order, limit_area='inside')
             else:
-                df["WATER_TABLE"] = df["WATER_TABLE"].interpolate(method=method, order=order, limit=limit)
+                df["WATER_TABLE"] = df["WATER_TABLE"].interpolate(method=method, order=order, limit=limit, limit_area='inside')
         else:
             if limit == 0:
-                df["WATER_TABLE"] = df["WATER_TABLE"].interpolate(method=method)
+                df["WATER_TABLE"] = df["WATER_TABLE"].interpolate(method=method, limit_area='inside')
             else:
-                df["WATER_TABLE"] = df["WATER_TABLE"].interpolate(method=method, limit=limit)
+                df["WATER_TABLE"] = df["WATER_TABLE"].interpolate(method=method, limit=limit, limit_area='inside')
         
         df = df.dropna(subset=["WATER_TABLE"])
         
