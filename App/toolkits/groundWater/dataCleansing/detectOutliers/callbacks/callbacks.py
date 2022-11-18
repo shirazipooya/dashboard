@@ -5,7 +5,7 @@ from persiantools.jdatetime import JalaliDate, JalaliDateTime
 import pandas as pd
 import numpy as np
 import geopandas as gpd
-from dash import no_update, html, dash_table
+from dash import no_update, html, dash_table, dcc
 from dash.dependencies import Output, Input, State
 import dash_mantine_components as dmc
 import plotly.graph_objects as go
@@ -1301,3 +1301,55 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
             ]
             
             return result
+
+    
+    
+    @app.callback(
+        Output("DOWNLOAD_XLSX", "data"),
+        Input("BTN_XLSX", "n_clicks"),
+        prevent_initial_call=True
+    )
+    def generate_xlsx(
+        n_nlicks,
+    ):
+        if n_nlicks != 0:
+                        
+            conn = psycopg2.connect(
+                database=POSTGRES_DB_NAME,
+                user=POSTGRES_USER_NAME,
+                password=POSTGRES_PASSWORD,
+                host=POSTGRES_HOST,
+                port=POSTGRES_PORT
+            )    
+            conn.autocommit = True    
+            cursor = conn.cursor()    
+            sql = '''SELECT table_name FROM information_schema.tables;'''
+            cursor.execute(sql)
+            table_name_list_exist = list(itertools.chain.from_iterable(cursor.fetchall()))
+            conn.close()
+                
+            if TABLE_NAME_MODIFIED_DATA in table_name_list_exist:
+            
+                df = pd.read_sql_query(
+                    sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA}",
+                    con = engine
+                )
+                
+                geoinfo = pd.read_sql_query(
+                    sql='SELECT * FROM geoinfo',
+                    con=engine
+                )
+
+                def to_xlsx(bytes_io):
+                    xslx_writer = pd.ExcelWriter(bytes_io, engine="xlsxwriter")
+                    geoinfo.to_excel(xslx_writer, index=False, sheet_name="GeoInfo")
+                    df.to_excel(xslx_writer, index=False, sheet_name="Data")
+                    xslx_writer.save()
+
+                return dcc.send_bytes(to_xlsx, "modified_data.xlsx")
+            
+            else:
+                
+                return no_update
+        
+        return no_update

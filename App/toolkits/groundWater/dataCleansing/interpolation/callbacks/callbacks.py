@@ -5,7 +5,7 @@ import pandas as pd
 import geopandas as gpd
 import psycopg2
 import swifter
-from dash import no_update
+from dash import no_update, dcc
 from dash.dependencies import Output, Input, State
 import plotly.graph_objects as go
 import plotly.express as px
@@ -1107,3 +1107,55 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
             ]
             
             return result
+
+
+    
+    @app.callback(
+        Output("DOWNLOAD_XLSX", "data"),
+        Input("BTN_XLSX", "n_clicks"),
+        prevent_initial_call=True
+    )
+    def generate_xlsx(
+        n_nlicks,
+    ):
+        if n_nlicks != 0:
+                        
+            conn = psycopg2.connect(
+                database=POSTGRES_DB_NAME,
+                user=POSTGRES_USER_NAME,
+                password=POSTGRES_PASSWORD,
+                host=POSTGRES_HOST,
+                port=POSTGRES_PORT
+            )    
+            conn.autocommit = True    
+            cursor = conn.cursor()    
+            sql = '''SELECT table_name FROM information_schema.tables;'''
+            cursor.execute(sql)
+            table_name_list_exist = list(itertools.chain.from_iterable(cursor.fetchall()))
+            conn.close()
+                
+            if TABLE_NAME_INTERPOLATED_DATA in table_name_list_exist:
+            
+                df = pd.read_sql_query(
+                    sql = f"SELECT * FROM {TABLE_NAME_INTERPOLATED_DATA}",
+                    con = engine
+                )
+                
+                geoinfo = pd.read_sql_query(
+                    sql='SELECT * FROM geoinfo',
+                    con=engine
+                )
+
+                def to_xlsx(bytes_io):
+                    xslx_writer = pd.ExcelWriter(bytes_io, engine="xlsxwriter")
+                    geoinfo.to_excel(xslx_writer, index=False, sheet_name="GeoInfo")
+                    df.to_excel(xslx_writer, index=False, sheet_name="Data")
+                    xslx_writer.save()
+
+                return dcc.send_bytes(to_xlsx, "interpolated_data.xlsx")
+            
+            else:
+                
+                return no_update
+        
+        return no_update

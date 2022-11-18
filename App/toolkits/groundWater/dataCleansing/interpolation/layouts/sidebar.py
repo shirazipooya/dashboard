@@ -522,6 +522,23 @@ sidebar = html.Div(
                             ],
                             label="3- ذخیره داده‌های بازسازی شده",
                         ),
+                        dmc.AccordionItem(
+                            children=[
+                                html.Div(
+                                    className='row px-5 py-3 text-center',
+                                    children=[
+                                        html.Div(
+                                            className='col p-0 px-2 m-0',
+                                            children=[
+                                                html.Button("دانلود داده‌ها", id="BTN_XLSX", className="btn btn-dark btn-md"),
+                                                dcc.Download(id="DOWNLOAD_XLSX")
+                                            ],
+                                        ),
+                                    ],
+                                )
+                            ],
+                            label="4- دانلود‌ داده‌های بازسازی شده",
+                        ),
                     ],
                 ),
             ],
