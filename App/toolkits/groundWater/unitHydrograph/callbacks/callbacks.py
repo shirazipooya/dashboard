@@ -384,7 +384,10 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                     
                     #* SELECTED WELL:
                     
-                    sql = f"SELECT * FROM {DB_LAYERS_TABLE_WELL} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" IN {*well,}"
+                    if len(well) == 1:
+                        sql = f"SELECT * FROM {DB_LAYERS_TABLE_WELL} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" = '{well[0]}'"
+                    else:
+                        sql = f"SELECT * FROM {DB_LAYERS_TABLE_WELL} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" IN {*well,}"
                     
                     df_well = gpd.GeoDataFrame.from_postgis(
                         sql=sql,
@@ -544,7 +547,10 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                         )
                         
                         #* GEODATAFRAME SELECTED WELL:
-                        sql = f"SELECT * FROM {DB_LAYERS_TABLE_WELL} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" IN {*well,};"
+                        if len(well) == 1:
+                            sql = f"SELECT * FROM {DB_LAYERS_TABLE_WELL} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" = '{well[0]}';"
+                        else:
+                            sql = f"SELECT * FROM {DB_LAYERS_TABLE_WELL} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" IN {*well,};"
                         
                         gdf_db_layers_table_well = gpd.GeoDataFrame.from_postgis(
                             sql=sql,
@@ -553,7 +559,10 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                         )
                         
                         #* DATAFRAME WATER LEVEL DATA:
-                        sql = f"SELECT * FROM {DB_DATA_TABLE_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" IN {*well,};"
+                        if len(well) == 1:
+                            sql = f"SELECT * FROM {DB_DATA_TABLE_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" = '{well[0]}';"
+                        else:
+                            sql = f"SELECT * FROM {DB_DATA_TABLE_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" IN {*well,};"
                         
                         df_db_data_table_data = pd.read_sql_query(
                             sql=sql,
@@ -1173,8 +1182,11 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                 sql=sql_well,
                 con=ENGINE_DATA
             )
-                        
-            sql = f"SELECT * FROM {DB_DATA_TABLE_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" IN {*well,} AND \"YEAR_PERSIAN\" = '{year}' AND \"MONTH_PERSIAN\" = '{month}';"
+             
+            if len(well) == 1:
+                sql = f"SELECT * FROM {DB_DATA_TABLE_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" = '{well[0]}' AND \"YEAR_PERSIAN\" = '{year}' AND \"MONTH_PERSIAN\" = '{month}';"
+            else:           
+                sql = f"SELECT * FROM {DB_DATA_TABLE_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" IN {*well,} AND \"YEAR_PERSIAN\" = '{year}' AND \"MONTH_PERSIAN\" = '{month}';"
             
             df_water_level = pd.read_sql_query(
                 sql=sql,
@@ -1337,8 +1349,11 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                 sql=sql_well,
                 con=ENGINE_DATA
             )
-                        
-            sql = f"SELECT * FROM {DB_DATA_TABLE_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" IN {*well,} AND \"YEAR_PERSIAN\" = '{year}' AND \"MONTH_PERSIAN\" = '{month}';"
+            
+            if len(well) == 1:
+                sql = f"SELECT * FROM {DB_DATA_TABLE_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" = '{well[0]}' AND \"YEAR_PERSIAN\" = '{year}' AND \"MONTH_PERSIAN\" = '{month}';"
+            else:            
+                sql = f"SELECT * FROM {DB_DATA_TABLE_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" IN {*well,} AND \"YEAR_PERSIAN\" = '{year}' AND \"MONTH_PERSIAN\" = '{month}';"
             
             df_water_level = pd.read_sql_query(
                 sql=sql,

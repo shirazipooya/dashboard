@@ -113,7 +113,7 @@ body = html.Div(
                                     ],
                                 )
                             ],
-                            className='col-6 p-0 m-0 border border-light',
+                            className='col-8 p-0 m-0 border border-light',
                             style={"--bs-border-width": "10px"},
                             dir="rtl"
                         ),
@@ -125,7 +125,7 @@ body = html.Div(
                                     className="h-100"
                                 )
                             ],
-                            className='col-6 p-0 m-0 border border-light',
+                            className='col-4 p-0 m-0 border border-light',
                             style={"--bs-border-width": "10px"},
                             dir="rtl"
                         )
