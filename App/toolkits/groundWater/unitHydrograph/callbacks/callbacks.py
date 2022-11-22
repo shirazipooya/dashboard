@@ -488,16 +488,24 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
         if (study_area is not None and len(study_area) != 0) and\
             (aquifer is not None and len(aquifer) != 0):
                 
-                sc = STORAGE_COEFFICIENT[
-                    (STORAGE_COEFFICIENT["MAHDOUDE"] == study_area) & (STORAGE_COEFFICIENT["AQUIFER"] == aquifer)
-                ]
+                try:
+                    sc = STORAGE_COEFFICIENT[
+                        (STORAGE_COEFFICIENT["MAHDOUDE"] == study_area) & (STORAGE_COEFFICIENT["AQUIFER"] == aquifer)
+                    ]
 
-                result = [
-                    f"آبخوان {aquifer}",
-                    sc["SC"].values[0]
-                ]
-                
-                return result
+                    result = [
+                        f"آبخوان {aquifer}",
+                        sc["SC"].values[0]
+                    ]
+                    
+                    return result
+                except:
+                    result = [
+                        f"آبخوان ...",
+                        None
+                    ]
+            
+                    return result
         
         else:
         
