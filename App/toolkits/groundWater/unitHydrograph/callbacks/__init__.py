@@ -231,8 +231,8 @@ def thiessen_polygons(gdf, mask):
     # SPATIAL JOIN BY INTERSECTING AND DISSOLVE BY `index_right`
     gdf_temp = (gpd.sjoin(gdf_vd_primary, gdf, how='inner', op='intersects').dissolve(by='index_right').reset_index(drop=True))
     # gdf_vd = gpd.clip(gdf_temp, mask)
-    gdf_vd = dropHoles(gdf_temp)
-    return gdf_vd
+    # gdf_vd = dropHoles(gdf_vd)
+    return gdf_temp
 
 # -----------------------------------------------------------------------------
 # FUNCTION: CALCULATE THIESSEN POLYGONS
@@ -254,8 +254,8 @@ def calculate_thiessen_polygons(
         
         vd = thiessen_polygons(gdf=point, mask=limit)
         vd.set_geometry(col='geometry', inplace=True)
-        vd["THISSEN_POINT"] = vd.geometry.area * 10000
-        vd["THISSEN_LIMIT"] = [limit.geometry.area[0] * 10000] * len(point)
+        vd["THISSEN_POINT"] = vd.geometry.area / 1000 / 1000
+        vd["THISSEN_LIMIT"] = [limit.geometry.area[0] / 1000 / 1000] * len(point)
         vd = vd[[
 			point_name, 'THISSEN_POINT', 'THISSEN_LIMIT', 'geometry'
 		]]

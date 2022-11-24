@@ -319,6 +319,60 @@ unit_hydrograph_method = dmc.AccordionItem(
     ]
 )
 
+
+
+# -----------------------------------------------------------------------------
+# SECTION: coordinate reference system
+# -----------------------------------------------------------------------------
+coordinate_reference_system = dmc.AccordionItem(
+    label="گام 4: انتخاب سیستم مختصات مرجع",
+    children=[
+        html.Div(
+            className='form-group p-3', 
+            children=[
+                html.Div(
+                    className="form-group",
+                    children=[
+                        html.Div(
+                            className="py-2",
+                            children=[
+                                html.Label(
+                                    className='text-center pb-1',
+                                    dir='rtl', 
+                                    children= [
+                                        html.I(className='fas fa-caret-left px-1'),
+                                        'CRS'
+                                    ],
+                                    style={
+                                        "font-size": "1rem",
+                                    }
+                                ),
+                                dcc.Dropdown(
+                                    id='CRS',
+                                    multi=False,
+                                    clearable=False,
+                                    placeholder='انتخاب سیستم مختصات مرجع',
+                                    value=3395,
+                                    options=[
+                                        {'label': 'WGS 84 / World Mercator, EPSG:3395', 'value': 3395},
+                                        {'label': 'WGS 84 / UTM Zone 38N, EPSG:32638', 'value': 32638},
+                                        {'label': 'WGS 84 / UTM Zone 39N, EPSG:32639', 'value': 32639},
+                                        {'label': 'WGS 84 / UTM Zone 40N, EPSG:32640', 'value': 32640},
+                                        {'label': 'WGS 84 / UTM Zone 41N, EPSG:32641', 'value': 32641},
+                                    ],
+                                ) 
+                            ]
+                        ),
+                    ]
+                )
+            ]
+        )
+    ]
+)
+
+
+
+
 # -----------------------------------------------------------------------------
 # SECTION: SIDEBAR
 # -----------------------------------------------------------------------------
@@ -336,7 +390,8 @@ sidebar = html.Div(
                     children=[
                         select_well,
                         storage_coefficient,
-                        unit_hydrograph_method
+                        unit_hydrograph_method,
+                        coordinate_reference_system
                     ],
                 ),
             ],
