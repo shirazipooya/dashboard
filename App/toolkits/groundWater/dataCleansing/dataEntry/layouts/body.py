@@ -36,9 +36,9 @@ body = html.Div(
                     className='col p-0 px-1 m-0 text-center',
                     children=[
                         dbc.Button(
-                            id='WELL_MAP_BUTTON',
+                            id='STUDY_AREA_MAP_BUTTON',
                             className="w-100",
-                            children='نمایش چاه‌های مشاهده‌ای', 
+                            children='نمایش محدوده‌های مطالعاتی', 
                             color='dark',
                             n_clicks=0
                         )
@@ -60,9 +60,9 @@ body = html.Div(
                     className='col p-0 px-1 m-0 text-center',
                     children=[
                         dbc.Button(
-                            id='STUDY_AREA_MAP_BUTTON',
+                            id='WELL_MAP_BUTTON',
                             className="w-100",
-                            children='نمایش محدوده‌های مطالعاتی', 
+                            children='نمایش چاه‌های مشاهده‌ای', 
                             color='dark',
                             n_clicks=0
                         )

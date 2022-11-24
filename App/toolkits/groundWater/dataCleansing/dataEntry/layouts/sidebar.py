@@ -158,110 +158,133 @@ geodatabase_modify = html.Div(
 )
 
 
-sidebar = html.Div(
-    className="m-0 p-0",
-    children=[
-        html.Div(
-            className='text-center pb-4',
+wt_data = html.Div(
+    className="form-group p-0 m-0 pb-3",
+    children=[             
+        dmc.Accordion(
+            class_name="bg-primary my-rtl",
+            iconPosition="right",
             children=[
-                html.H2("فراخوانی داده‌ها")
+                dmc.AccordionItem(
+                    children=[
+                        upload_file,
+                    ],
+                    label="1- انتخاب فایل صفحه گسترده",
+                ),
+                dmc.AccordionItem(
+                    children=[
+                        select_worksheet
+                    ],
+                    label="2- انتخاب کاربرگ",
+                    
+                ),
+                dmc.AccordionItem(
+                    children=[
+                        database_modify
+                    ],
+                    label="3- نحوه تغییرات پایگاه داده",
+                    
+                )
             ],
         ),
         html.Div(
-            className="form-group p-0 m-0 pb-3",
+            className='px-5 py-3 text-center',
             children=[
-                html.H5(
-                    children="مرحله اول: فراخوانی داده‌های سطح آب",
-                    className="text-center p-2"
-                ),                
-                dmc.Accordion(
-                    class_name="bg-light my-rtl",
-                    iconPosition="right",
+                dbc.Button(
+                    id='BUTTON-DATA',
+                    className="me-1 w-25",
+                    size="md",
+                    children='ایجاد', 
+                    color='dark',
+                    n_clicks=0
+                )
+            ],
+        ),
+    ]
+)
+
+
+shapefiles = html.Div(
+    className="form-group p-0 m-0",
+    children=[             
+        dmc.Accordion(
+            class_name="bg-primary my-rtl",
+            iconPosition="right",
+            children=[
+                dmc.AccordionItem(
                     children=[
-                        dmc.AccordionItem(
-                            children=[
-                                upload_file,
-                            ],
-                            label="1- انتخاب فایل صفحه گسترده",
-                        ),
-                        dmc.AccordionItem(
-                            children=[
-                                select_worksheet
-                            ],
-                            label="2- انتخاب کاربرگ",
-                            
-                        ),
-                        dmc.AccordionItem(
-                            children=[
-                                database_modify
-                            ],
-                            label="3- نحوه تغییرات پایگاه داده",
-                            
-                        )
+                        upload_shapefile
                     ],
+                    label="1- انتخاب شیپ فایل",
                 ),
-                html.Div(
-                    className='px-5 py-3 text-center',
+                dmc.AccordionItem(
                     children=[
-                        dbc.Button(
-                            id='BUTTON-DATA',
-                            className="me-1 w-25",
-                            size="md",
-                            children='ایجاد', 
-                            color='dark',
-                            n_clicks=0
-                        )
+                        shapefile_type
                     ],
+                    label="2- انتخاب نوع شیپ فایل",
                 ),
-            ]
+                dmc.AccordionItem(
+                    children=[
+                        geodatabase_modify
+                    ],
+                    label="3- نحوه تغییرات پایگاه داده",
+                ),
+            ],
+        ),
+        html.Div(
+            className='px-5 py-3 text-center',
+            children=[
+                dbc.Button(
+                    id='BUTTON-SHAPEFILES',
+                    className="me-1 w-25",
+                    size="md",
+                    children='ایجاد', 
+                    color='dark',
+                    n_clicks=0
+                )
+            ],
+        ),
+    ]
+)
+
+
+
+
+
+
+sidebar = html.Div(
+    className="m-0 p-0",
+    children=[
+        
+        html.Div(
+            className='text-center pb-4',
+            children=[
+                html.H4("فراخوانی داده‌ها")
+            ],
         ),
         
         html.Div(
-            className="form-group p-0 m-0",
+            className='form-group p-0 m-0 pb-3',
             children=[
-                html.H5(
-                    children="مرحله دوم: فراخوانی شیپ فایل‌ها",
-                    className="text-center p-2"
-                ),                
                 dmc.Accordion(
-                    class_name="bg-light my-rtl",
+                    class_name="bg-dark my-rtl",
                     iconPosition="right",
                     children=[
                         dmc.AccordionItem(
                             children=[
-                                upload_shapefile
+                                wt_data
                             ],
-                            label="1- انتخاب شیپ فایل",
+                            label="مرحله اول: فراخوانی داده‌های سطح آب",
                         ),
                         dmc.AccordionItem(
                             children=[
-                                shapefile_type
+                                shapefiles
                             ],
-                            label="2- انتخاب نوع شیپ فایل",
-                        ),
-                        dmc.AccordionItem(
-                            children=[
-                                geodatabase_modify
-                            ],
-                            label="3- نحوه تغییرات پایگاه داده",
+                            label="مرحله دوم: فراخوانی شیپ فایل‌ها",
                         ),
                     ],
                 ),
-                html.Div(
-                    className='px-5 py-3 text-center',
-                    children=[
-                        dbc.Button(
-                            id='BUTTON-SHAPEFILES',
-                            className="me-1 w-25",
-                            size="md",
-                            children='ایجاد', 
-                            color='dark',
-                            n_clicks=0
-                        )
-                    ],
-                ),
-            ]
+            ],
         ),
-
     ]
 )

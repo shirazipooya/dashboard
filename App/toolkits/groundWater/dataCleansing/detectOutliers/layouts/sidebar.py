@@ -248,13 +248,13 @@ sidebar = html.Div(
             className='form-group p-0 m-0 pb-3',
             children=[
                 dmc.Accordion(
-                    class_name="bg-light my-rtl",
+                    class_name="bg-dark my-rtl",
                     iconPosition="right",
                     children=[
                         dmc.AccordionItem(
                             children=[
                                 dmc.Accordion(
-                                    class_name="bg-light my-rtl",
+                                    class_name="bg-primary my-rtl",
                                     iconPosition="right",
                                     children=[
                                         dmc.AccordionItem(
@@ -322,7 +322,7 @@ sidebar = html.Div(
                         dmc.AccordionItem(
                             children=[
                                 dmc.Accordion(
-                                    class_name="bg-light my-rtl",
+                                    class_name="bg-primary my-rtl",
                                     iconPosition="right",
                                     children=[
                                         dmc.AccordionItem(
