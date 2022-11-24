@@ -353,11 +353,9 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                 (well is not None and len(well) != 0):
                     
                     #* MAHDOUDE:
-                    
-                    sql = f"SELECT * FROM {DB_LAYERS_TABLE_MAHDOUDE} WHERE \"MAHDOUDE\" = '{study_area}'"
-                    
+                                       
                     df_study_area = gpd.GeoDataFrame.from_postgis(
-                        sql=sql,
+                        sql=f"SELECT * FROM {DB_LAYERS_TABLE_MAHDOUDE} WHERE \"MAHDOUDE\" = '{study_area}'",
                         con=ENGINE_LAYERS,
                         geom_col="geometry"
                     )
@@ -368,11 +366,9 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                         feature['id'] = feature['properties']['MAHDOUDE']
                     
                     #* AQUIFER:
-                    
-                    sql = f"SELECT * FROM {DB_LAYERS_TABLE_AQUIFER} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}'"
-                    
+                                        
                     df_aquifer = gpd.GeoDataFrame.from_postgis(
-                        sql=sql,
+                        sql=f"SELECT * FROM {DB_LAYERS_TABLE_AQUIFER} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}'",
                         con=ENGINE_LAYERS,
                         geom_col="geometry"
                     )
@@ -394,16 +390,18 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                         con=ENGINE_LAYERS,
                         geom_col="geometry"
                     )
-                    
+                                        
                     #* ALL WELL:
-                    
-                    sql = f"SELECT * FROM {DB_LAYERS_TABLE_WELL} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}'"
-                    
+                                        
                     df_all_well = gpd.GeoDataFrame.from_postgis(
-                        sql=sql,
+                        sql=f"SELECT * FROM {DB_LAYERS_TABLE_WELL} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}'",
                         con=ENGINE_LAYERS,
                         geom_col="geometry"
                     )
+                    
+                    df_well_non_selected = df_all_well[~df_all_well['LOCATION'].isin(well)]
+                    
+                    print(df_well_non_selected)
                     
                     fig = px.choropleth_mapbox(
                         data_frame=df_study_area,
@@ -429,17 +427,6 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                     for i, frame in enumerate(fig.frames):
                         fig.frames[i].data += (fig_tmp.frames[i].data[0],)
                     
-                    fig.add_trace(
-                        go.Scattermapbox(
-                            lat=df_all_well.Y,
-                            lon=df_all_well.X,
-                            mode='markers',
-                            marker=go.scattermapbox.Marker(size=8, color="red"),
-                            text=df_all_well["LOCATION"],
-                            hoverinfo='text',
-                            hovertemplate='<span style="color:white;">%{text}</span><extra></extra>'
-                        )
-                    )
                     
                     fig.add_trace(
                         go.Scattermapbox(
@@ -453,6 +440,20 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                         )
                     )
                     
+                    if len(df_well_non_selected) != 0:
+                    
+                        fig.add_trace(
+                            go.Scattermapbox(
+                                lat=df_well_non_selected.Y,
+                                lon=df_well_non_selected.X,
+                                mode='markers',
+                                marker=go.scattermapbox.Marker(size=12, color="red"),
+                                text=df_well_non_selected["LOCATION"],
+                                hoverinfo='text',
+                                hovertemplate='<span style="color:white;">%{text}</span><extra></extra>'
+                            )
+                        )
+                    
                     fig.update_layout(
                         mapbox = {
                             'style': "stamen-terrain",
@@ -465,6 +466,10 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                         showlegend = False,
                         hovermode='closest',
                         margin = {'l':0, 'r':0, 'b':0, 't':0}
+                    )
+                    
+                    fig.update_layout(
+                        mapbox_accesstoken=MAPBOX_TOKEN
                     )
                     
                     return fig
