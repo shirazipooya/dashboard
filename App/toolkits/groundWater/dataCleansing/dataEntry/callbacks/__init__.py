@@ -14,7 +14,7 @@ import plotly.graph_objects as go
 from geoalchemy2 import Geometry, WKTElement
 from shapely import wkt
 from persiantools.jdatetime import JalaliDate, JalaliDateTime
-from App.db import POSTGRES_USER_NAME, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT
+from App.db import *
 
 
 # -----------------------------------------------------------------------------
@@ -23,27 +23,6 @@ from App.db import POSTGRES_USER_NAME, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRE
 PATH_THEMPLATE_FILE = "./Assets/Files/HydrographDataTemplate.xlsx"
 PATH_UPLOADED_FILES = "./Assets/Files/Uploaded_Files"
 SORT_COLUMNS = ["MAHDOUDE", "AQUIFER", "LOCATION"]
-
-
-# -----------------------------------------------------------------------------
-# DATABASE CONNECTION: data
-# -----------------------------------------------------------------------------
-POSTGRES_DB_NAME = "data"
-TABLE_NAME_RAW_DATA = "raw_data"
-TABLE_NAME_MODIFIED_DATA = "modified_data"
-TABLE_NAME_RAW_DATA_DELETED = "raw_data_deleted"
-TABLE_NAME_RAW_DATA_MODIFIED = "raw_data_modified"
-
-db = f"postgresql://{POSTGRES_USER_NAME}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB_NAME}"
-engine = create_engine(db, echo=False)
-
-
-# -----------------------------------------------------------------------------
-# DATABASE CONNECTION: layers
-# -----------------------------------------------------------------------------
-POSTGRES_DB_LAYERS = "layers"
-db_layers = f"postgresql://{POSTGRES_USER_NAME}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB_LAYERS}"
-engine_layers = create_engine(db_layers, echo=False)
 
 
 def read_shapefile_from_zip_file(
@@ -203,7 +182,7 @@ def create_geoinfo_data_table(
     ).reset_index(drop=True)
     
     conn = psycopg2.connect(
-                database=POSTGRES_DB_NAME,
+                database=POSTGRES_DB_DATA,
                 user=POSTGRES_USER_NAME,
                 password=POSTGRES_PASSWORD,
                 host=POSTGRES_HOST,
@@ -269,7 +248,7 @@ def create_raw_data_table(
     raw_data['DESCRIPTION'] = raw_data['DESCRIPTION'].fillna("")
 
     conn = psycopg2.connect(
-                database=POSTGRES_DB_NAME,
+                database=POSTGRES_DB_DATA,
                 user=POSTGRES_USER_NAME,
                 password=POSTGRES_PASSWORD,
                 host=POSTGRES_HOST,
@@ -316,7 +295,7 @@ def clean_geoinfo_raw_data_table(
     sort_columns=SORT_COLUMNS,
 ):
     conn = psycopg2.connect(
-                database=POSTGRES_DB_NAME,
+                database=POSTGRES_DB_DATA,
                 user=POSTGRES_USER_NAME,
                 password=POSTGRES_PASSWORD,
                 host=POSTGRES_HOST,
@@ -387,14 +366,14 @@ def clean_geoinfo_raw_data_table(
 def create_update_modified_data_table(
     engine,
     if_exists,
-    table_name_raw_data=TABLE_NAME_RAW_DATA,
-    table_name_modified_data=TABLE_NAME_MODIFIED_DATA,
-    table_name_raw_data_deleted=TABLE_NAME_RAW_DATA_DELETED,
-    table_name_raw_data_modified=TABLE_NAME_RAW_DATA_MODIFIED,
+    table_name_raw_data=DB_DATA_TABLE_RAWDATA,
+    table_name_modified_data=DB_DATA_TABLE_MODIFIEDDATA,
+    table_name_raw_data_deleted=DB_DATA_TABLE_RAW_DATA_DELETED,
+    table_name_raw_data_modified=DB_DATA_TABLE_RAW_DATA_MODIFIED,
     sort_columns=SORT_COLUMNS,
 ):
     conn = psycopg2.connect(
-                database=POSTGRES_DB_NAME,
+                database=POSTGRES_DB_DATA,
                 user=POSTGRES_USER_NAME,
                 password=POSTGRES_PASSWORD,
                 host=POSTGRES_HOST,

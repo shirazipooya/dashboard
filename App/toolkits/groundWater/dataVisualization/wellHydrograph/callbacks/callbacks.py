@@ -130,6 +130,8 @@ def toolkits__groundWater__dataVisualization__wellHydrograph__callbacks(app):
     ):
         if study_area_selected is not None and len(study_area_selected) != 0:
             
+            REDIS_DB.set('wellHydrograph_studyArea', study_area_selected)
+            
             df_aquifer_data = pd.read_sql_query(
                 sql=f"SELECT DISTINCT \"MAHDOUDE\", \"AQUIFER\" FROM {DB_DATA_TABLE_DATA} WHERE \"MAHDOUDE\"='{study_area_selected}';",
                 con=ENGINE_DATA
@@ -210,6 +212,8 @@ def toolkits__groundWater__dataVisualization__wellHydrograph__callbacks(app):
     ):
         if (study_area_selected is not None) and (len(study_area_selected) != 0) and\
             (aquifer_selected is not None) and (len(aquifer_selected) != 0):
+                
+                REDIS_DB.set('wellHydrograph_aquifer', aquifer_selected)
 
                 df_well_data = pd.read_sql_query(
                     sql=f"SELECT DISTINCT \"MAHDOUDE\", \"AQUIFER\", \"LOCATION\" FROM {DB_DATA_TABLE_DATA} WHERE \"MAHDOUDE\"='{study_area_selected}' AND \"AQUIFER\"='{aquifer_selected}';",
@@ -303,7 +307,7 @@ def toolkits__groundWater__dataVisualization__wellHydrograph__callbacks(app):
         if (study_area is not None and len(study_area) != 0) and\
             (aquifer is None or len(aquifer) == 0) and\
                 (well is not None and len(well) != 0):
-            
+                                
             result = [
                 no_update,
                 [],
@@ -319,7 +323,7 @@ def toolkits__groundWater__dataVisualization__wellHydrograph__callbacks(app):
         elif (study_area is None or len(study_area) == 0) and\
             (aquifer is not None and len(aquifer) != 0) and\
                 (well is not None and len(well) != 0):
-            
+                        
             result = [
                 [],
                 [],
@@ -332,8 +336,37 @@ def toolkits__groundWater__dataVisualization__wellHydrograph__callbacks(app):
             
             return result
         
-        else:
+        elif (study_area != REDIS_DB.get('wellHydrograph_studyArea').decode('utf-8')):
             
+            result = [
+                no_update,
+                [],
+                [],
+                None,
+                None,
+                None,
+                None,
+            ]
+            
+            return result
+        
+        elif (aquifer != REDIS_DB.get('wellHydrograph_aquifer').decode('utf-8')):
+            
+            result = [
+                no_update,
+                no_update,
+                [],
+                None,
+                None,
+                None,
+                None,
+            ]
+            
+            return result
+            
+        
+        else:
+                        
             result = [
                 no_update,
                 no_update,
@@ -492,12 +525,13 @@ def toolkits__groundWater__dataVisualization__wellHydrograph__callbacks(app):
         Input('STUDY_AREA_SELECT', 'value'),
         Input('AQUIFER_SELECT', 'value'),
         Input('WELL_SELECT', 'value'),
+        State('AQUIFER_SELECT', 'value'),
     )
     def select_date(
-        study_area, aquifer, well,
+        study_area, aquifer, well, aquifer_state
     ):
         if (study_area is not None and len(study_area) != 0) and (aquifer is not None and len(aquifer) != 0) and (well is not None and len(well) != 0):
-                
+                                  
             sql = f"SELECT * FROM {DB_DATA_TABLE_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" = '{well}';"
             
             data = pd.read_sql_query(

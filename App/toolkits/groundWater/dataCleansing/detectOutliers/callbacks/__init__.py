@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 from sqlalchemy import *
 import Assets.jalali as jalali
 from persiantools.jdatetime import JalaliDate, JalaliDateTime
-from App.db import POSTGRES_USER_NAME, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT
+from App.db import *
 
 
 
@@ -34,26 +34,6 @@ NO_MATCHING_GRAPH_FOUND = {
         ]
     }
 }
-
-# -----------------------------------------------------------------------------
-# DATABASE CONNECTION: data
-# -----------------------------------------------------------------------------
-POSTGRES_DB_NAME = "data"
-TABLE_NAME_RAW_DATA = "raw_data"
-TABLE_NAME_MODIFIED_DATA = "modified_data"
-TABLE_NAME_RAW_DATA_DELETED = "raw_data_deleted"
-TABLE_NAME_RAW_DATA_MODIFIED = "raw_data_modified"
-
-db = f"postgresql://{POSTGRES_USER_NAME}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB_NAME}"
-engine = create_engine(db, echo=False)
-
-
-# -----------------------------------------------------------------------------
-# DATABASE CONNECTION: layers
-# -----------------------------------------------------------------------------
-POSTGRES_DB_LAYERS = "layers"
-db_layers = f"postgresql://{POSTGRES_USER_NAME}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB_LAYERS}"
-engine_layers = create_engine(db_layers, echo=False)
 
 
 # -----------------------------------------------------------------------------
@@ -119,7 +99,7 @@ def create_geoinfo_data_table(
     ).reset_index(drop=True)
     
     conn = psycopg2.connect(
-                database=POSTGRES_DB_NAME,
+                database=POSTGRES_DB_DATA,
                 user=POSTGRES_USER_NAME,
                 password=POSTGRES_PASSWORD,
                 host=POSTGRES_HOST,
@@ -244,7 +224,7 @@ def create_raw_data_table(
     ).reset_index(drop=True)  
 
     conn = psycopg2.connect(
-                database=POSTGRES_DB_NAME,
+                database=POSTGRES_DB_DATA,
                 user=POSTGRES_USER_NAME,
                 password=POSTGRES_PASSWORD,
                 host=POSTGRES_HOST,
@@ -290,7 +270,7 @@ def clean_geoinfo_raw_data_table(
     table_name_raw_data,
 ):
     conn = psycopg2.connect(
-                database=POSTGRES_DB_NAME,
+                database=POSTGRES_DB_DATA,
                 user=POSTGRES_USER_NAME,
                 password=POSTGRES_PASSWORD,
                 host=POSTGRES_HOST,

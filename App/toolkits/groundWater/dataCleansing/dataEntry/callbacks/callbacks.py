@@ -54,7 +54,7 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
             try:
                 df = pd.read_sql_query(
                     sql=f"SELECT * FROM geoinfo",
-                    con=engine
+                    con=ENGINE_DATA
                 )
                 
                 notify = dmc.Notification(
@@ -148,7 +148,7 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
             try:
                 df = pd.read_sql_query(
                     sql=f"SELECT * FROM raw_data",
-                    con=engine
+                    con=ENGINE_DATA
                 )
                 
                 notify = dmc.Notification(
@@ -240,8 +240,8 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
             try:
                 
                 df = gpd.GeoDataFrame.from_postgis(
-                    sql="SELECT * FROM mahdoude",
-                    con=engine_layers,
+                    sql=f"SELECT * FROM {DB_LAYERS_TABLE_MAHDOUDE}",
+                    con=ENGINE_LAYERS,
                     geom_col="geometry"
                 )
                 
@@ -323,8 +323,8 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
             try:
                 
                 df = gpd.GeoDataFrame.from_postgis(
-                    sql="SELECT * FROM aquifer",
-                    con=engine_layers,
+                    sql=f"SELECT * FROM {DB_LAYERS_TABLE_AQUIFER}",
+                    con=ENGINE_LAYERS,
                     geom_col="geometry"
                 )
                 
@@ -407,8 +407,8 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
             try:
                 
                 df = gpd.GeoDataFrame.from_postgis(
-                    sql="SELECT * FROM well",
-                    con=engine_layers,
+                    sql=f"SELECT * FROM {DB_LAYERS_TABLE_WELL}",
+                    con=ENGINE_LAYERS,
                     geom_col="geometry"
                 )
                 
@@ -660,8 +660,8 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
                     check_replace_append(
                         data=tmp,
                         db=POSTGRES_DB_LAYERS,
-                        table="well",
-                        engine=engine_layers,
+                        table=DB_LAYERS_TABLE_WELL,
+                        engine=ENGINE_LAYERS,
                         if_exists=geodatabase_modify_value_state,
                         geometry_type="POINT",
                         srid=4326,
@@ -726,8 +726,8 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
                     check_replace_append(
                         data=tmp,
                         db=POSTGRES_DB_LAYERS,
-                        table="aquifer",
-                        engine=engine_layers,
+                        table=DB_LAYERS_TABLE_AQUIFER,
+                        engine=ENGINE_LAYERS,
                         if_exists=geodatabase_modify_value_state,
                         geometry_type="MULTIPOLYGON",
                         srid=4326,
@@ -791,8 +791,8 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
                     check_replace_append(
                         data=tmp,
                         db=POSTGRES_DB_LAYERS,
-                        table="mahdoude",
-                        engine=engine_layers,
+                        table=DB_LAYERS_TABLE_MAHDOUDE,
+                        engine=ENGINE_LAYERS,
                         if_exists=geodatabase_modify_value_state,
                         geometry_type="MULTIPOLYGON",
                         srid=4326,
@@ -1079,7 +1079,7 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
                 
                 create_geoinfo_data_table(
                     geoinfo_data = pd.DataFrame.from_dict(storage_state[geoInfo_worksheet_value_state]),
-                    engine = engine,
+                    engine = ENGINE_DATA,
                     table_name = "geoinfo",
                     geoinfo_data_column = geoinfo_columns_template_xlsx,
                     if_exists = database_modify_value_state
@@ -1087,24 +1087,24 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
                 
                 create_raw_data_table(
                     raw_data = pd.DataFrame.from_dict(storage_state[data_worksheet_value_state]),
-                    engine = engine,
+                    engine = ENGINE_DATA,
                     table_name = "raw_data",
                     raw_data_column = data_columns_template_xlsx,
                     if_exists = database_modify_value_state,
                 )
                 
                 clean_geoinfo_raw_data_table(
-                    engine = engine,
+                    engine = ENGINE_DATA,
                     table_name_geoinfo = "geoinfo",
                     table_name_raw_data = "raw_data",
                 )
                 
                 create_update_modified_data_table(
-                    engine = engine,
-                    table_name_raw_data = TABLE_NAME_RAW_DATA,
-                    table_name_modified_data = TABLE_NAME_MODIFIED_DATA,
-                    table_name_raw_data_deleted = TABLE_NAME_RAW_DATA_DELETED,
-                    table_name_raw_data_modified = TABLE_NAME_RAW_DATA_MODIFIED,
+                    engine = ENGINE_DATA,
+                    table_name_raw_data = DB_DATA_TABLE_RAWDATA,
+                    table_name_modified_data = DB_DATA_TABLE_MODIFIEDDATA,
+                    table_name_raw_data_deleted = DB_DATA_TABLE_RAW_DATA_DELETED,
+                    table_name_raw_data_modified = DB_DATA_TABLE_RAW_DATA_MODIFIED,
                     sort_columns = SORT_COLUMNS,
                     if_exists = database_modify_value_state
                 )

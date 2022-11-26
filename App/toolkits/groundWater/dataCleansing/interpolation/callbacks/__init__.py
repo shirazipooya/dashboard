@@ -5,7 +5,7 @@ import sqlalchemy as sa
 import psycopg2
 import plotly.graph_objects as go
 from persiantools.jdatetime import JalaliDate, JalaliDateTime
-from App.db import POSTGRES_USER_NAME, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT
+from App.db import *
 
 
 # -----------------------------------------------------------------------------
@@ -50,29 +50,6 @@ BASE_MAP.update_layout(
     margin={'l':0, 'r':0, 'b':0, 't':0},
     autosize=False
 )
-
-
-# -----------------------------------------------------------------------------
-# DATABASE CONNECTION: data
-# -----------------------------------------------------------------------------
-POSTGRES_DB_NAME = "data"
-TABLE_NAME_RAW_DATA = "raw_data"
-TABLE_NAME_MODIFIED_DATA = "modified_data"
-TABLE_NAME_INTERPOLATED_DATA = "interpolated_data"
-TABLE_NAME_SYNCDATE_DATA = "syncdate_data"
-TABLE_NAME_DATA = "data"
-
-db = f"postgresql://{POSTGRES_USER_NAME}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB_NAME}"
-engine = sa.create_engine(db, echo=False)
-
-
-# -----------------------------------------------------------------------------
-# DATABASE CONNECTION: layers
-# -----------------------------------------------------------------------------
-POSTGRES_DB_LAYERS = "layers"
-db_layers = f"postgresql://{POSTGRES_USER_NAME}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB_LAYERS}"
-engine_layers = sa.create_engine(db_layers, echo=False)
-
 
 # -----------------------------------------------------------------------------
 # FUNCTION INTERPOLATION

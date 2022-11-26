@@ -9,7 +9,7 @@ import sqlalchemy as sa
 import psycopg2
 import plotly.graph_objects as go
 from persiantools.jdatetime import JalaliDate, JalaliDateTime
-from App.db import POSTGRES_USER_NAME, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT
+from App.db import *
 
 
 # -----------------------------------------------------------------------------
@@ -95,36 +95,6 @@ BASE_MAP.update_layout(
     autosize=False
 )
 
-
-# -----------------------------------------------------------------------------
-# DATABASE CONNECTION: data
-# -----------------------------------------------------------------------------
-POSTGRES_DB_DATA = "data"
-DB_DATA_TABLE_GEOINFO = "geoinfo"
-DB_DATA_TABLE_RAWDATA = "raw_data"
-DB_DATA_TABLE_MODIFIEDDATA = "modified_data"
-DB_DATA_TABLE_INTERPOLATEDDATA = "interpolated_data"
-DB_DATA_TABLE_SYNCDATEDATA = "syncdate_data"
-DB_DATA_TABLE_DATA = "data"
-DB_DATA_TABLE_HYDROGRAPH = "hydrograph"
-DB_DATA_TABLE_TEMPORARY = "temporary"
-
-DB_DATA = f"postgresql://{POSTGRES_USER_NAME}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB_DATA}"
-ENGINE_DATA = sa.create_engine(DB_DATA, echo=False)
-
-
-# -----------------------------------------------------------------------------
-# DATABASE CONNECTION: layers
-# -----------------------------------------------------------------------------
-POSTGRES_DB_LAYERS = "layers"
-DB_LAYERS_TABLE_WELL = "well"
-DB_LAYERS_TABLE_AQUIFER = "aquifer"
-DB_LAYERS_TABLE_MAHDOUDE = "mahdoude"
-DB_LAYERS_TABLE_THIESSEN = "thiessen"
-DB_LAYERS_TABLE_TEMPORARY= "temporary"
-
-DB_LAYERS = f"postgresql://{POSTGRES_USER_NAME}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB_LAYERS}"
-ENGINE_LAYERS = sa.create_engine(DB_LAYERS, echo=False)
 
 # -----------------------------------------------------------------------------
 # READ STORAGE COEFFICIENT

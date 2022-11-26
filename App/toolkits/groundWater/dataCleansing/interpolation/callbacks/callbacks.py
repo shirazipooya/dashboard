@@ -26,7 +26,7 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
         n
     ):
         conn = psycopg2.connect(
-                database=POSTGRES_DB_NAME,
+                database=POSTGRES_DB_DATA,
                 user=POSTGRES_USER_NAME,
                 password=POSTGRES_PASSWORD,
                 host=POSTGRES_HOST,
@@ -43,7 +43,7 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
             
             df = pd.read_sql_query(
                 sql='SELECT DISTINCT "MAHDOUDE" FROM geoinfo;',
-                con=engine
+                con=ENGINE_DATA
             )
         
             return [{'label': i, 'value': i} for i in sorted(df.MAHDOUDE.values)]
@@ -66,7 +66,7 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
         if study_area_selected is not None and len(study_area_selected) != 0:
             df = pd.read_sql_query(
                 sql=f'SELECT DISTINCT "MAHDOUDE", "AQUIFER" FROM geoinfo;',
-                con=engine
+                con=ENGINE_DATA
             )
             
             df = df[df["MAHDOUDE"] == study_area_selected]
@@ -96,7 +96,7 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
                 
                 df = pd.read_sql_query(
                     sql=f'SELECT DISTINCT "MAHDOUDE", "AQUIFER", "LOCATION" FROM geoinfo;',
-                    con=engine
+                    con=ENGINE_DATA
                 )
                 
                 df = df[df["MAHDOUDE"] == study_area_selected]
@@ -194,11 +194,11 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
             try:
                 
                 # MAHDOUDE
-                sql = f"SELECT * FROM mahdoude WHERE \"MAHDOUDE\" = '{study_area}'"
+                sql = f"SELECT * FROM {DB_LAYERS_TABLE_MAHDOUDE} WHERE \"MAHDOUDE\" = '{study_area}'"
                 
                 df_study_area = gpd.GeoDataFrame.from_postgis(
                     sql=sql,
-                    con=engine_layers,
+                    con=ENGINE_LAYERS,
                     geom_col="geometry"
                 )
                 
@@ -208,11 +208,11 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
                     feature['id'] = feature['properties']['MAHDOUDE']
                 
                 # AQUIFER            
-                sql = f"SELECT * FROM aquifer WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}'"
+                sql = f"SELECT * FROM {DB_LAYERS_TABLE_AQUIFER} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}'"
                 
                 df_aquifer = gpd.GeoDataFrame.from_postgis(
                     sql=sql,
-                    con=engine_layers,
+                    con=ENGINE_LAYERS,
                     geom_col="geometry"
                 )
                 
@@ -222,21 +222,21 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
                     feature['id'] = feature['properties']['AQUIFER']
                 
                 # WELL
-                sql = f"SELECT * FROM well WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" = '{well}'"
+                sql = f"SELECT * FROM {DB_LAYERS_TABLE_WELL} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" = '{well}'"
                 
                 
                 df_well = gpd.GeoDataFrame.from_postgis(
                     sql=sql,
-                    con=engine_layers,
+                    con=ENGINE_LAYERS,
                     geom_col="geometry"
                 )
                 
                 # ALL WELL
-                sql = f"SELECT * FROM well WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}'"
+                sql = f"SELECT * FROM {DB_LAYERS_TABLE_WELL} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}'"
                 
                 df_all_well = gpd.GeoDataFrame.from_postgis(
                     sql=sql,
-                    con=engine_layers,
+                    con=ENGINE_LAYERS,
                     geom_col="geometry"
                 )
                 
@@ -336,9 +336,12 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
     def save_order_interpolate_methods(
         methods
     ):
-        if ("polynomial" in methods) or ("spline" in methods):
-            return False
-        else:
+        try:
+            if ("polynomial" in methods) or ("spline" in methods):
+                return False
+            else:
+                return True
+        except:
             return True
     
     # -----------------------------------------------------------------------------
@@ -369,11 +372,11 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
                     
                     if len(methods) <= 2:
                         
-                        sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" = '{well}'"
+                        sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" = '{well}'"
 
                         df = pd.read_sql_query(
                             sql = sql,
-                            con = engine
+                            con = ENGINE_DATA
                         )
                         
                         if len(methods) == 1:
@@ -718,11 +721,11 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
             aquifer is not None and len(aquifer) != 0 and\
                 well is not None and len(well) != 0:
                                         
-                    sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" = '{well}'"
+                    sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" = '{well}'"
 
                     df = pd.read_sql_query(
                         sql = sql,
-                        con = engine
+                        con = ENGINE_DATA
                     )
                     
                     col_sort = ['MAHDOUDE', 'AQUIFER', 'LOCATION', 'DATE_GREGORIAN']                    
@@ -862,8 +865,8 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
             if method is not None and len(method) != 0:
                 
                 table_exist = find_table(
-                    database=POSTGRES_DB_NAME,
-                    table=TABLE_NAME_INTERPOLATED_DATA,
+                    database=POSTGRES_DB_DATA,
+                    table=DB_DATA_TABLE_INTERPOLATEDDATA,
                     user=POSTGRES_USER_NAME,
                     password=POSTGRES_PASSWORD,
                     host=POSTGRES_HOST,
@@ -874,11 +877,11 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
                     
                     if which_well == 0:
 
-                        sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA}"
+                        sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA}"
 
                         df = pd.read_sql_query(
                             sql = sql,
-                            con = engine
+                            con = ENGINE_DATA
                         )
                                                 
                         df = df.groupby(
@@ -898,9 +901,9 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
                         update_table(
                             data=df,
                             table_exist=table_exist,
-                            table_name=TABLE_NAME_INTERPOLATED_DATA,
-                            table_name_final=TABLE_NAME_DATA,
-                            engine=engine,
+                            table_name=DB_DATA_TABLE_INTERPOLATEDDATA,
+                            table_name_final=DB_DATA_TABLE_DATA,
+                            engine=ENGINE_DATA,
                             study_area=None,
                             aquifer=None,
                             well=None,
@@ -923,11 +926,11 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
                     
                     elif which_well == 1:
                         
-                        sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" = '{study_area}'"
+                        sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" = '{study_area}'"
 
                         df = pd.read_sql_query(
                             sql = sql,
-                            con = engine
+                            con = ENGINE_DATA
                         )
                         
                         df = df.groupby(
@@ -947,9 +950,9 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
                         update_table(
                             data=df,
                             table_exist=table_exist,
-                            table_name=TABLE_NAME_INTERPOLATED_DATA,
-                            table_name_final=TABLE_NAME_DATA,
-                            engine=engine,
+                            table_name=DB_DATA_TABLE_INTERPOLATEDDATA,
+                            table_name_final=DB_DATA_TABLE_DATA,
+                            engine=ENGINE_DATA,
                             study_area=study_area,
                             aquifer=None,
                             well=None,
@@ -972,11 +975,11 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
                     
                     elif which_well == 2:
                         
-                        sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}'"
+                        sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}'"
 
                         df = pd.read_sql_query(
                             sql = sql,
-                            con = engine
+                            con = ENGINE_DATA
                         )
                                                 
                         df = df.groupby(
@@ -996,9 +999,9 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
                         update_table(
                             data=df,
                             table_exist=table_exist,
-                            table_name=TABLE_NAME_INTERPOLATED_DATA,
-                            table_name_final=TABLE_NAME_DATA,
-                            engine=engine,
+                            table_name=DB_DATA_TABLE_INTERPOLATEDDATA,
+                            table_name_final=DB_DATA_TABLE_DATA,
+                            engine=ENGINE_DATA,
                             study_area=study_area,
                             aquifer=aquifer,
                             well=None,
@@ -1021,11 +1024,11 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
                     
                     elif which_well == 3:
                         
-                        sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" = '{well}'"
+                        sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" = '{study_area}' AND \"AQUIFER\" = '{aquifer}' AND \"LOCATION\" = '{well}'"
 
                         df = pd.read_sql_query(
                             sql = sql,
-                            con = engine
+                            con = ENGINE_DATA
                         )
                                                 
                         df = df.groupby(
@@ -1045,9 +1048,9 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
                         update_table(
                             data=df,
                             table_exist=table_exist,
-                            table_name=TABLE_NAME_INTERPOLATED_DATA,
-                            table_name_final=TABLE_NAME_DATA,
-                            engine=engine,
+                            table_name=DB_DATA_TABLE_INTERPOLATEDDATA,
+                            table_name_final=DB_DATA_TABLE_DATA,
+                            engine=ENGINE_DATA,
                             study_area=study_area,
                             aquifer=aquifer,
                             well=well,
@@ -1136,7 +1139,7 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
         if n_nlicks != 0:
                         
             conn = psycopg2.connect(
-                database=POSTGRES_DB_NAME,
+                database=POSTGRES_DB_DATA,
                 user=POSTGRES_USER_NAME,
                 password=POSTGRES_PASSWORD,
                 host=POSTGRES_HOST,
@@ -1149,16 +1152,16 @@ def toolkits__groundWater__dataCleansing__interpolation__callbacks(app):
             table_name_list_exist = list(itertools.chain.from_iterable(cursor.fetchall()))
             conn.close()
                 
-            if TABLE_NAME_INTERPOLATED_DATA in table_name_list_exist:
+            if DB_DATA_TABLE_INTERPOLATEDDATA in table_name_list_exist:
             
                 df = pd.read_sql_query(
-                    sql = f"SELECT * FROM {TABLE_NAME_INTERPOLATED_DATA}",
-                    con = engine
+                    sql = f"SELECT * FROM {DB_DATA_TABLE_INTERPOLATEDDATA}",
+                    con = ENGINE_DATA
                 )
                 
                 geoinfo = pd.read_sql_query(
                     sql='SELECT * FROM geoinfo',
-                    con=engine
+                    con=ENGINE_DATA
                 )
 
                 def to_xlsx(bytes_io):

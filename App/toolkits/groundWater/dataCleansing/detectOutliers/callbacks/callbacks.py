@@ -31,13 +31,13 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
             try:
                 # MAHDOUDE
                 if len(study_area) == 1:
-                    sql = f"SELECT * FROM mahdoude WHERE \"MAHDOUDE\" = '{study_area[0]}'"
+                    sql = f"SELECT * FROM {DB_LAYERS_TABLE_MAHDOUDE} WHERE \"MAHDOUDE\" = '{study_area[0]}'"
                 else:
-                    sql = f'SELECT * FROM mahdoude WHERE "MAHDOUDE" IN {*study_area,}'
+                    sql = f'SELECT * FROM {DB_LAYERS_TABLE_MAHDOUDE} WHERE "MAHDOUDE" IN {*study_area,}'
                 
                 df_study_area = gpd.GeoDataFrame.from_postgis(
                     sql=sql,
-                    con=engine_layers,
+                    con=ENGINE_LAYERS,
                     geom_col="geometry"
                 )
                 
@@ -48,17 +48,17 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                 
                 # AQUIFER            
                 if (len(study_area) == 1) and (len(aquifer) == 1):
-                    sql = f"SELECT * FROM aquifer WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" = '{aquifer[0]}'"
+                    sql = f"SELECT * FROM {DB_LAYERS_TABLE_AQUIFER} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" = '{aquifer[0]}'"
                 elif (len(study_area) == 1) and (len(aquifer) != 1):
-                    sql = f"SELECT * FROM aquifer WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" IN {*aquifer,}"
+                    sql = f"SELECT * FROM {DB_LAYERS_TABLE_AQUIFER} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" IN {*aquifer,}"
                 elif (len(study_area) != 1) and (len(aquifer) == 1):
-                    sql = f"SELECT * FROM aquifer WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" = '{aquifer[0]}'"
+                    sql = f"SELECT * FROM {DB_LAYERS_TABLE_AQUIFER} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" = '{aquifer[0]}'"
                 else:
-                    sql = f"SELECT * FROM aquifer WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" IN {*aquifer,}"
+                    sql = f"SELECT * FROM {DB_LAYERS_TABLE_AQUIFER} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" IN {*aquifer,}"
 
                 df_aquifer = gpd.GeoDataFrame.from_postgis(
                     sql=sql,
-                    con=engine_layers,
+                    con=ENGINE_LAYERS,
                     geom_col="geometry"
                 )
                 
@@ -69,41 +69,41 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                 
                 # WELL
                 if (len(study_area) == 1) and (len(aquifer) == 1) and (len(well) == 1):
-                    sql = f"SELECT * FROM well WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" = '{well[0]}'"
+                    sql = f"SELECT * FROM {DB_LAYERS_TABLE_WELL} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" = '{well[0]}'"
                 elif (len(study_area) == 1) and (len(aquifer) != 1) and (len(well) != 1):
-                    sql = f"SELECT * FROM well WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" IN {*well,}"
+                    sql = f"SELECT * FROM {DB_LAYERS_TABLE_WELL} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" IN {*well,}"
                 elif (len(study_area) != 1) and (len(aquifer) == 1) and (len(well) != 1):
-                    sql = f"SELECT * FROM well WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" IN {*well,}"
+                    sql = f"SELECT * FROM {DB_LAYERS_TABLE_WELL} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" IN {*well,}"
                 elif (len(study_area) != 1) and (len(aquifer) != 1) and (len(well) == 1):
-                    sql = f"SELECT * FROM well WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" = '{well[0]}'"
+                    sql = f"SELECT * FROM {DB_LAYERS_TABLE_WELL} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" = '{well[0]}'"
                 elif (len(study_area) == 1) and (len(aquifer) == 1) and (len(well) != 1):
-                    sql = f"SELECT * FROM well WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" IN {*well,}"
+                    sql = f"SELECT * FROM {DB_LAYERS_TABLE_WELL} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" IN {*well,}"
                 elif (len(study_area) == 1) and (len(aquifer) != 1) and (len(well) == 1):
-                    sql = f"SELECT * FROM well WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" = '{well[0]}'"
+                    sql = f"SELECT * FROM {DB_LAYERS_TABLE_WELL} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" = '{well[0]}'"
                 elif (len(study_area) != 1) and (len(aquifer) == 1) and (len(well) == 1):
-                    sql = f"SELECT * FROM well WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" = '{well[0]}'"
+                    sql = f"SELECT * FROM {DB_LAYERS_TABLE_WELL} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" = '{well[0]}'"
                 else:
-                    sql = f'SELECT * FROM well WHERE ("MAHDOUDE" IN {*study_area,} AND "AQUIFER" IN {*aquifer,} AND "LOCATION" IN {*well,})'
+                    sql = f'SELECT * FROM {DB_LAYERS_TABLE_WELL} WHERE ("MAHDOUDE" IN {*study_area,} AND "AQUIFER" IN {*aquifer,} AND "LOCATION" IN {*well,})'
                 
                 df_well = gpd.GeoDataFrame.from_postgis(
                     sql=sql,
-                    con=engine_layers,
+                    con=ENGINE_LAYERS,
                     geom_col="geometry"
                 )
                 
                 # ALL WELL
                 if len(study_area) == 1 and len(aquifer) == 1:
-                    sql = f"SELECT * FROM well WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" = '{aquifer[0]}'"
+                    sql = f"SELECT * FROM {DB_LAYERS_TABLE_WELL} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" = '{aquifer[0]}'"
                 elif len(study_area) != 1 and len(aquifer) == 1:
-                    sql = f"SELECT * FROM well WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" = '{aquifer[0]}'"
+                    sql = f"SELECT * FROM {DB_LAYERS_TABLE_WELL} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" = '{aquifer[0]}'"
                 elif len(study_area) == 1 and len(aquifer) != 1:
-                    sql = f"SELECT * FROM well WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" IN {*aquifer,}"
+                    sql = f"SELECT * FROM {DB_LAYERS_TABLE_WELL} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" IN {*aquifer,}"
                 else:
-                    sql = f'SELECT * FROM well WHERE ("MAHDOUDE" IN {*study_area,} AND "AQUIFER" IN {*aquifer,})'
+                    sql = f'SELECT * FROM {DB_LAYERS_TABLE_WELL} WHERE ("MAHDOUDE" IN {*study_area,} AND "AQUIFER" IN {*aquifer,})'
                 
                 df_all_well = gpd.GeoDataFrame.from_postgis(
                     sql=sql,
-                    con=engine_layers,
+                    con=ENGINE_LAYERS,
                     geom_col="geometry"
                 )
                 
@@ -186,7 +186,7 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
         n
     ):
         conn = psycopg2.connect(
-                database=POSTGRES_DB_NAME,
+                database=POSTGRES_DB_DATA,
                 user=POSTGRES_USER_NAME,
                 password=POSTGRES_PASSWORD,
                 host=POSTGRES_HOST,
@@ -202,7 +202,7 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
         if "geoinfo" in table_name_list_exist:
             df = pd.read_sql_query(
                 sql='SELECT DISTINCT "MAHDOUDE" FROM geoinfo;',
-                con=engine
+                con=ENGINE_DATA
             )
         
             return [{'label': i, 'value': i} for i in sorted(df.MAHDOUDE.values)]
@@ -219,13 +219,18 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
         study_area_selected
     ):
         if study_area_selected is not None and len(study_area_selected) != 0:
+            
+            REDIS_DB.set('detectOutliers_studyArea', json.dumps(study_area_selected))
+            
             df = pd.read_sql_query(
                 sql=f'SELECT DISTINCT "MAHDOUDE", "AQUIFER" FROM geoinfo;',
-                con=engine
+                con=ENGINE_DATA
             )
             df = df[df["MAHDOUDE"].isin(study_area_selected)]
             return [{'label': i, 'value': i} for i in sorted(df.AQUIFER.values)]
+        
         else:
+            
             return [{}]
 
 
@@ -241,9 +246,12 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
     ):
         if study_area_selected is not None and len(study_area_selected) != 0:
             if aquifer_selected is not None and len(aquifer_selected) != 0:
+                
+                REDIS_DB.set('detectOutliers_aquifer', json.dumps(aquifer_selected))
+                
                 df = pd.read_sql_query(
                     sql=f'SELECT DISTINCT "MAHDOUDE", "AQUIFER", "LOCATION" FROM geoinfo;',
-                    con=engine
+                    con=ENGINE_DATA
                 )
                 df = df[df["MAHDOUDE"].isin(study_area_selected)]
                 df = df[df["AQUIFER"].isin(aquifer_selected)]
@@ -263,7 +271,6 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
         Input('AQUIFER_SELECT', 'value'),
         Input('WELL_SELECT', 'value'),
     )
-    # BUG: when select two aquifer and their wells, after remove one aquifer, the wells of the removed aquifer still selected    
     def update_dropdown_list(study_area, aquifer, well):
 
         if (study_area is not None and len(study_area) != 0) and\
@@ -288,8 +295,27 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                             []
                         ]
                         return result
+        
+        elif ((REDIS_DB.get('detectOutliers_studyArea') is not None) and (set(study_area) != set(json.loads(REDIS_DB.get('detectOutliers_studyArea').decode('utf-8'))))):
+                       
+            result = [
+                no_update,
+                [],
+                []
+            ]
+            return result
+        elif ((REDIS_DB.get('detectOutliers_aquifer') is not None) and (set(aquifer) != set(json.loads(REDIS_DB.get('detectOutliers_aquifer').decode('utf-8'))))):
+            
+            result = [
+                no_update,
+                no_update,
+                []
+            ]
+            return result
+            
                     
         else:
+            
             result = [
                 no_update,
                 no_update,
@@ -314,7 +340,7 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
     ):
         if n_clicks != 0:
             
-            if storage_state[TABLE_NAME_MODIFIED_DATA]:
+            if storage_state[DB_DATA_TABLE_MODIFIEDDATA]:
                 
                 df_selected_modify = pd.DataFrame(data_table_state)
                 
@@ -326,8 +352,8 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                         pass
                                 
                 df = pd.read_sql_query(
-                    sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA}",
-                    con = engine
+                    sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA}",
+                    con = ENGINE_DATA
                 ).reset_index().rename(columns = {'index':'idx'})
                 
                 df = df.drop(storage_state["index_wrong_date"])
@@ -339,8 +365,8 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                 df['WATER_TABLE'] = df['WATER_TABLE'].astype('float64')
                 
                 df.to_sql(
-                    name=TABLE_NAME_MODIFIED_DATA,
-                    con=engine,
+                    name=DB_DATA_TABLE_MODIFIEDDATA,
+                    con=ENGINE_DATA,
                     if_exists='replace',
                     index=False
                 )
@@ -420,7 +446,7 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
     ):
         if (n_btn_show_wrong_date != 0):
             conn = psycopg2.connect(
-                database=POSTGRES_DB_NAME,
+                database=POSTGRES_DB_DATA,
                 user=POSTGRES_USER_NAME,
                 password=POSTGRES_PASSWORD,
                 host=POSTGRES_HOST,
@@ -433,9 +459,9 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
             table_name_list_exist = list(itertools.chain.from_iterable(cursor.fetchall()))
             conn.close()
                 
-            if TABLE_NAME_MODIFIED_DATA not in table_name_list_exist:
+            if DB_DATA_TABLE_MODIFIEDDATA not in table_name_list_exist:
                 
-                storage_state[TABLE_NAME_MODIFIED_DATA] = False
+                storage_state[DB_DATA_TABLE_MODIFIEDDATA] = False
                 
                 notify = dmc.Notification(
                     id ="notify",
@@ -459,11 +485,11 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
             else:
                 
                 df = pd.read_sql_query(
-                    sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA}",
-                    con = engine
+                    sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA}",
+                    con = ENGINE_DATA
                 ).reset_index().rename(columns = {'index':'idx'})
                 
-                storage_state[TABLE_NAME_MODIFIED_DATA] = True
+                storage_state[DB_DATA_TABLE_MODIFIEDDATA] = True
                                 
                 # if "zeros" in action_type:
                     
@@ -593,8 +619,8 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
             if len(storage_state["index_wrong_date"]) == 0:
                                 
                 df = pd.read_sql_query(
-                    sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA}",
-                    con = engine
+                    sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA}",
+                    con = ENGINE_DATA
                 )
                 
                 if date_type == "persian_ymd":
@@ -635,8 +661,8 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                 df['DESCRIPTION'] = df['DESCRIPTION'].fillna("")
                 
                 df.to_sql(
-                    name=TABLE_NAME_MODIFIED_DATA,
-                    con=engine,
+                    name=DB_DATA_TABLE_MODIFIEDDATA,
+                    con=ENGINE_DATA,
                     if_exists='replace',
                     index=False
                 )
@@ -711,25 +737,25 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                 well is not None and len(well) != 0:
                 
                     if (len(study_area) == 1) and (len(aquifer) == 1) and (len(well) == 1):
-                        sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" = '{well[0]}'"
+                        sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" = '{well[0]}'"
                     elif (len(study_area) == 1) and (len(aquifer) != 1) and (len(well) != 1):
-                        sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" IN {*well,}"
+                        sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" IN {*well,}"
                     elif (len(study_area) != 1) and (len(aquifer) == 1) and (len(well) != 1):
-                        sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" IN {*well,}"
+                        sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" IN {*well,}"
                     elif (len(study_area) != 1) and (len(aquifer) != 1) and (len(well) == 1):
-                        sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" = '{well[0]}'"
+                        sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" = '{well[0]}'"
                     elif (len(study_area) == 1) and (len(aquifer) == 1) and (len(well) != 1):
-                        sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" IN {*well,}"
+                        sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" IN {*well,}"
                     elif (len(study_area) == 1) and (len(aquifer) != 1) and (len(well) == 1):
-                        sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" = '{well[0]}'"
+                        sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" = '{well[0]}'"
                     elif (len(study_area) != 1) and (len(aquifer) == 1) and (len(well) == 1):
-                        sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" = '{well[0]}'"
+                        sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" = '{well[0]}'"
                     else:
-                        sql = f'SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE ("MAHDOUDE" IN {*study_area,} AND "AQUIFER" IN {*aquifer,} AND "LOCATION" IN {*well,})'
+                        sql = f'SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE ("MAHDOUDE" IN {*study_area,} AND "AQUIFER" IN {*aquifer,} AND "LOCATION" IN {*well,})'
                 
                     df_m = pd.read_sql_query(
                         sql = sql,
-                        con = engine
+                        con = ENGINE_DATA
                     )
                     
                     col_sort = ['MAHDOUDE', 'AQUIFER', 'LOCATION', 'DATE_GREGORIAN']                
@@ -930,25 +956,25 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                     try:
                 
                         if (len(study_area) == 1) and (len(aquifer) == 1) and (len(well) == 1):
-                            sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" = '{well[0]}'"
+                            sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" = '{well[0]}'"
                         elif (len(study_area) == 1) and (len(aquifer) != 1) and (len(well) != 1):
-                            sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" IN {*well,}"
+                            sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" IN {*well,}"
                         elif (len(study_area) != 1) and (len(aquifer) == 1) and (len(well) != 1):
-                            sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" IN {*well,}"
+                            sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" IN {*well,}"
                         elif (len(study_area) != 1) and (len(aquifer) != 1) and (len(well) == 1):
-                            sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" = '{well[0]}'"
+                            sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" = '{well[0]}'"
                         elif (len(study_area) == 1) and (len(aquifer) == 1) and (len(well) != 1):
-                            sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" IN {*well,}"
+                            sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" IN {*well,}"
                         elif (len(study_area) == 1) and (len(aquifer) != 1) and (len(well) == 1):
-                            sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" = '{well[0]}'"
+                            sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" = '{well[0]}'"
                         elif (len(study_area) != 1) and (len(aquifer) == 1) and (len(well) == 1):
-                            sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" = '{well[0]}'"
+                            sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" = '{well[0]}'"
                         else:
-                            sql = f'SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE ("MAHDOUDE" IN {*study_area,} AND "AQUIFER" IN {*aquifer,} AND "LOCATION" IN {*well,})'
+                            sql = f'SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE ("MAHDOUDE" IN {*study_area,} AND "AQUIFER" IN {*aquifer,} AND "LOCATION" IN {*well,})'
                     
                         df_m = pd.read_sql_query(
                             sql = sql,
-                            con = engine
+                            con = ENGINE_DATA
                         )
                         
                         df_m["DATE_GREGORIAN"] = df_m["DATE_GREGORIAN"].dt.strftime('%Y-%m-%d')
@@ -1036,25 +1062,25 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
         if well is not None and len(well) == 1:
             if selectedData is not None:
                 if (len(study_area) == 1) and (len(aquifer) == 1) and (len(well) == 1):
-                    sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" = '{well[0]}'"
+                    sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" = '{well[0]}'"
                 elif (len(study_area) == 1) and (len(aquifer) != 1) and (len(well) != 1):
-                    sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" IN {*well,}"
+                    sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" IN {*well,}"
                 elif (len(study_area) != 1) and (len(aquifer) == 1) and (len(well) != 1):
-                    sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" IN {*well,}"
+                    sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" IN {*well,}"
                 elif (len(study_area) != 1) and (len(aquifer) != 1) and (len(well) == 1):
-                    sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" = '{well[0]}'"
+                    sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" = '{well[0]}'"
                 elif (len(study_area) == 1) and (len(aquifer) == 1) and (len(well) != 1):
-                    sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" IN {*well,}"
+                    sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" IN {*well,}"
                 elif (len(study_area) == 1) and (len(aquifer) != 1) and (len(well) == 1):
-                    sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" = '{well[0]}'"
+                    sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" = '{study_area[0]}' AND \"AQUIFER\" IN {*aquifer,} AND \"LOCATION\" = '{well[0]}'"
                 elif (len(study_area) != 1) and (len(aquifer) == 1) and (len(well) == 1):
-                    sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" = '{well[0]}'"
+                    sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE \"MAHDOUDE\" IN {*study_area,} AND \"AQUIFER\" = '{aquifer[0]}' AND \"LOCATION\" = '{well[0]}'"
                 else:
-                    sql = f'SELECT * FROM {TABLE_NAME_MODIFIED_DATA} WHERE ("MAHDOUDE" IN {*study_area,} AND "AQUIFER" IN {*aquifer,} AND "LOCATION" IN {*well,})'
+                    sql = f'SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA} WHERE ("MAHDOUDE" IN {*study_area,} AND "AQUIFER" IN {*aquifer,} AND "LOCATION" IN {*well,})'
             
                 df = pd.read_sql_query(
                     sql = sql,
-                    con = engine
+                    con = ENGINE_DATA
                 )
                 
                 if len(selectedData["points"]) != 0:
@@ -1064,8 +1090,8 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                     df_selected = df[df["DATE_PERSIAN"].isin(point_selected["x"].tolist())]
                                         
                     df_table_database = pd.read_sql_query(
-                        sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA}",
-                        con = engine
+                        sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA}",
+                        con = ENGINE_DATA
                     )
                     
                     ind = df_table_database.MAHDOUDE.isin(df_selected.MAHDOUDE) &\
@@ -1177,8 +1203,8 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                 if len(storage_state["index_selected_data"]) != 0:
                     
                     df = pd.read_sql_query(
-                        sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA}",
-                        con = engine
+                        sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA}",
+                        con = ENGINE_DATA
                     )
                     
                     df_selected_data = pd.DataFrame(table_selected_data_state) 
@@ -1224,8 +1250,8 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
                     
                     
                     df.to_sql(
-                        name=TABLE_NAME_MODIFIED_DATA,
-                        con=engine,
+                        name=DB_DATA_TABLE_MODIFIEDDATA,
+                        con=ENGINE_DATA,
                         if_exists='replace',
                         index=False
                     )
@@ -1315,7 +1341,7 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
         if n_nlicks != 0:
                         
             conn = psycopg2.connect(
-                database=POSTGRES_DB_NAME,
+                database=POSTGRES_DB_DATA,
                 user=POSTGRES_USER_NAME,
                 password=POSTGRES_PASSWORD,
                 host=POSTGRES_HOST,
@@ -1328,16 +1354,16 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
             table_name_list_exist = list(itertools.chain.from_iterable(cursor.fetchall()))
             conn.close()
                 
-            if TABLE_NAME_MODIFIED_DATA in table_name_list_exist:
+            if DB_DATA_TABLE_MODIFIEDDATA in table_name_list_exist:
             
                 df = pd.read_sql_query(
-                    sql = f"SELECT * FROM {TABLE_NAME_MODIFIED_DATA}",
-                    con = engine
+                    sql = f"SELECT * FROM {DB_DATA_TABLE_MODIFIEDDATA}",
+                    con = ENGINE_DATA
                 )
                 
                 geoinfo = pd.read_sql_query(
                     sql='SELECT * FROM geoinfo',
-                    con=engine
+                    con=ENGINE_DATA
                 )
 
                 def to_xlsx(bytes_io):
