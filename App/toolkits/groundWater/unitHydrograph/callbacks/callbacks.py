@@ -400,9 +400,7 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
                     )
                     
                     df_well_non_selected = df_all_well[~df_all_well['LOCATION'].isin(well)]
-                    
-                    print(df_well_non_selected)
-                    
+                                        
                     fig = px.choropleth_mapbox(
                         data_frame=df_study_area,
                         geojson=df_study_area_json,
