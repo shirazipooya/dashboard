@@ -12,7 +12,7 @@ from sqlalchemy import *
 import Assets.jalali as jalali
 import plotly.graph_objects as go
 from geoalchemy2 import Geometry, WKTElement
-from shapely import wkt
+from shapely import wkt, wkb
 from persiantools.jdatetime import JalaliDate, JalaliDateTime
 from App.db import *
 
@@ -50,6 +50,9 @@ def read_shapefile_from_zip_file(
         
         for i in os.listdir(path_uploaded_files):
             os.remove(f"{path_uploaded_files}/{i}")
+        
+        func = lambda geom: wkb.loads(wkb.dumps(geom, output_dimension=2))
+        tmp['geometry'] = tmp['geometry'].apply(func)
 
         tmp = tmp.to_crs({'init': f'epsg:{srid}'})
         tmp['geometry'] = tmp['geometry'].apply(lambda x: WKTElement(x.wkt, srid = srid))
