@@ -1077,10 +1077,12 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
                     action = "show",
                 )
                 
+                delete_table()
+                
                 create_geoinfo_data_table(
                     geoinfo_data = pd.DataFrame.from_dict(storage_state[geoInfo_worksheet_value_state]),
                     engine = ENGINE_DATA,
-                    table_name = "geoinfo",
+                    table_name = DB_DATA_TABLE_GEOINFO,
                     geoinfo_data_column = geoinfo_columns_template_xlsx,
                     if_exists = database_modify_value_state
                 )
@@ -1088,15 +1090,15 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
                 create_raw_data_table(
                     raw_data = pd.DataFrame.from_dict(storage_state[data_worksheet_value_state]),
                     engine = ENGINE_DATA,
-                    table_name = "raw_data",
+                    table_name = DB_DATA_TABLE_RAWDATA,
                     raw_data_column = data_columns_template_xlsx,
                     if_exists = database_modify_value_state,
                 )
                 
                 clean_geoinfo_raw_data_table(
                     engine = ENGINE_DATA,
-                    table_name_geoinfo = "geoinfo",
-                    table_name_raw_data = "raw_data",
+                    table_name_geoinfo = DB_DATA_TABLE_GEOINFO,
+                    table_name_raw_data = DB_DATA_TABLE_RAWDATA,
                 )
                 
                 create_update_modified_data_table(

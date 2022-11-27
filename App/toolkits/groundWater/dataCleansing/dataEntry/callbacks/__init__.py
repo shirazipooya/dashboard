@@ -457,3 +457,63 @@ def create_update_modified_data_table(
             if_exists='replace',
             index=False
         )
+
+
+def delete_table():    
+   
+    conn = psycopg2.connect(
+        database=POSTGRES_DB_DATA,
+        user=POSTGRES_USER_NAME,
+        password=POSTGRES_PASSWORD,
+        host=POSTGRES_HOST,
+        port=POSTGRES_PORT
+    )
+    
+    conn.autocommit = True
+    
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute(f"DROP TABLE {DB_DATA_TABLE_GEOINFO}")
+    except:
+        pass
+    try:
+        cursor.execute(f"DROP TABLE {DB_DATA_TABLE_RAWDATA}")
+    except:
+        pass
+    try:
+        cursor.execute(f"DROP TABLE {DB_DATA_TABLE_RAW_DATA_DELETED}")
+    except:
+        pass
+    try:
+        cursor.execute(f"DROP TABLE {DB_DATA_TABLE_RAW_DATA_MODIFIED}")
+    except:
+        pass
+    try:
+        cursor.execute(f"DROP TABLE {DB_DATA_TABLE_MODIFIEDDATA}")
+    except:
+        pass
+    try:
+        cursor.execute(f"DROP TABLE {DB_DATA_TABLE_INTERPOLATEDDATA}")
+    except:
+        pass
+    try:
+        cursor.execute(f"DROP TABLE {DB_DATA_TABLE_SYNCDATEDATA}")
+    except:
+        pass
+    try:
+        cursor.execute(f"DROP TABLE {DB_DATA_TABLE_DATA}")
+    except:
+        pass
+    try:
+        cursor.execute(f"DROP TABLE {DB_DATA_TABLE_HYDROGRAPH}")
+    except:
+        pass
+    try:
+        cursor.execute(f"DROP TABLE {DB_DATA_TABLE_TEMPORARY}")
+    except:
+        pass
+    
+    conn.commit()
+    
+    conn.close()
