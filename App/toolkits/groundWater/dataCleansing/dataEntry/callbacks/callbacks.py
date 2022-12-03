@@ -30,6 +30,18 @@ def toolkits__groundWater__dataCleansing__dataEntry__callbacks(app):
     )
     
     @app.callback(
+        Output("download_mashhad", "data"),
+        Input("btn_mashhad", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def download_mashhad_file(
+        n
+    ):
+        return dcc.send_file(
+            "./Assets/Files/KhorasanRazavi.zip"
+    )
+    
+    @app.callback(
         Output("CONTENT", "children"),
         Output('GEOINFO_TABLE_BUTTON', 'n_clicks'),
         Output('RAW_DATA_TABLE_BUTTON', 'n_clicks'),

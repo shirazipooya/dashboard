@@ -1,0 +1,24 @@
+{% extends '__base.html' %} {% block content %} {% include "form_errors.html" %}
+
+<div id="my-login-page" class="animate__animated animate__flipInX">
+  <div class="my-form">
+    <form class="register-form" action="" method="POST">
+      {{ form.csrf_token }}
+      <input
+        type="text"
+        placeholder="نام کاربری"
+        name="username"
+        id="username"
+      />
+      <input
+        type="password"
+        placeholder="رمز عبور"
+        name="password"
+        id="password"
+      />
+      <input type="submit" value="ورود" class="button login_btn_animate animate__animated animate__bounceInDown" />
+    </form>
+  </div>
+</div>
+
+{% endblock content %}

@@ -6,6 +6,10 @@ xlrd
 xlsxwriter
 geopandas
 Flask
+flask_login
+flask_wtf
+flask_sqlalchemy
+flask_bcrypt
 plotly
 dash
 dash-bootstrap-components
@@ -24,3 +28,4 @@ pyogrio
 rtree
 pyproj
 redis
+gunicorn

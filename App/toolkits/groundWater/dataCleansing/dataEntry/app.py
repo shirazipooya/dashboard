@@ -1,6 +1,7 @@
 import dash
 import dash_bootstrap_components as dbc
 from dash_extensions.enrich import DashProxy, MultiplexerTransform, LogTransform
+from flask_login.utils import login_required
 
 from .callbacks.callbacks import toolkits__groundWater__dataCleansing__dataEntry__callbacks
 from .layouts import layout
@@ -37,5 +38,11 @@ def toolkits__groundWater__dataCleansing__dataEntry(server):
     toolkits__groundWater__dataCleansing__dataEntry__app.layout = layout()
     
     toolkits__groundWater__dataCleansing__dataEntry__callbacks(app=toolkits__groundWater__dataCleansing__dataEntry__app)
+    
+    for view_function in toolkits__groundWater__dataCleansing__dataEntry__app.server.view_functions:
+        if view_function.startswith(toolkits__groundWater__dataCleansing__dataEntry__app.config.url_base_pathname):
+            toolkits__groundWater__dataCleansing__dataEntry__app.server.view_functions[view_function] = login_required(
+                toolkits__groundWater__dataCleansing__dataEntry__app.server.view_functions[view_function]
+            )
     
     return toolkits__groundWater__dataCleansing__dataEntry__app

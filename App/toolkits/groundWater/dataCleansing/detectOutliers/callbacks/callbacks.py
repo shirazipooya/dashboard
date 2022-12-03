@@ -272,57 +272,66 @@ def toolkits__groundWater__dataCleansing__detectOutliers__callbacks(app):
         Input('WELL_SELECT', 'value'),
     )
     def update_dropdown_list(study_area, aquifer, well):
-
-        if (study_area is not None and len(study_area) != 0) and\
-                (aquifer is None or len(aquifer) == 0) and\
-                    (well is not None and len(well) != 0):
-                        
-                        result = [
-                            no_update,
-                            [],
-                            []
-                        ]
-                        return result
-                    
-                    
-        elif (study_area is None or len(study_area) == 0) and\
-                (aquifer is not None and len(aquifer) != 0) and\
-                    (well is not None and len(well) != 0):
-                        
-                        result = [
-                            [],
-                            [],
-                            []
-                        ]
-                        return result
         
-        elif ((REDIS_DB.get('detectOutliers_studyArea') is not None) and (set(study_area) != set(json.loads(REDIS_DB.get('detectOutliers_studyArea').decode('utf-8'))))):
-                       
-            result = [
-                no_update,
-                [],
-                []
-            ]
-            return result
-        elif ((REDIS_DB.get('detectOutliers_aquifer') is not None) and (set(aquifer) != set(json.loads(REDIS_DB.get('detectOutliers_aquifer').decode('utf-8'))))):
+        try:
+
+            if (study_area is not None and len(study_area) != 0) and\
+                    (aquifer is None or len(aquifer) == 0) and\
+                        (well is not None and len(well) != 0):
+                            
+                            result = [
+                                no_update,
+                                [],
+                                []
+                            ]
+                            return result
+                        
+                        
+            elif (study_area is None or len(study_area) == 0) and\
+                    (aquifer is not None and len(aquifer) != 0) and\
+                        (well is not None and len(well) != 0):
+                            
+                            result = [
+                                [],
+                                [],
+                                []
+                            ]
+                            return result
             
-            result = [
-                no_update,
-                no_update,
-                []
-            ]
-            return result
+            elif ((REDIS_DB.get('detectOutliers_studyArea') is not None) and (set(study_area) != set(json.loads(REDIS_DB.get('detectOutliers_studyArea').decode('utf-8'))))):
+                        
+                result = [
+                    no_update,
+                    [],
+                    []
+                ]
+                return result
+            elif ((REDIS_DB.get('detectOutliers_aquifer') is not None) and (set(aquifer) != set(json.loads(REDIS_DB.get('detectOutliers_aquifer').decode('utf-8'))))):
+                
+                result = [
+                    no_update,
+                    no_update,
+                    []
+                ]
+                return result
+                
+                        
+            else:
+                
+                result = [
+                    no_update,
+                    no_update,
+                    no_update
+                ]
+                return result
+        except:
             
-                    
-        else:
-            
-            result = [
-                no_update,
-                no_update,
-                no_update
-            ]
-            return result
-    
+                result = [
+                    no_update,
+                    no_update,
+                    no_update
+                ]
+                return result
     
     
     @app.callback(

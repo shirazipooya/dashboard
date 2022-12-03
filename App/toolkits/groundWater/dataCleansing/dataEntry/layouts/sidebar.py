@@ -30,12 +30,27 @@ upload_file = html.Div(
             children=[
                 html.Div([
                     dbc.Button(
-                        "دانلود نمونه فایل ورودی",
+                        "دانلود الگوی فایل ورودی",
                         id="btn_xlsx",
                         color="link"
                     ),
                     dcc.Download(
                         id="download_xlsx"
+                    )
+                ])
+            ],
+        ),
+        html.Div(
+            className='pt-3 text-center',
+            children=[
+                html.Div([
+                    dbc.Button(
+                        "نمونه فایل‌های خراسان رضوی",
+                        id="btn_mashhad",
+                        color="link"
+                    ),
+                    dcc.Download(
+                        id="download_mashhad"
                     )
                 ])
             ],
