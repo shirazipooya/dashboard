@@ -1,6 +1,5 @@
 import os
 import json
-import swifter
 from persiantools.jdatetime import JalaliDate, JalaliDateTime
 import pandas as pd
 import numpy as np

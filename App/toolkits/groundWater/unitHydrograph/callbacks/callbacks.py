@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 import geopandas as gpd
 import psycopg2
-import swifter
 import statistics
 from geoalchemy2 import Geometry, WKTElement
 from dash import no_update, dcc, dash_table

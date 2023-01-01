@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 import geopandas as gpd
 import psycopg2
-import swifter
 from dash import no_update, dcc
 from dash.dependencies import Output, Input, State
 import plotly.graph_objects as go
