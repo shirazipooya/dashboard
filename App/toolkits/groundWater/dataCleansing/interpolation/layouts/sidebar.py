@@ -508,19 +508,19 @@ sidebar = html.Div(
                             children=[
                                 select_well
                             ],
-                            label="1- انتخاب چاه مشاهده‌ای",
+                            label="مرحله اول: انتخاب چاه مشاهده‌ای",
                         ),
                         dmc.AccordionItem(
                             children=[
                                 compare_methods
                             ],
-                            label="2- مقایسه روش‌های مختلف بازسازی",
+                            label="مرحله دوم: مقایسه روش‌های مختلف بازسازی",
                         ),
                         dmc.AccordionItem(
                             children=[
                                 save_interpolate_result
                             ],
-                            label="3- ذخیره داده‌های بازسازی شده",
+                            label="مرحله سوم: ذخیره داده‌های بازسازی شده",
                         ),
                         dmc.AccordionItem(
                             children=[
@@ -537,7 +537,7 @@ sidebar = html.Div(
                                     ],
                                 )
                             ],
-                            label="4- دانلود‌ داده‌های بازسازی شده",
+                            label="مرحله چهارم: دانلود‌ داده‌های بازسازی شده",
                         ),
                     ],
                 ),
