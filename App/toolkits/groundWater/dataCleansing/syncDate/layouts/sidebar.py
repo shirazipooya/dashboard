@@ -244,7 +244,7 @@ save_sync_date_result = html.Div(
                             dir='rtl', 
                             children=[
                                 html.I(className='fas fa-caret-left px-1'),
-                                'بازسازی داده‌های مفقودی برای:',
+                                'هماهنگ‌سازی تاریخ برای:',
                             ],
                             style={
                                 "font-size": "1rem",
@@ -310,19 +310,19 @@ sidebar = html.Div(
                             children=[
                                 select_well
                             ],
-                            label="1- انتخاب چاه مشاهده‌ای",
+                            label="مرحله اول- انتخاب چاه مشاهده‌ای",
                         ),
                         dmc.AccordionItem(
                             children=[
                                 compare_days
                             ],
-                            label="2- مقایسه روش‌های مختلف بازسازی",
+                            label="مرحله دوم- مقایسه روزهای مختلف",
                         ),
                         dmc.AccordionItem(
                             children=[
                                 save_sync_date_result
                             ],
-                            label="3- ذخیره داده‌های هماهنگ‌سازی شده",
+                            label="مرحله سوم- ذخیره داده‌های هماهنگ‌سازی شده",
                         ),
                         dmc.AccordionItem(
                             children=[
@@ -339,7 +339,7 @@ sidebar = html.Div(
                                     ],
                                 )
                             ],
-                            label="4- دانلود‌ داده‌های هماهنگ‌سازی شده",
+                            label="مرحله چهارم- دانلود‌ داده‌های هماهنگ‌سازی شده",
                         ),
                     ],
                 ),
