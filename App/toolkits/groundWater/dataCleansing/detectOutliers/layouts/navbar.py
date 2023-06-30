@@ -33,31 +33,41 @@ navbar = html.Nav(
                                     children=[
                                         html.A(
                                             className='nav-link navbar-brand link-hover text-white', 
-                                            children="آب زیرزمینی",
-                                            href='/groundwater',
+                                            children="پالایش و اصلاح داده‌ها",
+                                            href='/groundwater/datacleansing',
                                         )
                                     ]
                                 ),
-                                html.Li(
-                                    className='nav-item active', 
-                                    children=[
-                                        html.A(
-                                            className='disabled nav-link navbar-brand link-hover text-muted', 
-                                            children="آب سطحی",
-                                            href='/',
-                                        )
-                                    ]
-                                ),
-                                html.Li(
-                                    className='nav-item active', 
-                                    children=[
-                                        html.A(
-                                            className='disabled nav-link navbar-brand link-hover text-muted', 
-                                            children="پایش کیفی",
-                                            href='/',
-                                        )
-                                    ]
-                                ),
+                                # html.Li(
+                                #     className='nav-item active', 
+                                #     children=[
+                                #         html.A(
+                                #             className='nav-link navbar-brand link-hover text-white', 
+                                #             children="آب زیرزمینی",
+                                #             href='/groundwater',
+                                #         )
+                                #     ]
+                                # ),
+                                # html.Li(
+                                #     className='nav-item active', 
+                                #     children=[
+                                #         html.A(
+                                #             className='disabled nav-link navbar-brand link-hover text-muted', 
+                                #             children="آب سطحی",
+                                #             href='/',
+                                #         )
+                                #     ]
+                                # ),
+                                # html.Li(
+                                #     className='nav-item active', 
+                                #     children=[
+                                #         html.A(
+                                #             className='disabled nav-link navbar-brand link-hover text-muted', 
+                                #             children="پایش کیفی",
+                                #             href='/',
+                                #         )
+                                #     ]
+                                # ),
                                 dbc.DropdownMenu(
                                     children=[
                                         html.A(

@@ -9,7 +9,8 @@ from App.forms import RegistrationForm, LoginForm
 def home():
     session['username'] = current_user.username
     return render_template(
-        template_name_or_list="home.html"
+        # template_name_or_list="home.html"
+        template_name_or_list="groundwater.html"
     )
 
 
