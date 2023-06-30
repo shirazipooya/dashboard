@@ -281,58 +281,58 @@ def toolkits__groundWater__unitHydrograph__callbacks(app):
 
     
     
-    # -----------------------------------------------------------------------------
-    # CALLBACK: UPDATE DROPDOWN LIST
-    # -----------------------------------------------------------------------------
-    @app.callback(
-        Output('STUDY_AREA_SELECT', 'value'),
-        Output('AQUIFER_SELECT', 'value'),
-        Output('WELL_SELECT', 'value'),
-        Output('STORAGE_COEFFICIENT', 'value'),      
-        Input('STUDY_AREA_SELECT', 'value'),
-        Input('AQUIFER_SELECT', 'value'),
-        Input('WELL_SELECT', 'value'),
-        Input('STORAGE_COEFFICIENT', 'value'), 
-    )
-    def update_dropdown_list(
-        study_area, aquifer, well, sc
-    ):
-        if (study_area is not None and len(study_area) != 0) and\
-            (aquifer is None or len(aquifer) == 0) and\
-                (well is not None and len(well) != 0):
+    # # -----------------------------------------------------------------------------
+    # # CALLBACK: UPDATE DROPDOWN LIST
+    # # -----------------------------------------------------------------------------
+    # @app.callback(
+    #     Output('STUDY_AREA_SELECT', 'value'),
+    #     Output('AQUIFER_SELECT', 'value'),
+    #     Output('WELL_SELECT', 'value'),
+    #     Output('STORAGE_COEFFICIENT', 'value'),      
+    #     Input('STUDY_AREA_SELECT', 'value'),
+    #     Input('AQUIFER_SELECT', 'value'),
+    #     Input('WELL_SELECT', 'value'),
+    #     Input('STORAGE_COEFFICIENT', 'value'), 
+    # )
+    # def update_dropdown_list(
+    #     study_area, aquifer, well, sc
+    # ):
+    #     if (study_area is not None and len(study_area) != 0) and\
+    #         (aquifer is None or len(aquifer) == 0) and\
+    #             (well is not None and len(well) != 0):
             
-            result = [
-                no_update,
-                [],
-                [],
-                None
-            ]
+    #         result = [
+    #             no_update,
+    #             [],
+    #             [],
+    #             None
+    #         ]
             
-            return result
+    #         return result
         
-        elif (study_area is None or len(study_area) == 0) and\
-            (aquifer is not None and len(aquifer) != 0) and\
-                (well is not None and len(well) != 0):
+    #     elif (study_area is None or len(study_area) == 0) and\
+    #         (aquifer is not None and len(aquifer) != 0) and\
+    #             (well is not None and len(well) != 0):
             
-            result = [
-                [],
-                [],
-                [],
-                None
-            ]
+    #         result = [
+    #             [],
+    #             [],
+    #             [],
+    #             None
+    #         ]
             
-            return result
+    #         return result
         
-        else:
+    #     else:
             
-            result = [
-                no_update,
-                no_update,
-                no_update,
-                no_update,
-            ]
+    #         result = [
+    #             no_update,
+    #             no_update,
+    #             no_update,
+    #             no_update,
+    #         ]
             
-            return result
+    #         return result
 
 
     # -----------------------------------------------------------------------------

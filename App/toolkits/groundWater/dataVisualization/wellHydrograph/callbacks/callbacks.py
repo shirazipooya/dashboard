@@ -281,102 +281,102 @@ def toolkits__groundWater__dataVisualization__wellHydrograph__callbacks(app):
 
     
     
-    # -----------------------------------------------------------------------------
-    # CALLBACK: UPDATE DROPDOWN LIST
-    # -----------------------------------------------------------------------------
-    @app.callback(
-        Output('STUDY_AREA_SELECT', 'value'),
-        Output('AQUIFER_SELECT', 'value'),
-        Output('WELL_SELECT', 'value'),
-        Output('START_MONTH', 'value'),
-        Output("START_YEAR", "value"),
-        Output('END_MONTH', 'value'),
-        Output("END_YEAR", "value"),
-        Input('STUDY_AREA_SELECT', 'value'),
-        Input('AQUIFER_SELECT', 'value'),
-        Input('WELL_SELECT', 'value'),
-        Input('START_MONTH', 'value'),
-        Input("START_YEAR", "value"),
-        Input('END_MONTH', 'value'),
-        Input("END_YEAR", "value"),
-    )
-    def update_dropdown_list(
-        study_area, aquifer, well, s_m, s_y, e_m, e_y
-    ):
-        if (study_area is not None and len(study_area) != 0) and\
-            (aquifer is None or len(aquifer) == 0) and\
-                (well is not None and len(well) != 0):
+    # # -----------------------------------------------------------------------------
+    # # CALLBACK: UPDATE DROPDOWN LIST
+    # # -----------------------------------------------------------------------------
+    # @app.callback(
+    #     Output('STUDY_AREA_SELECT', 'value'),
+    #     Output('AQUIFER_SELECT', 'value'),
+    #     Output('WELL_SELECT', 'value'),
+    #     Output('START_MONTH', 'value'),
+    #     Output("START_YEAR", "value"),
+    #     Output('END_MONTH', 'value'),
+    #     Output("END_YEAR", "value"),
+    #     Input('STUDY_AREA_SELECT', 'value'),
+    #     Input('AQUIFER_SELECT', 'value'),
+    #     Input('WELL_SELECT', 'value'),
+    #     Input('START_MONTH', 'value'),
+    #     Input("START_YEAR", "value"),
+    #     Input('END_MONTH', 'value'),
+    #     Input("END_YEAR", "value"),
+    # )
+    # def update_dropdown_list(
+    #     study_area, aquifer, well, s_m, s_y, e_m, e_y
+    # ):
+    #     if (study_area is not None and len(study_area) != 0) and\
+    #         (aquifer is None or len(aquifer) == 0) and\
+    #             (well is not None and len(well) != 0):
                                 
-            result = [
-                no_update,
-                [],
-                [],
-                None,
-                None,
-                None,
-                None,
-            ]
+    #         result = [
+    #             no_update,
+    #             [],
+    #             [],
+    #             None,
+    #             None,
+    #             None,
+    #             None,
+    #         ]
             
-            return result
+    #         return result
         
-        elif (study_area is None or len(study_area) == 0) and\
-            (aquifer is not None and len(aquifer) != 0) and\
-                (well is not None and len(well) != 0):
+    #     elif (study_area is None or len(study_area) == 0) and\
+    #         (aquifer is not None and len(aquifer) != 0) and\
+    #             (well is not None and len(well) != 0):
                         
-            result = [
-                [],
-                [],
-                [],
-                None,
-                None,
-                None,
-                None,
-            ]
+    #         result = [
+    #             [],
+    #             [],
+    #             [],
+    #             None,
+    #             None,
+    #             None,
+    #             None,
+    #         ]
             
-            return result
+    #         return result
         
-        elif (study_area != REDIS_DB.get('wellHydrograph_studyArea').decode('utf-8')):
+    #     elif (study_area != REDIS_DB.get('wellHydrograph_studyArea').decode('utf-8')):
             
-            result = [
-                no_update,
-                [],
-                [],
-                None,
-                None,
-                None,
-                None,
-            ]
+    #         result = [
+    #             no_update,
+    #             [],
+    #             [],
+    #             None,
+    #             None,
+    #             None,
+    #             None,
+    #         ]
             
-            return result
+    #         return result
         
-        elif (aquifer != REDIS_DB.get('wellHydrograph_aquifer').decode('utf-8')):
+    #     elif (aquifer != REDIS_DB.get('wellHydrograph_aquifer').decode('utf-8')):
             
-            result = [
-                no_update,
-                no_update,
-                [],
-                None,
-                None,
-                None,
-                None,
-            ]
+    #         result = [
+    #             no_update,
+    #             no_update,
+    #             [],
+    #             None,
+    #             None,
+    #             None,
+    #             None,
+    #         ]
             
-            return result
+    #         return result
             
         
-        else:
+    #     else:
                         
-            result = [
-                no_update,
-                no_update,
-                no_update,
-                no_update,
-                no_update,
-                no_update,
-                no_update,
-            ]
+    #         result = [
+    #             no_update,
+    #             no_update,
+    #             no_update,
+    #             no_update,
+    #             no_update,
+    #             no_update,
+    #             no_update,
+    #         ]
             
-            return result
+    #         return result
 
 
     # -----------------------------------------------------------------------------
